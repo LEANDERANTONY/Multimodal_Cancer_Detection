@@ -1,0 +1,41 @@
+
+# Python cache
+ct_processed.zip
+upload_staging/
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Environment & config
+.env
+*.env
+
+# Data (keep structure but ignore files)
+data/*
+!data/.gitkeep
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Model weights & outputs
+*.pth
+*.pt
+*.h5
+*.ckpt
+*.onnx
+
+# Logs
+*.log
+
+# Figures cache
+figures/*.tmp
+

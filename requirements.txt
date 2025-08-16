@@ -1,0 +1,27 @@
+
+
+# Core
+numpy>=1.24.4,<1.26
+pandas>=1.5.3,<2.0
+scikit-learn==1.3.2
+matplotlib>=3.7.2,<3.9
+seaborn>=0.12.2,<0.14
+tqdm>=4.66
+
+# Medical imaging & IO
+SimpleITK>=2.3
+nibabel>=5.1.0,<5.2
+pydicom>=2.4
+pillow>=10.0.0,<11.0.0
+opencv-python>=4.8,<5.0
+
+# Imbalance & stats
+imbalanced-learn==0.11.0
+statsmodels>=0.14
+
+# Notebooks (VS Code Jupyter support)
+pywinpty==2.0.13
+notebook==7.0.8
+ipykernel>=6.29
+
+

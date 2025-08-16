@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-08-16T17:01:10",
+  "biomarkers": {
+    "n_samples": 590,
+    "n_features": 14,
+    "missing_strategy": "KNN (k=5) if >=10% missing, else mean imputation",
+    "normalized": "z-score applied",
+    "label_distribution": {
+      "2": 208,
+      "3": 199,
+      "1": 183
+    }
+  },
+  "figures": {
+    "diagnosis_counts": "c:\\Users\\Leander Antony A\\Documents\\Projects\\Multimodal_Cancer_Detection\\figures\\biomarker_preprocess\\01_diagnosis_counts.png",
+    "feature_distributions": "c:\\Users\\Leander Antony A\\Documents\\Projects\\Multimodal_Cancer_Detection\\figures\\biomarker_preprocess\\03_biomarker_histograms_grid.png",
+    "correlation_heatmap": "c:\\Users\\Leander Antony A\\Documents\\Projects\\Multimodal_Cancer_Detection\\figures\\biomarker_preprocess\\06_corr_overall.png"
+  }
+}

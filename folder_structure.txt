@@ -1,0 +1,104 @@
+multimodal-pancreatic-cancer-detection/
+├─ README.md
+├─ .gitignore
+├─ .env.example
+├─ requirements.txt
+├─ LICENSE
+│
+├─ docs/
+│  ├─ timeline.md
+│  ├─ architectural_decision_records/
+│  │  ├─ ADR-001.md          # Scope changes vs RP
+│  │  └─ ADR-002.md          # Attention + Contrastive additions
+│  └─ figures-guide.md       # (optional) figure list & captions
+│
+├─ data/                     # (gitignored except .gitkeep)
+│  ├─ raw/                   # raw_ct/, raw_biomarkers/ live here locally
+│  └─ processed/
+│     ├─ ct/                 # preprocessed CT slices/crops
+│     └─ urine/              # cleaned/imputed tables
+│  └─ .gitkeep
+│
+├─ embeddings/               # exported penultimate features (small, can be committed)
+│  ├─ ct_embeddings_fold0.parquet
+│  ├─ urine_embeddings_fold0.parquet
+│  └─ ...
+│
+├─ synthetic_pairs/          # CV-aware paired datasets for fusion
+│  ├─ fold_0/
+│  │  ├─ train.parquet
+│  │  ├─ val.parquet
+│  │  ├─ test.parquet
+│  │  └─ metadata.json
+│  └─ ...
+│
+├─ results/
+│  ├─ metrics/               # per-run CSVs; master_table.csv
+│  ├─ ablations/
+│  └─ logs/                  # training/eval logs
+│
+├─ figures/
+│  ├─ attention/
+│  │  ├─ attn_matrix_mean.png
+│  │  └─ val_attn_2x2.npy
+│  ├─ gradcam/
+│  ├─ shap/
+│  └─ plots/                 # bars, ROC, risk-coverage, etc.
+│
+├─ notebooks/                # analysis + reproducible experiments
+│  ├─ 01_ct_yolo_train.ipynb
+│  ├─ 02_ct_classifier_train.ipynb
+│  ├─ 03_urine_mlp_train.ipynb
+│  ├─ 04_export_embeddings.ipynb
+│  ├─ 05_make_synth_pairs.ipynb
+│  ├─ 06_fusion_late.ipynb
+│  ├─ 07_fusion_early_concat.ipynb
+│  ├─ 08_fusion_orthogonal.ipynb
+│  ├─ 09_fusion_attention.ipynb
+│  └─ 10_contrastive_pretrain.ipynb
+│
+├─ src/                      # importable, scriptable code
+│  ├─ data/
+│  │  ├─ preprocess_ct.py
+│  │  ├─ preprocess_urine.py
+│  │  └─ pairing.py          # hot-deck pairing + checks
+│  ├─ models/
+│  │  ├─ ct_classifier.py
+│  │  ├─ urine_mlp.py
+│  │  └─ yolo_infer.py
+│  ├─ fusion/
+│  │  ├─ late.py             # weighted avg + stacking
+│  │  ├─ early_concat.py
+│  │  ├─ orthogonal.py
+│  │  ├─ attention_head.py   # 2-token transformer
+│  │  ├─ contrastive.py      # InfoNCE pre-align
+│  │  └─ fedavg_trainer.py   # simulated federated
+│  ├─ interpretability/
+│  │  ├─ gradcam.py
+│  │  └─ shap_utils.py
+│  ├─ uncertainty/
+│  │  └─ calibration.py      # MC Dropout, temp scaling, ECE
+│  ├─ utils/
+│  │  ├─ metrics.py
+│  │  ├─ seed.py
+│  │  └─ io.py               # parquet/csv helpers
+│  └─ cli/                   # optional: runnable entrypoints
+│     ├─ export_embeddings.py
+│     ├─ run_fusion.py
+│     └─ plot_attention.py
+│
+├─ configs/                  # YAML/JSON configs for runs
+│  ├─ ct.yaml
+│  ├─ urine.yaml
+│  └─ fusion.yaml
+│
+├─ api/                      # optional industry polish
+│  ├─ app.py                 # FastAPI /predict
+│  └─ docker/
+│     ├─ Dockerfile
+│     └─ start.sh
+│
+└─ models/                   # (optional) trained weights/checkpoints (gitignored)
+   ├─ ct/
+   ├─ urine/
+   └─ fusion/

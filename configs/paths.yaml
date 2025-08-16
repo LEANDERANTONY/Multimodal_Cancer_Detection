@@ -1,0 +1,7 @@
+
+# Update these if you keep data elsewhere
+raw_ct_dir: data/raw/ct
+processed_ct_dir: data/processed/ct
+raw_biomarkers_dir: data/raw/biomarkers
+processed_biomarkers_dir: data/processed/biomarkers
+figures_dir: figures

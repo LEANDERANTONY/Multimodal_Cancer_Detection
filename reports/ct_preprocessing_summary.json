@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-08-16T17:15:20",
+  "full": {
+    "n_slices": 24627,
+    "label_counts": {
+      "control": 18942,
+      "cancer": 5685
+    },
+    "patients_per_class": {
+      "cancer": 40,
+      "control": 80
+    }
+  },
+  "clean": {
+    "n_slices": 23319,
+    "label_counts": {
+      "control": 17749,
+      "cancer": 5570
+    },
+    "patients_per_class": {
+      "cancer": 40,
+      "control": 80
+    },
+    "unique_modes_sizes": [
+      {
+        "mode": "L",
+        "size": [
+          224,
+          224
+        ]
+      }
+    ]
+  },
+  "drops": {
+    "count": 1308
+  },
+  "figures": {
+    "cancer_grid": "figures\\ct_preprocess\\example_cancer_grid.png",
+    "control_grid": "figures\\ct_preprocess\\example_control_grid.png",
+    "slice_distribution_boxplot": "figures\\ct_preprocess\\slice_distribution_boxplot.png"
+  }
+}
