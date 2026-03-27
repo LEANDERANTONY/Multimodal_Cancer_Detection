@@ -1,198 +1,80 @@
-# Project Timeline — Multimodal Pancreatic Cancer Detection
-**Window:** Aug 10 – Sept 15, 2025  
-**Owner:** Leander Antony A  
-**Compute:** Local CPU + Google Colab Pro (GPU)
+# Project Timeline
 
----
+This document now serves as a historical-and-current timeline for the repository.
 
-## Assumptions
-- CT data and urine CSV are available locally (raw not pushed to GitHub).
-- CT heavy training runs on Colab Pro; urine + fusion on local.
-- Workload target: ~4–6 hrs on weekdays, ~2–3 hrs weekends (Colab can run longer unattended).
+It is not a forward-looking daily execution plan anymore. For current priorities, use:
 
----
+- `ROADMAP.md`
+- `DEVLOG.md`
+- `project_strategy.md`
 
-## Milestones Overview
-1) Unimodal CT (YOLO ROI + CNN) ✅ baseline  
-2) Unimodal Urine (MLP) ✅ baseline  
-3) Embeddings exported (CT 256D, Urine 32D)  
-4) Synthetic pairing (CV-aware, stratified)  
-5) Fusion bake-off: Late / Early Concat / Orthogonal  
-6) Cross-modal Attention fusion + Attention maps  
-7) Contrastive pre-alignment (InfoNCE) ablation  
-8) Uncertainty + Calibration (MC Dropout + Temp Scaling)  
-9) Federated simulation (FedAvg over folds)  
-10) Docs, Figures, Thesis, Slides, Video
+## 2025 Thesis Execution Phase
 
----
+The project originally ran as a notebook-first thesis workflow centered on:
 
-## Day-by-Day Plan
+- CT classification experiments
+- urinary biomarker modelling
+- exploratory multimodal fusion
+- thesis figures, tables, and presentation outputs
 
-### Aug 10–12 (Sun–Tue) — Lock Unimodal Baselines
-**CT (Colab):** Train YOLOv8 ROI → CT classifier; export per-patient scores + **CT embeddings (256D)**  
-**Urine (Local):** Preprocess (impute/scale) → train **MLP (5-fold)** → **Urine embeddings (32D)**  
-**Deliverables:**  
-- `embeddings/ct_embeddings_fold{k}.parquet`  
-- `embeddings/urine_embeddings_fold{k}.parquet`  
-- Baseline CT/Urine metrics table
+Important practical constraints during that phase:
 
-### Aug 13 (Wed) — Synthetic Pairing
-**Task:** CV-aware **stratified hot-deck** pairing (by label; add age/sex bins if available), R=3 seeds/fold  
-**Deliverables:**  
-- `synthetic_pairs/fold_k/{train,val,test}.parquet`, `metadata.json`  
-- Pairing sanity report (class balance, KS test)
+- CT and biomarker datasets were not patient-paired
+- CT-heavy work depended on Google Colab GPU usage
+- much of the implementation lived in evolving notebooks and local folders rather than a stable GitHub-tracked repo
 
-### Aug 14–16 (Thu–Sat) — Fusion v1 (Late, Early, Orthogonal)
-**Tasks:**  
-- Late fusion (weight sweep + logistic stacking)  
-- Early concat (freeze encoders; light fine-tune last epochs)  
-- Orthogonal fusion (λ ∈ {0, 1e-4, 5e-4, 1e-3})  
-**Deliverables:** Fusion metrics, bar chart, brief ablation notes
+That phase produced the core experiment logic, many of the tracked figures and reports, and the thesis-oriented analysis direction that still shapes the repository.
 
-### Aug 17 (Sun) — Cross-Modal Attention (v0)
-**Task:** Train **2-token attention head** on embeddings (small grid for d_model/layers)  
-**Deliverable:** Initial attention fusion metrics
+## Early 2026 Repository Consolidation Phase
 
-### Aug 18–19 (Mon–Tue) — Attention Maps
-**Tasks:**  
-- Extract & average **CT↔Urine attention matrices** over validation  
-- (Optional) Spatial cross-attention overlay on ROI for 1–2 cases  
-**Deliverables:**  
-- `figures/attention/attn_matrix_mean.png` (+ optional spatial overlay)  
-- Short interpretation notes
+The next major phase was repository stabilization.
 
-### Aug 20 (Wed) — Contrastive Pre-Alignment
-**Task:** **InfoNCE** pretrain with multiple random pairings; re-run Early/Orthogonal/Attention  
-**Deliverables:** Table: w/ vs w/o contrastive; stability comment
+Key outcomes:
 
-### Aug 21 (Thu) — Uncertainty & Calibration
-**Tasks:**  
-- **MC Dropout (T=30)**; **Temperature Scaling** on val  
-- ECE, predictive entropy, risk–coverage curves  
-**Deliverables:** `figures/uncertainty/ece_curve.png`, `risk_coverage.png`, metrics updated
+- the GitHub-tracked repo under `Documents/Projects/Multimodal_Cancer_Detection` became the long-term working repo
+- the latest practical notebook, reports, and figures were merged into that repo
+- the modular scaffold under `src/`, `configs/`, `docs/`, and `results/` was preserved
+- stale/generated folders were removed from the tracked working tree
+- `.gitignore` was tightened so raw data, processed assets, models, embeddings, thesis files, and similar heavy local files remain out of Git
 
-### Aug 22 (Fri) — Federated (Sim)
-**Task:** Treat 5 CV folds as clients; run **FedAvg** on fusion head (embeddings)  
-**Deliverable:** Table: centralized vs FedAvg; 2–3 discussion bullets
+## 2026 Modularization Phase
 
-### Aug 23–24 (Sat–Sun) — Baselines & Ablations Cleanup
-**Tasks:**  
-- CT **with vs without** ROI (lift)  
-- **Modality dropout** at inference (robustness)  
-- **Noise** on urine (+5–10%)  
-- 95% CI on key metrics  
-**Deliverables:** Ablation table + 2 plots
+After consolidation, the active focus shifted from merging files to improving structure.
 
-### Aug 25–27 (Mon–Wed) — Figures & Documentation
-**Tasks:**  
-- **Grad-CAM** panels (CT ROI)  
-- **SHAP/perm importance** (urine)  
-- README updates: **Fusion Interface**, **Uncertainty**, **Federated**, **Figures**  
-- ADR updates: **ADR-001**, **ADR-002 (Attention & Contrastive Additions)**  
-**Deliverables:** Polished figures under `figures/` + updated docs
+Major milestones:
 
-### Aug 28–31 (Thu–Sun) — Thesis Writing Sprint #1
-**Tasks:** Methods, Results, Discussion drafts (synthetic justification, transferability, limits, future work)  
-**Deliverable:** Draft manuscript with figure placeholders
+- migration from `requirements.txt` to `uv`
+- clean `.venv` rebuild from `pyproject.toml` and `uv.lock`
+- extraction of reusable helpers into:
+  - `src/utils/`
+  - `src/data/`
+  - `src/models/`
+  - `src/fusion/`
+  - `src/interpretability/`
+  - `src/results/`
+- notebook refactors so the main notebook imports shared code for core CT, biomarker, fusion, and reporting sections
 
-### Sept 1–3 (Mon–Wed) — Industry Polish (Optional but High ROI)
-**Tasks:**  
-- **Dockerfile** for inference (embeddings)  
-- **FastAPI** endpoint `/predict` (calibrated prob + uncertainty)  
-- Optional Streamlit demo screenshot for README  
-**Deliverables:** `Dockerfile`, `api/app.py`, demo image
+## Current Phase
 
-### Sept 4–6 (Thu–Sat) — Thesis Writing Sprint #2
-**Tasks:**  
-- Strengthen novelty (attention + contrastive) & deployment considerations (size, latency)  
-- Incorporate calibration & federated results into discussion  
-**Deliverables:** Near-final thesis text
+The project is currently in a hybrid but much healthier state:
 
-### Sept 7–9 (Sun–Tue) — Final Tables & Figures
-**Tasks:**  
-- Lock seeds; re-run flaky folds; export **final CSVs**  
-- Generate **master results table** + high-res PNG/PDF figures with captions  
-**Deliverables:** `results/` finalized
+- the notebook remains the main research narrative
+- stable reusable logic is moving into `src/`
+- tracked reports and figures capture the latest lightweight outputs
+- heavy assets remain local-only
 
-### Sept 10–11 (Wed–Thu) — Slides & Script
-**Tasks:**  
-- Build presentation: Problem → Data → Pipelines → Fusion bake-off → Attention maps → Uncertainty → FedAvg → Results → Limits → Future  
-- Add 2–3 slides on **clinical workflow integration**  
-**Deliverables:** `reports/slides.pptx` (or Google Slides)
+Current emphasis:
 
-### Sept 12–13 (Fri–Sat) — Video & Rehearsal
-**Tasks:**  
-- Record **10–12 min** video (screen + voice)  
-- Rehearse Q&A (synthetic justification, novelty, deployment, ethics)  
-**Deliverables:** Final video + talking points
+- finish the notebook-to-module refactor for remaining exploratory helpers
+- improve reproducibility and test coverage
+- keep docs aligned with the actual repo state
 
-### Sept 14 (Sun) — Buffer Day
-**Task:** Minor fixes; proofread; reference checks; repo sanity check
+## Historical Note
 
-### Sept 15 (Mon) — Presentation Day
-**Task:** Upload final materials; present 🚀
+Some older planning assumptions no longer reflect the maintained repository exactly, especially:
 
----
+- future-facing ideas that were never fully implemented
+- infrastructure concepts like deployment-oriented APIs
+- day-by-day scheduling targets from the thesis execution window
 
-## Progress Checklist
-> Tick as you go; add dates for traceability.
-
-### Data & Unimodal
-- [ ] CT YOLO ROI trained and inferred on slices
-- [ ] CT classifier trained; patient-level scores exported
-- [ ] CT embeddings (256D) saved per fold
-- [ ] Urine preprocessing complete (impute/scale)
-- [ ] Urine MLP (5-fold) trained; embeddings (32D) saved
-
-### Synthetic Pairs
-- [ ] CV-aware stratified pairing implemented
-- [ ] R=3 resamples per fold saved
-- [ ] Pairing sanity report (balance + KS) saved
-
-### Fusion v1
-- [ ] Late fusion (weights + logistic stacking) results saved
-- [ ] Early concat head results saved
-- [ ] Orthogonal fusion (λ sweep) results saved
-
-### Attention & Contrastive
-- [ ] Attention fusion head trained
-- [ ] Attention maps generated & saved
-- [ ] Contrastive pre-alignment trained
-- [ ] Fusion heads re-run with contrastive embeddings
-
-### Uncertainty & Federated
-- [ ] MC Dropout + Temp Scaling implemented
-- [ ] ECE + risk–coverage plots saved
-- [ ] Federated (FedAvg) run vs centralized comparison
-
-### Ablations
-- [ ] CT with/without ROI comparison
-- [ ] Modality dropout robustness
-- [ ] Urine noise robustness
-- [ ] 95% CI added to key metrics
-
-### Figures & Docs
-- [ ] Grad-CAM (CT) figures saved
-- [ ] SHAP/Permutation (urine) figures saved
-- [ ] README updated (Fusion Interface, Uncertainty, Federated, Figures)
-- [ ] ADR-001 and ADR-002 updated/added
-
-### Delivery
-- [ ] Final results CSVs & master table exported
-- [ ] Thesis manuscript finalized
-- [ ] Slides deck completed
-- [ ] Presentation video recorded
-
----
-
-## Risks & Fallbacks
-- **YOLO ROI slow:** Use pretrained or heuristic pancreas masks to produce ROI crops; still run ROI vs no-ROI ablation.  
-- **Attention head underperforms:** Keep as negative result with analysis; rely on late/early/orthogonal for headline gains.  
-- **Contrastive unstable:** Report as ablation; document seeds & stability.  
-- **Federated slips:** Keep design description; run small 2-client simulation.
-
----
-
-## Notes
-- All fusion experiments operate on **embeddings**, keeping GPU demand low.  
-- Synthetic fusion results are labeled **simulation**; the architecture is designed to be **drop-in** replaceable once real paired datasets are available.  
+Those historical ideas still matter as context, but they should not be treated as the current source of truth for the repo.

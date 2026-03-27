@@ -1,146 +1,94 @@
 # Multimodal Pancreatic Cancer Detection
 
-This repository is the GitHub-tracked working project for a pancreatic cancer detection study that combines CT imaging and urine biomarker modelling. The project is currently in a hybrid state:
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-- The modular repo scaffold is preserved in `src/`, `configs/`, `docs/`, and `results/`.
-- The latest end-to-end experimentation lives in `notebooks/01_multimodal_cancer_detection.ipynb`.
-- Curated reports and publication-ready figures are tracked in `reports/` and `figures/`.
-- Raw data, processed datasets, model weights, embeddings, and thesis assets remain local-only and are intentionally ignored by Git.
+Multimodal Pancreatic Cancer Detection is a bias-aware research repository for pancreatic cancer detection using CT imaging and urinary biomarkers. The implemented workflow combines bias-aware CT preprocessing, ResNet50-based CT classification, a seven-feature biomarker MLP, and exploratory multimodal fusion under synthetic pairing constraints.
 
-The immediate next step after stabilizing this snapshot is to refactor reusable notebook logic back into `src/` so the notebook becomes orchestration and analysis rather than the only implementation surface.
+## What It Does
 
-## Repository Status
+- detects and mitigates cross-dataset shortcut risk in CT slices before CT model training
+- trains a ResNet50 CT classifier with slice-level and patient-level evaluation
+- trains a urinary biomarker MLP on the seven-feature panel used in the dissertation
+- evaluates decision-level and feature-level fusion with multi-seed repeats and label-mismatch controls
+- exports tracked summaries, comparison tables, and curated figures for thesis and research reporting
 
-This repo is being actively consolidated from a newer local working copy. Expect a mix of:
+## Research Flow
 
-- reusable preprocessing code under `src/data/preprocess/`
-- analysis outputs and final summaries under `reports/`
-- curated visual artifacts under `figures/`
-- one primary notebook that captures the latest full experimental flow
+1. Prepare CT and biomarker inputs with the preprocessing scripts and notebook setup cells.
+2. Run CT bias checks and iterative mitigation.
+3. Apply orientation correction, body segmentation, and cropping for CT slices.
+4. Train and evaluate the CT ResNet50 model.
+5. Train and evaluate the biomarker MLP.
+6. Run exploratory fusion experiments with negative controls.
+7. Export final summaries, comparison tables, and figures.
 
-If you are looking for the most up-to-date experiment narrative, start with:
+## Visual Snapshot
 
-- `notebooks/01_multimodal_cancer_detection.ipynb`
-- `reports/final_summary.json`
-- `reports/final_model_comparison.csv`
+### Bias Mitigation Diagnostic
 
-## Current Pipeline Snapshot
+![Dataset bias check](figures/dataset_bias_check.png)
 
-The main notebook currently covers:
+### Comparative Model Summary
 
-1. Setup, data loading, and preprocessing
-2. Dataset bias checks and unsupervised structure analysis
-3. CT classification experiments
-4. Biomarker MLP experiments
-5. Exploratory multimodal fusion
-6. Final summary and export
-
-The tracked preprocessing scripts currently available in the modular codebase are:
-
-- `src/data/preprocess/ct_preprocess.py`
-- `src/data/preprocess/biomarker_preprocess.py`
+![Final model comparison](figures/final_model_comparison.png)
 
 ## Result Snapshot
 
-The latest exported summary in `reports/final_summary.json` reports:
+The latest tracked summary in `reports/final_summary.json` reports:
 
 - CT model: ResNet50 (global)
 - CT slice-level AUC: 0.9999
 - CT patient-level AUC: 1.0000
 - Biomarker model: MLP (64-32)
 - Biomarker test AUC: 0.9439
-- Fusion note: fusion experiments are exploratory because synthetic pairing was used across different patient cohorts
 
-These numbers should be interpreted as experiment outputs from the current working pipeline, not as clinically validated deployment metrics.
+Those numbers should be read carefully:
 
-## Project Layout
+- the biomarker branch is the clearest reproducible positive result in the project
+- the CT branch is strong but still scientifically ambiguous because residual domain structure may persist in deep features
+- fusion remains exploratory because CT and biomarker cohorts are not patient-paired
 
-```text
-Multimodal_Cancer_Detection/
-|-- configs/
-|   `-- paths.yaml
-|-- data/
-|   |-- .gitkeep
-|   `-- raw/
-|       `-- .gitkeep
-|-- docs/
-|   |-- architectural_decision_records/
-|   |-- figures-guide.md
-|   |-- LICENSE_Pancreatic_CT_Cancer.txt
-|   |-- LICENSE_Pancreatic_CT_Control.txt
-|   `-- timeline.md
-|-- figures/
-|   `-- curated tracked PNG outputs
-|-- notebooks/
-|   `-- 01_multimodal_cancer_detection.ipynb
-|-- reports/
-|   `-- curated tracked CSV and JSON outputs
-|-- results/
-|-- src/
-|   |-- cli/
-|   |-- data/
-|   |   `-- preprocess/
-|   |-- fusion/
-|   |-- interpretability/
-|   |-- models/
-|   |-- uncertainty/
-|   `-- utils/
-|-- tools/
-|   `-- helper scripts for notebook/report maintenance
-|-- requirements.txt
-`-- README.md
-```
+## Current Repo State
 
-## Local-Only Assets
+The repository is in a hybrid but stable research state:
 
-The following paths are intentionally ignored and should stay local unless there is a deliberate change in repo policy:
+- the latest full experiment flow lives in `notebooks/01_multimodal_cancer_detection.ipynb`
+- reusable code is being moved into `src/`
+- curated reports and publication-ready figures are tracked in `reports/` and `figures/`
+- raw data, processed datasets, checkpoints, embeddings, and thesis assets remain local-only and ignored by Git
 
-- `data/raw/`
-- `data/processed/`
-- `models/`
-- `embeddings/`
-- `thesis/`
-- local archive/video files
-- temporary staging or Drive-sync folders
+If you want the current experiment narrative first, start with:
 
-That split keeps the GitHub repo focused on code, lightweight configuration, curated outputs, and documentation.
+- `notebooks/01_multimodal_cancer_detection.ipynb`
+- `reports/final_summary.json`
+- `reports/final_model_comparison.csv`
 
 ## Setup
 
-Create a virtual environment and install the current baseline dependencies:
+This repo uses `uv` for environment and dependency management.
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+uv sync
 ```
 
-Note: `requirements.txt` is a baseline file and is expected to be refreshed after the repo refactor and environment rebuild.
+That command will create or update `.venv` from:
 
-## Data Paths
+- `pyproject.toml`
+- `uv.lock`
+- `.python-version`
 
-The current path configuration is in `configs/paths.yaml`:
-
-```yaml
-raw_ct_dir: data/raw/ct
-processed_ct_dir: data/processed/ct
-raw_biomarkers_dir: data/raw/biomarkers
-processed_biomarkers_dir: data/processed/biomarkers
-figures_dir: figures
-```
-
-Place local datasets under the ignored `data/raw/` tree using those conventions.
-
-## Running What Exists Today
-
-### Preprocessing scripts
+Typical commands:
 
 ```powershell
-python src/data/preprocess/ct_preprocess.py
-python src/data/preprocess/biomarker_preprocess.py
+uv run python -m ipykernel install --user --name multimodal-cancer-detection
+uv run python src/data/preprocess/ct_preprocess.py
+uv run python src/data/preprocess/biomarker_preprocess.py
+uv run pytest
 ```
 
-### Main experiment notebook
+## Running The Project
+
+### Main notebook
 
 Open and run:
 
@@ -150,40 +98,72 @@ notebooks/01_multimodal_cancer_detection.ipynb
 
 This notebook is currently the main source of truth for the complete multimodal workflow.
 
-## Tracked Outputs
+### Preprocessing scripts
 
-Examples of tracked artifacts already in the repo:
+- `src/data/preprocess/ct_preprocess.py`
+- `src/data/preprocess/biomarker_preprocess.py`
 
-- CT model summaries and predictions in `reports/ct_*.json` and `reports/ct_*.csv`
-- fusion experiment summaries in `reports/fusion_*.csv` and `reports/fusion_*.json`
-- final comparison tables in `reports/final_model_comparison.csv` and `reports/final_summary.json`
-- curated plots and Grad-CAM style outputs in `figures/`
+The maintained implementation is not a YOLO-plus-ResNet pipeline. The dissertation-aligned workflow in this repo uses bias-aware preprocessing, segmentation/cropping, and ResNet50-based CT classification.
+
+## Testing
+
+The repo includes a lightweight pytest suite for stable helper modules.
+
+Current coverage focuses on:
+
+- project/path utilities
+- decision-level fusion helpers
+- final summary and report-table helpers
+
+Run:
+
+```powershell
+uv run pytest
+```
+
+## Project Layout
+
+```text
+Multimodal_Cancer_Detection/
+|-- configs/
+|   `-- paths.yaml
+|-- docs/
+|-- figures/
+|-- notebooks/
+|-- reports/
+|-- results/
+|-- src/
+|-- tests/
+|-- pyproject.toml
+|-- uv.lock
+`-- README.md
+```
 
 ## Documentation
 
 Supporting project documentation lives in:
 
+- `docs/architecture.md`
+- `project_strategy.md`
+- `ROADMAP.md`
+- `DEVLOG.md`
 - `docs/timeline.md`
+- `docs/figures-guide.md`
+- `docs/architectural_decision_records/README.md`
 - `docs/architectural_decision_records/ADR-001.md`
 - `docs/architectural_decision_records/ADR-002.md`
 
-Some documentation files are placeholders and will be filled in as the consolidation continues.
+## Local-Only Assets
 
-## Known Gaps
+The following paths are intentionally ignored and should remain local unless repo policy changes deliberately:
 
-- The repo is mid-consolidation from a newer local working copy.
-- The main notebook still contains logic that should be moved into `src/`.
-- `requirements.txt` has not yet been rebuilt from the final environment.
-- Some docs and helper files are placeholders and need completion.
-- Curated figures and reports are tracked, but bulk intermediate artifacts remain intentionally local.
-
-## Next Planned Cleanup
-
-1. Finalize the first consolidation commit.
-2. Push the stabilized hybrid snapshot to GitHub.
-3. Refactor reusable notebook code into modules under `src/`.
-4. Rebuild `.venv` in this repo and refresh `requirements.txt`.
-5. Tighten README usage examples around the refactored module entry points.
+- `data/raw/`
+- `data/processed/`
+- `models/`
+- `embeddings/`
+- `thesis/`
+- local archive/video files
+- temporary staging or Drive-sync folders
 
 ## License
 

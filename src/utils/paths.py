@@ -1,10 +1,24 @@
+from __future__ import annotations
 
-import os, yaml
+from pathlib import Path
 
-def load_paths(cfg_path='configs/paths.yaml'):
-    with open(cfg_path, 'r') as f:
-        cfg = yaml.safe_load(f)
-    for k, v in cfg.items():
-        cfg[k] = os.path.abspath(v)
-        os.makedirs(cfg[k], exist_ok=True)
-    return cfg
+import yaml
+
+from .project import build_project_paths
+
+
+def load_paths(cfg_path: str | Path = "configs/paths.yaml", make_dirs: bool = True) -> dict[str, str]:
+    cfg_file = Path(cfg_path)
+    with cfg_file.open("r", encoding="utf-8") as handle:
+        config = yaml.safe_load(handle) or {}
+
+    project = build_project_paths(cfg_file.resolve().parents[1])
+    resolved: dict[str, str] = {}
+    for key, value in config.items():
+        path = Path(value)
+        if not path.is_absolute():
+            path = project.project_root / path
+        if make_dirs:
+            path.mkdir(parents=True, exist_ok=True)
+        resolved[key] = str(path.resolve())
+    return resolved
