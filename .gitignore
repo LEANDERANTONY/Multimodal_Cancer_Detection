@@ -1,41 +1,78 @@
 
 # Python cache
-ct_processed.zip
-upload_staging/
 __pycache__/
 *.py[cod]
 *.so
 
-# Virtual environment
+# Virtual environments
 .venv/
 env/
 venv/
 
-# Environment & config
+# Environment & local config
 .env
 *.env
 
-# Data (keep structure but ignore files)
-data/*
-!data/.gitkeep
-
-# Jupyter notebook checkpoints
+# Jupyter checkpoints
 .ipynb_checkpoints/
 
 # OS-specific files
 .DS_Store
 Thumbs.db
 
-# Model weights & outputs
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+~$*
+
+# Large model artifacts
 *.pth
 *.pt
 *.h5
 *.ckpt
 *.onnx
+models/**
+!models/.gitkeep
+embeddings/**
+!embeddings/.gitkeep
 
-# Logs
-*.log
+# Local upload / staging
+upload_staging/
+drive_project/
 
-# Figures cache
-figures/*.tmp
+# Raw and processed data stay local
+data/*
+!data/.gitkeep
+!data/raw/
+data/raw/*
+!data/raw/.gitkeep
+!data/processed/
+data/processed/*
+!data/processed/.gitkeep
 
+# Bulky generated result bundles and archives
+*.zip
+*.mp4
+
+# Thesis / dissertation assets stay local
+thesis/**
+VideoPresentation_CodeFile_Dataset/
+
+# Root-level local documents not meant for GitHub
+CT_Project_Consolidated_Progress_Feb2026.pdf
+CT_Project_Consolidated_Progress_Feb2026.txt
+chapter_1.txt
+chapter_2.txt
+chapter_3.txt
+dissertation_writing_instruction.txt
+
+# Keep only curated GitHub-safe figures and reports
+figures/visual_audit/
+figures/body_segmentation_filtered/
+figures/body_segmentation_examples_filtered.png
+figures/Screenshot *.png
+
+# Tooling outputs should remain local
+tools/_*.txt
+tools/_*.json

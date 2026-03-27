@@ -12,8 +12,8 @@
     }
   },
   "figures": {
-    "diagnosis_counts": "c:\\Users\\Leander Antony A\\Documents\\Projects\\Multimodal_Cancer_Detection\\figures\\biomarker_preprocess\\01_diagnosis_counts.png",
-    "feature_distributions": "c:\\Users\\Leander Antony A\\Documents\\Projects\\Multimodal_Cancer_Detection\\figures\\biomarker_preprocess\\03_biomarker_histograms_grid.png",
-    "correlation_heatmap": "c:\\Users\\Leander Antony A\\Documents\\Projects\\Multimodal_Cancer_Detection\\figures\\biomarker_preprocess\\06_corr_overall.png"
+    "diagnosis_counts": "figures/biomarker_preprocess/01_diagnosis_counts.png",
+    "feature_distributions": "figures/biomarker_preprocess/03_biomarker_histograms_grid.png",
+    "correlation_heatmap": "figures/biomarker_preprocess/06_corr_overall.png"
   }
 }

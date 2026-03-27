@@ -1,0 +1,11 @@
+auc,acc,f1,n,seed,pairing
+1.0,1.0,1.0,118,42,label-matched
+1.0,0.9722222222222222,0.9795918367346939,118,42,label-mismatch (control)
+1.0,1.0,1.0,118,43,label-matched
+1.0,1.0,1.0,118,43,label-mismatch (control)
+1.0,1.0,1.0,118,44,label-matched
+1.0,1.0,1.0,118,44,label-mismatch (control)
+1.0,1.0,1.0,118,45,label-matched
+1.0,1.0,1.0,118,45,label-mismatch (control)
+1.0,1.0,1.0,118,46,label-matched
+1.0,1.0,1.0,118,46,label-mismatch (control)

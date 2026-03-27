@@ -1,115 +1,190 @@
+# Multimodal Pancreatic Cancer Detection
 
-# 🩺 Multimodal Pancreatic Cancer Detection (CT + Urine Biomarkers)
+This repository is the GitHub-tracked working project for a pancreatic cancer detection study that combines CT imaging and urine biomarker modelling. The project is currently in a hybrid state:
 
-> **Dual-branch deep learning pipeline** combining CT scan ROI detection and urine biomarker analysis to aid early pancreatic cancer diagnosis.  
-> Evaluates **multiple multimodal fusion strategies** (Late, Early, Orthogonal) on synthetic paired datasets to inform future clinical applications.
+- The modular repo scaffold is preserved in `src/`, `configs/`, `docs/`, and `results/`.
+- The latest end-to-end experimentation lives in `notebooks/01_multimodal_cancer_detection.ipynb`.
+- Curated reports and publication-ready figures are tracked in `reports/` and `figures/`.
+- Raw data, processed datasets, model weights, embeddings, and thesis assets remain local-only and are intentionally ignored by Git.
 
----
+The immediate next step after stabilizing this snapshot is to refactor reusable notebook logic back into `src/` so the notebook becomes orchestration and analysis rather than the only implementation surface.
 
-## 📌 Table of Contents
-- [Overview](#-overview)
-- [Architecture](#-architecture)
-- [Data Sources](#-data-sources)
-- [Methodology](#-methodology)
-- [Results](#-results)
-- [Visualizations](#-visualizations)
-- [Limitations & Future Work](#-limitations--future-work)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Project Structure](#-project-structure)
-- [Citations](#-citations)
-- [License](#-license)
+## Repository Status
 
----
+This repo is being actively consolidated from a newer local working copy. Expect a mix of:
 
-## 🚀 Overview
-This project explores **multimodal fusion** of:
-1. **CT Imaging** — Processed with **YOLOv8** to detect regions of interest (ROI) and **CNN** for classification.
-2. **Urine Biomarkers** — Modeled via a **Multi-Layer Perceptron (MLP)**.
+- reusable preprocessing code under `src/data/preprocess/`
+- analysis outputs and final summaries under `reports/`
+- curated visual artifacts under `figures/`
+- one primary notebook that captures the latest full experimental flow
 
-The pipeline tests multiple **fusion strategies** using **synthetic pairing** of urine and CT data due to the unavailability of real paired datasets.
+If you are looking for the most up-to-date experiment narrative, start with:
 
-**Why it matters:**  
-Pancreatic cancer often goes undetected until late stages. Combining imaging with biomarker data could improve early diagnosis — our results provide insight into which fusion strategies may perform best when paired datasets become available.
+- `notebooks/01_multimodal_cancer_detection.ipynb`
+- `reports/final_summary.json`
+- `reports/final_model_comparison.csv`
 
----
+## Current Pipeline Snapshot
 
-## 🏗 Architecture
-![Pipeline Diagram](docs/thesis_plan_update.png) <!-- Replace with actual pipeline diagram -->
+The main notebook currently covers:
 
-**Steps:**
-1. **Data Preprocessing**
-   - CT DICOM → PNG → ROI extraction with YOLO
-   - Urine biomarker cleaning & normalization
-2. **Unimodal Training**
-   - CT ROI → CNN classifier
-   - Urine biomarkers → MLP classifier
-3. **Fusion**
-   - Late Fusion (logit averaging)
-   - Early Fusion (feature concatenation)
-   - Orthogonal Fusion (modality-specific projection layers)
-4. **Evaluation**
-   - Compare strategies on synthetic paired dataset
-5. **Visualization**
-   - Grad-CAM for CT slices
-   - SHAP plots for urine features
+1. Setup, data loading, and preprocessing
+2. Dataset bias checks and unsupervised structure analysis
+3. CT classification experiments
+4. Biomarker MLP experiments
+5. Exploratory multimodal fusion
+6. Final summary and export
 
----
+The tracked preprocessing scripts currently available in the modular codebase are:
 
-## 📊 Data Sources
-- **CT Imaging**: NCI Pancreatic CT dataset ([TCIA](https://www.cancerimagingarchive.net/))
-- **Urine Biomarkers**: Kaggle — Early Pancreatic Cancer Urinary Biomarker Dataset ([Link](https://www.kaggle.com/))
-- Synthetic pairing generated for fusion experiments.
+- `src/data/preprocess/ct_preprocess.py`
+- `src/data/preprocess/biomarker_preprocess.py`
 
----
+## Result Snapshot
 
-## 🔬 Methodology
-### **1. CT Imaging Branch**
-- ROI detection with **YOLOv8** trained on annotated CT scans.
-- Classification with **ResNet50** fine-tuned for pancreatic tumor detection.
+The latest exported summary in `reports/final_summary.json` reports:
 
-### **2. Urine Biomarker Branch**
-- Preprocessing: Missing value imputation, z-score normalization.
-- Classification with **MLP** (2–3 dense layers + dropout).
+- CT model: ResNet50 (global)
+- CT slice-level AUC: 0.9999
+- CT patient-level AUC: 1.0000
+- Biomarker model: MLP (64-32)
+- Biomarker test AUC: 0.9439
+- Fusion note: fusion experiments are exploratory because synthetic pairing was used across different patient cohorts
 
-### **3. Fusion Strategies**
-- **Late Fusion**: Combine final prediction logits from both models.
-- **Early Fusion**: Concatenate penultimate layer embeddings.
-- **Orthogonal Fusion**: Learn modality-specific projections before fusion.
+These numbers should be interpreted as experiment outputs from the current working pipeline, not as clinically validated deployment metrics.
 
----
+## Project Layout
 
-## 📈 Results
-| Modality      | Model         | Accuracy | Sensitivity | Specificity |
-|---------------|--------------|----------|-------------|-------------|
-| CT only       | ResNet50      | `<X.XX>` | `<X.XX>`    | `<X.XX>`    |
-| Urine only    | MLP           | `<X.XX>` | `<X.XX>`    | `<X.XX>`    |
-| Fusion (Late) | MLP + CNN     | `<X.XX>` | `<X.XX>`    | `<X.XX>`    |
-| Fusion (Early)| MLP + CNN     | `<X.XX>` | `<X.XX>`    | `<X.XX>`    |
-| Fusion (Orth) | MLP + CNN     | `<X.XX>` | `<X.XX>`    | `<X.XX>`    |
+```text
+Multimodal_Cancer_Detection/
+|-- configs/
+|   `-- paths.yaml
+|-- data/
+|   |-- .gitkeep
+|   `-- raw/
+|       `-- .gitkeep
+|-- docs/
+|   |-- architectural_decision_records/
+|   |-- figures-guide.md
+|   |-- LICENSE_Pancreatic_CT_Cancer.txt
+|   |-- LICENSE_Pancreatic_CT_Control.txt
+|   `-- timeline.md
+|-- figures/
+|   `-- curated tracked PNG outputs
+|-- notebooks/
+|   `-- 01_multimodal_cancer_detection.ipynb
+|-- reports/
+|   `-- curated tracked CSV and JSON outputs
+|-- results/
+|-- src/
+|   |-- cli/
+|   |-- data/
+|   |   `-- preprocess/
+|   |-- fusion/
+|   |-- interpretability/
+|   |-- models/
+|   |-- uncertainty/
+|   `-- utils/
+|-- tools/
+|   `-- helper scripts for notebook/report maintenance
+|-- requirements.txt
+`-- README.md
+```
 
----
+## Local-Only Assets
 
-## 🎨 Visualizations
-### **CT Grad-CAM**
-![GradCAM Example](docs/gradcam_example.png)
+The following paths are intentionally ignored and should stay local unless there is a deliberate change in repo policy:
 
-### **Urine Biomarker SHAP**
-![SHAP Example](docs/shap_example.png)
+- `data/raw/`
+- `data/processed/`
+- `models/`
+- `embeddings/`
+- `thesis/`
+- local archive/video files
+- temporary staging or Drive-sync folders
 
----
+That split keeps the GitHub repo focused on code, lightweight configuration, curated outputs, and documentation.
 
-## ⚠ Limitations & Future Work
-- **Limitations**:
-  - No real paired dataset for urine + CT
-  - Fusion tested on synthetic pairing
-- **Future Work**:
-  - Apply on real paired datasets
-  - Incorporate blood biomarkers
-  - Deploy in a clinical decision-support setting
+## Setup
 
----
+Create a virtual environment and install the current baseline dependencies:
 
-## 📄 Documentation
-- [ADR-001: Scope Change & Fusion Strategy Decisions](architectural_decision_records/ADR-001.md)
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
+Note: `requirements.txt` is a baseline file and is expected to be refreshed after the repo refactor and environment rebuild.
+
+## Data Paths
+
+The current path configuration is in `configs/paths.yaml`:
+
+```yaml
+raw_ct_dir: data/raw/ct
+processed_ct_dir: data/processed/ct
+raw_biomarkers_dir: data/raw/biomarkers
+processed_biomarkers_dir: data/processed/biomarkers
+figures_dir: figures
+```
+
+Place local datasets under the ignored `data/raw/` tree using those conventions.
+
+## Running What Exists Today
+
+### Preprocessing scripts
+
+```powershell
+python src/data/preprocess/ct_preprocess.py
+python src/data/preprocess/biomarker_preprocess.py
+```
+
+### Main experiment notebook
+
+Open and run:
+
+```text
+notebooks/01_multimodal_cancer_detection.ipynb
+```
+
+This notebook is currently the main source of truth for the complete multimodal workflow.
+
+## Tracked Outputs
+
+Examples of tracked artifacts already in the repo:
+
+- CT model summaries and predictions in `reports/ct_*.json` and `reports/ct_*.csv`
+- fusion experiment summaries in `reports/fusion_*.csv` and `reports/fusion_*.json`
+- final comparison tables in `reports/final_model_comparison.csv` and `reports/final_summary.json`
+- curated plots and Grad-CAM style outputs in `figures/`
+
+## Documentation
+
+Supporting project documentation lives in:
+
+- `docs/timeline.md`
+- `docs/architectural_decision_records/ADR-001.md`
+- `docs/architectural_decision_records/ADR-002.md`
+
+Some documentation files are placeholders and will be filled in as the consolidation continues.
+
+## Known Gaps
+
+- The repo is mid-consolidation from a newer local working copy.
+- The main notebook still contains logic that should be moved into `src/`.
+- `requirements.txt` has not yet been rebuilt from the final environment.
+- Some docs and helper files are placeholders and need completion.
+- Curated figures and reports are tracked, but bulk intermediate artifacts remain intentionally local.
+
+## Next Planned Cleanup
+
+1. Finalize the first consolidation commit.
+2. Push the stabilized hybrid snapshot to GitHub.
+3. Refactor reusable notebook code into modules under `src/`.
+4. Rebuild `.venv` in this repo and refresh `requirements.txt`.
+5. Tighten README usage examples around the refactored module entry points.
+
+## License
+
+See `LICENSE` for the repository license and `docs/` for dataset-specific license notes currently tracked with the project.

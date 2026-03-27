@@ -1,0 +1,20 @@
+{
+  "model": "ResNet50",
+  "cluster": 1,
+  "best_epoch": 7,
+  "slice_level": {
+    "accuracy": 0.9883449883449883,
+    "precision": 0.9553571428571429,
+    "recall": 1.0,
+    "f1": 0.9771689497716894,
+    "auc": 0.9999677508820134
+  },
+  "patient_level": {
+    "n_patients": 17,
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "auc": 1.0
+  }
+}

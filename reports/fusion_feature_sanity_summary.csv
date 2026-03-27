@@ -1,0 +1,3 @@
+pairing,auc_mean,auc_std,n_mean
+label-matched,1.0,0.0,118.0
+label-mismatch (control),1.0,0.0,118.0

@@ -1,0 +1,31 @@
+{
+  "experiment_date": "2026-02-07T20:34:54.222625",
+  "ct_model": {
+    "architecture": "ResNet50 (global)",
+    "preprocessing": "Bias-mitigation + orientation/cropping + ImageNet normalization (see Phase 1/2)",
+    "test_metrics": {
+      "slice_level": {
+        "auc": 0.99989421857864,
+        "accuracy": 0.9982920580700256,
+        "f1": 0.9927360774818402
+      },
+      "patient_level": {
+        "auc": 1.0,
+        "accuracy": 1.0,
+        "f1": 1.0
+      }
+    },
+    "source": "final_model_comparison.csv"
+  },
+  "biomarker_model": {
+    "architecture": "MLP (64-32)",
+    "features": "unknown",
+    "test_metrics": {
+      "auc": 0.9439102564102564,
+      "accuracy": 0.8220338983050848,
+      "f1": 0.7789473684210526
+    },
+    "source": "biomarker_results.json"
+  },
+  "fusion_note": "Synthetic pairing used (different patient cohorts). CT retains residual domain signal; fusion results are exploratory and should not be interpreted as clinically validated performance."
+}

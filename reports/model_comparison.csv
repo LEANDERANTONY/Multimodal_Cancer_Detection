@@ -1,0 +1,3 @@
+Model,Modality,AUC,Accuracy,F1,Note
+CT (Global),CT Images,1.000,1.000,1.000,Patient-level aggregation
+Biomarker (MLP),Urinary Biomarkers,0.944,0.822,0.779,7 biomarker features

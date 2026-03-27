@@ -1,0 +1,20 @@
+{
+  "model": "ResNet18",
+  "preprocessing": "Histogram Matching + CLAHE",
+  "best_epoch": 2,
+  "slice_level": {
+    "accuracy": 0.9882769901853872,
+    "precision": 1.0,
+    "recall": 0.9597000937207123,
+    "f1": 0.9794356767097083,
+    "auc": 0.9999246919305422
+  },
+  "patient_level": {
+    "n_patients": 18,
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "auc": 1.0
+  }
+}
