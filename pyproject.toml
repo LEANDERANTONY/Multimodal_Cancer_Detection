@@ -23,7 +23,6 @@ dependencies = [
     "torchvision>=0.20,<0.22",
     "albumentations>=1.4,<2.1",
     "scikit-image>=0.22,<0.26",
-    "pywinpty==2.0.13",
     "notebook==7.0.8",
     "ipykernel>=6.29",
     "pytest>=8.3,<9.0",
