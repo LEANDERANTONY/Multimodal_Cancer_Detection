@@ -1,5 +1,7 @@
 # Multimodal Pancreatic Cancer Detection
 
+[![CI](https://github.com/LEANDERANTONY/Multimodal_Cancer_Detection/actions/workflows/ci.yml/badge.svg)](https://github.com/LEANDERANTONY/Multimodal_Cancer_Detection/actions/workflows/ci.yml)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Multimodal Pancreatic Cancer Detection is a bias-aware research repository for pancreatic cancer detection using CT imaging and urinary biomarkers. The implemented workflow combines bias-aware CT preprocessing, ResNet50-based CT classification, a seven-feature biomarker MLP, and exploratory multimodal fusion under synthetic pairing constraints.
@@ -52,7 +54,10 @@ Those numbers should be read carefully:
 
 Supporting project documentation lives in:
 
+- `docs/quickstart.md`
 - `docs/architecture.md`
+- `docs/data_and_ethics.md`
+- `docs/model_card.md`
 - `ROADMAP.md`
 - `DEVLOG.md`
 - `docs/timeline.md`
