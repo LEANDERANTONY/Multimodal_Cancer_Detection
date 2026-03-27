@@ -43,13 +43,10 @@ drive_project/
 
 # Raw and processed data stay local
 data/*
-!data/.gitkeep
 !data/raw/
 data/raw/*
-!data/raw/.gitkeep
 !data/processed/
 data/processed/*
-!data/processed/.gitkeep
 
 # Bulky generated result bundles and archives
 *.zip

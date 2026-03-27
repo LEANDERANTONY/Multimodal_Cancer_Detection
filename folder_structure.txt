@@ -9,9 +9,6 @@ Multimodal_Cancer_Detection/
 |-- pyproject.toml
 |-- uv.lock
 |
-|-- configs/
-|   `-- paths.yaml
-|
 |-- docs/
 |   |-- architecture.md
 |   |-- figures-guide.md
@@ -21,12 +18,9 @@ Multimodal_Cancer_Detection/
 |       |-- ADR-001.md
 |       `-- ADR-002.md
 |
-|-- data/
-|   |-- .gitkeep
+|-- data/                       # local-only datasets, ignored
 |   |-- raw/
-|   |   `-- .gitkeep
 |   `-- processed/
-|       `-- .gitkeep
 |
 |-- figures/
 |   `-- tracked curated figures for README, reports, and dissertation-aligned outputs
@@ -69,7 +63,6 @@ Multimodal_Cancer_Detection/
 |   `-- utils/
 |       |-- __init__.py
 |       |-- logging.py
-|       |-- paths.py
 |       |-- project.py
 |       `-- repro.py
 |

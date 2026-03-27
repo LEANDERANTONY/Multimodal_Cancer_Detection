@@ -56,14 +56,12 @@ Owns project-level utilities:
 
 - project-root and path resolution
 - formatting helpers
-- path loading from config
 - reproducibility helpers such as seeding
 - lightweight logging
 
 Key files:
 
 - `src/utils/project.py`
-- `src/utils/paths.py`
 - `src/utils/repro.py`
 
 ### `src/data/`

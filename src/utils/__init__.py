@@ -1,5 +1,4 @@
 from .logging import log
-from .paths import load_paths
 from .project import (
     ProjectPaths,
     as_path,
@@ -24,7 +23,6 @@ __all__ = [
     "build_project_paths",
     "detect_project_root",
     "fmt_path",
-    "load_paths",
     "log",
     "require_cols",
     "require_nonempty",
