@@ -14,7 +14,7 @@ Multimodal Pancreatic Cancer Detection is a bias-aware research repository for p
 
 ## Research Flow
 
-1. Prepare CT and biomarker inputs with the preprocessing scripts and notebook setup cells.
+1. Prepare CT and biomarker inputs with the preprocessing scripts when fresh local preprocessing is needed.
 2. Run CT bias checks and iterative mitigation.
 3. Apply orientation correction, body segmentation, and cropping for CT slices.
 4. Train and evaluate the CT ResNet50 model.
@@ -97,6 +97,7 @@ notebooks/01_multimodal_cancer_detection.ipynb
 ```
 
 This notebook is currently the main source of truth for the complete multimodal workflow.
+In the maintained repo flow it consumes the processed artifacts under `data/processed/` for both CT and biomarkers, rather than requiring raw data to be present in normal day-to-day runs.
 
 ### Preprocessing scripts
 
@@ -144,7 +145,6 @@ Multimodal_Cancer_Detection/
 Supporting project documentation lives in:
 
 - `docs/architecture.md`
-- `project_strategy.md`
 - `ROADMAP.md`
 - `DEVLOG.md`
 - `docs/timeline.md`
@@ -164,6 +164,12 @@ The following paths are intentionally ignored and should remain local unless rep
 - `thesis/`
 - local archive/video files
 - temporary staging or Drive-sync folders
+
+## Data Flow Note
+
+- normal notebook runs are expected to start from `data/processed/`
+- `src/data/preprocess/ct_preprocess.py` is only needed when rebuilding CT artifacts from raw DICOM
+- `src/data/preprocess/biomarker_preprocess.py` is only needed when rebuilding `data/processed/biomarkers_clean.csv` from the original raw biomarker CSV
 
 ## License
 

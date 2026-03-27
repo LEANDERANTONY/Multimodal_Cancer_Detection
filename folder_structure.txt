@@ -1,104 +1,85 @@
-multimodal-pancreatic-cancer-detection/
-├─ README.md
-├─ .gitignore
-├─ .env.example
-├─ requirements.txt
-├─ LICENSE
-│
-├─ docs/
-│  ├─ timeline.md
-│  ├─ architectural_decision_records/
-│  │  ├─ ADR-001.md          # Scope changes vs RP
-│  │  └─ ADR-002.md          # Attention + Contrastive additions
-│  └─ figures-guide.md       # (optional) figure list & captions
-│
-├─ data/                     # (gitignored except .gitkeep)
-│  ├─ raw/                   # raw_ct/, raw_biomarkers/ live here locally
-│  └─ processed/
-│     ├─ ct/                 # preprocessed CT slices/crops
-│     └─ urine/              # cleaned/imputed tables
-│  └─ .gitkeep
-│
-├─ embeddings/               # exported penultimate features (small, can be committed)
-│  ├─ ct_embeddings_fold0.parquet
-│  ├─ urine_embeddings_fold0.parquet
-│  └─ ...
-│
-├─ synthetic_pairs/          # CV-aware paired datasets for fusion
-│  ├─ fold_0/
-│  │  ├─ train.parquet
-│  │  ├─ val.parquet
-│  │  ├─ test.parquet
-│  │  └─ metadata.json
-│  └─ ...
-│
-├─ results/
-│  ├─ metrics/               # per-run CSVs; master_table.csv
-│  ├─ ablations/
-│  └─ logs/                  # training/eval logs
-│
-├─ figures/
-│  ├─ attention/
-│  │  ├─ attn_matrix_mean.png
-│  │  └─ val_attn_2x2.npy
-│  ├─ gradcam/
-│  ├─ shap/
-│  └─ plots/                 # bars, ROC, risk-coverage, etc.
-│
-├─ notebooks/                # analysis + reproducible experiments
-│  ├─ 01_ct_yolo_train.ipynb
-│  ├─ 02_ct_classifier_train.ipynb
-│  ├─ 03_urine_mlp_train.ipynb
-│  ├─ 04_export_embeddings.ipynb
-│  ├─ 05_make_synth_pairs.ipynb
-│  ├─ 06_fusion_late.ipynb
-│  ├─ 07_fusion_early_concat.ipynb
-│  ├─ 08_fusion_orthogonal.ipynb
-│  ├─ 09_fusion_attention.ipynb
-│  └─ 10_contrastive_pretrain.ipynb
-│
-├─ src/                      # importable, scriptable code
-│  ├─ data/
-│  │  ├─ preprocess_ct.py
-│  │  ├─ preprocess_urine.py
-│  │  └─ pairing.py          # hot-deck pairing + checks
-│  ├─ models/
-│  │  ├─ ct_classifier.py
-│  │  ├─ urine_mlp.py
-│  │  └─ yolo_infer.py
-│  ├─ fusion/
-│  │  ├─ late.py             # weighted avg + stacking
-│  │  ├─ early_concat.py
-│  │  ├─ orthogonal.py
-│  │  ├─ attention_head.py   # 2-token transformer
-│  │  ├─ contrastive.py      # InfoNCE pre-align
-│  │  └─ fedavg_trainer.py   # simulated federated
-│  ├─ interpretability/
-│  │  ├─ gradcam.py
-│  │  └─ shap_utils.py
-│  ├─ uncertainty/
-│  │  └─ calibration.py      # MC Dropout, temp scaling, ECE
-│  ├─ utils/
-│  │  ├─ metrics.py
-│  │  ├─ seed.py
-│  │  └─ io.py               # parquet/csv helpers
-│  └─ cli/                   # optional: runnable entrypoints
-│     ├─ export_embeddings.py
-│     ├─ run_fusion.py
-│     └─ plot_attention.py
-│
-├─ configs/                  # YAML/JSON configs for runs
-│  ├─ ct.yaml
-│  ├─ urine.yaml
-│  └─ fusion.yaml
-│
-├─ api/                      # optional industry polish
-│  ├─ app.py                 # FastAPI /predict
-│  └─ docker/
-│     ├─ Dockerfile
-│     └─ start.sh
-│
-└─ models/                   # (optional) trained weights/checkpoints (gitignored)
-   ├─ ct/
-   ├─ urine/
-   └─ fusion/
+Multimodal_Cancer_Detection/
+|-- README.md
+|-- ROADMAP.md
+|-- DEVLOG.md
+|-- folder_structure.txt
+|-- LICENSE
+|-- .gitignore
+|-- .python-version
+|-- pyproject.toml
+|-- uv.lock
+|
+|-- configs/
+|   `-- paths.yaml
+|
+|-- docs/
+|   |-- architecture.md
+|   |-- figures-guide.md
+|   |-- timeline.md
+|   `-- architectural_decision_records/
+|       |-- README.md
+|       |-- ADR-001.md
+|       `-- ADR-002.md
+|
+|-- data/
+|   |-- .gitkeep
+|   |-- raw/
+|   |   `-- .gitkeep
+|   `-- processed/
+|       `-- .gitkeep
+|
+|-- figures/
+|   `-- tracked curated figures for README, reports, and dissertation-aligned outputs
+|
+|-- reports/
+|   `-- tracked lightweight CSV, JSON, and summary artifacts
+|
+|-- results/
+|   `-- .gitkeep
+|
+|-- notebooks/
+|   `-- 01_multimodal_cancer_detection.ipynb
+|
+|-- src/
+|   |-- cli/
+|   |-- data/
+|   |   |-- __init__.py
+|   |   |-- ct_analysis.py
+|   |   |-- ct_embeddings.py
+|   |   |-- ct_pipeline.py
+|   |   `-- preprocess/
+|   |       |-- biomarker_preprocess.py
+|   |       `-- ct_preprocess.py
+|   |-- fusion/
+|   |   |-- __init__.py
+|   |   |-- decision_level.py
+|   |   `-- feature_level.py
+|   |-- interpretability/
+|   |   |-- __init__.py
+|   |   `-- gradcam.py
+|   |-- models/
+|   |   |-- __init__.py
+|   |   |-- biomarker.py
+|   |   |-- clustered_ct.py
+|   |   `-- ct.py
+|   |-- results/
+|   |   |-- __init__.py
+|   |   `-- summary.py
+|   |-- uncertainty/
+|   `-- utils/
+|       |-- __init__.py
+|       |-- logging.py
+|       |-- paths.py
+|       |-- project.py
+|       `-- repro.py
+|
+|-- tests/
+|   |-- test_decision_fusion.py
+|   |-- test_project_utils.py
+|   `-- test_results_summary.py
+|
+|-- embeddings/                  # local-only, ignored
+|-- models/                      # local-only checkpoints, ignored
+|-- thesis/                      # local-only dissertation assets, ignored
+|-- VideoPresentation_CodeFile_Dataset/   # local-only presentation assets, ignored
+`-- tools/                       # local utility outputs, mostly ignored or not needed for GitHub

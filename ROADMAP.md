@@ -26,11 +26,12 @@ Status:
 
 ## Next: Reproducibility And Research-Code Hardening
 
-- add lightweight tests around stable helper modules
+- extend the current lightweight test baseline beyond stable helper modules
 - add more explicit run paths for common tasks such as report generation and preprocessing
 - reduce notebook-only helper duplication in EDA and diagnostics sections
 - tighten artifact naming and report consistency across `reports/` and `figures/`
 - keep `uv` dependencies aligned with actual runtime imports
+- keep the processed-data-first run path explicit so the notebook can run without raw assets in normal use
 - codify negative-control and multi-seed evaluation patterns so future fusion work stays methodologically honest
 
 Status:

@@ -40,13 +40,15 @@ def build_project_paths(project_root: str | Path | None = None) -> ProjectPaths:
     root = Path(project_root).expanduser().resolve() if project_root else detect_project_root()
     data_root = root / "data"
     processed_root = data_root / "processed"
+    processed_biomarkers = processed_root / "biomarkers_clean.csv"
+    raw_biomarkers = data_root / "raw" / "biomarkers" / "urinary_biomarkers.csv"
     return ProjectPaths(
         project_root=root,
         data_root=data_root,
         processed_root=processed_root,
         ct_images_dir=processed_root / "ct_images",
         split_index=root / "reports" / "df_split_cropped.csv",
-        biomarkers_path=data_root / "raw" / "biomarkers" / "urinary_biomarkers.csv",
+        biomarkers_path=processed_biomarkers if processed_biomarkers.exists() else raw_biomarkers,
         models_dir=root / "models",
         reports_dir=root / "reports",
         figures_dir=root / "figures",

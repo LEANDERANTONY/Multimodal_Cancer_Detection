@@ -80,6 +80,12 @@ Historical note:
 - Added pytest configuration and dependency wiring through `pyproject.toml` and `uv`.
 - Verified the suite with `uv run pytest`.
 
+## Phase 10: Processed-Data-First Runtime Clarification
+
+- Verified that the biomarker modelling flow is compatible with `data/processed/biomarkers_clean.csv`, not just the original raw CSV.
+- Updated project path resolution so normal notebook runs prefer processed biomarker inputs and fall back to raw only for local rebuild scenarios.
+- Aligned README guidance with the actual maintained workflow: notebook-first analysis runs should start from `data/processed/` for both CT and biomarkers.
+
 ## Current Verification Practice
 
 The main validation steps currently used are:
