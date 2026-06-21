@@ -2,6 +2,11 @@
 
 This document captures the current project and repository direction for the multimodal pancreatic cancer detection study.
 
+> Companion docs: `ROADMAP.md` holds the forward-looking publication plan (Q2 shortcut-learning
+> paper now, Q1 PANORAMA external-validation + domain-adversarial track next). `docs/preprocessing_audit.md`
+> holds the full CT preprocessing audit and the v2 (PANORAMA) reprocessing spec. This file covers the
+> *why* and the scope/structure rationale; the ROADMAP covers *what's next*.
+
 ## Current Project Position
 
 This repository is currently a research-first codebase rather than a deployable product.
