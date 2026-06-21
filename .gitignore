@@ -73,3 +73,8 @@ figures/Screenshot *.png
 # Tooling outputs should remain local
 tools/_*.txt
 tools/_*.json
+
+# Local agent context (not tracked)
+AGENTS.md
+CLAUDE.md
+docs/preprocessing_audit.md
