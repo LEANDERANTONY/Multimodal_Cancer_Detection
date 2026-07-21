@@ -153,9 +153,9 @@ Concrete strengths and gaps found by reading the actual cells, to guide the rewr
 ### PANORAMA access details (added)
 
 - **License:** CC BY-NC 4.0 (non-commercial) - fine for thesis/paper and academic validation with citation; NOT usable in a commercial product without separate permission.
-- **Download:** Zenodo (v1: zenodo.org/records/11034178 ; v2: zenodo.org/records/13742336), mirrored on TCIA (wiki.cancerimagingarchive.net/display/Public/PANORAMA). Challenge: panorama.grand-challenge.org.
+- **Download (images, ~193 GB):** the image set is published as **4 Zenodo batches** (CC BY-NC 4.0), images-only: batch_1 = record 13715870, batch_2 = record 13742336, batch_3 = record 11034011, batch_4 = record 10999754. File-download URL pattern: `https://zenodo.org/api/records/<record>/files/batch_N.zip/content`. Mirrored on TCIA (wiki.cancerimagingarchive.net/display/Public/PANORAMA). Challenge: panorama.grand-challenge.org. The batch zips contain **only CT volumes** as flat `<caseid>_<exam>_0000.nii.gz` files — no masks or labels.
 - **Contents:** 2,238 anonymized contrast-enhanced CT scans from two Dutch centres (Radboud UMC + UMC Groningen), plus 194 MSD and 80 NIH cases - unified multi-centre labelled cohort where class is NOT tied to a single source.
-- **Masks included:** segmentation masks for six PDAC-related structures - supports the pancreas-ROI localization step the thesis two-source data lacked.
+- **Masks + labels (SEPARATE download — NOT in the Zenodo zips):** segmentation masks and patient-level labels come from the GitHub repo `DIAGNijmegen/panorama_labels` (~1.3 GB): `manual_labels/` + `automatic_labels/` (2,238 `.nii.gz` masks) and `clinical_information.xlsx` (patient-level labels / clinical data). These support the pancreas-ROI localization step the thesis two-source data lacked.
 - **Baseline:** official implementation at github.com/DIAGNijmegen/PANORAMA_baseline (benchmark comparator).
 - **Caveat:** PANORAMA folds in the NIH cases (same family as the old confounding control set). Use the unified labelled cohort as-is; do NOT extract the NIH subset as a standalone control arm or the dataset-of-origin confound returns.
 

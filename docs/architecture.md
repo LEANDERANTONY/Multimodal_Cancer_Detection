@@ -177,18 +177,9 @@ Current limitations:
 
 ## Next Architecture Step
 
-The next meaningful step is not backend extraction or deployment. It is research-code hardening inside the current repository shape.
+The next meaningful step is not backend extraction or deployment. It is research-code hardening
+inside the current repository shape.
 
-Near-term targets:
-
-- continue moving reusable notebook logic into `src/`
-- reduce duplication in exploratory sections that still live inline in the notebook
-- add lightweight automated tests for reusable module layers
-- tighten report-generation and reproducibility guidance in docs
-- preserve the implemented bias-aware CT pipeline description consistently across repo docs
-
-Later targets:
-
-- add explicit runner scripts or thin CLIs for common experiment/report tasks
-- separate stable pipeline helpers from one-off exploratory notebook logic even more cleanly
-- explore domain-adversarial CT training via a gradient reversal layer to reduce residual dataset-of-origin information in learned features
+Specific near-term and later targets (module extraction, thin CLI runners, test coverage,
+domain-adversarial CT training) are tracked in `ROADMAP.md` and are deliberately not duplicated
+here, so there is one source of truth for forward-looking work.

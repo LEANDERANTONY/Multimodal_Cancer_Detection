@@ -60,7 +60,6 @@ Supporting project documentation lives in:
 - `docs/model_card.md`
 - `ROADMAP.md`
 - `DEVLOG.md`
-- `docs/timeline.md`
 - `docs/figures-guide.md`
 - `docs/architectural_decision_records/README.md`
 - `docs/architectural_decision_records/ADR-001.md`

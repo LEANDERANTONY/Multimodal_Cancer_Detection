@@ -2,9 +2,8 @@
 
 This document captures the current project and repository direction for the multimodal pancreatic cancer detection study.
 
-> Companion docs: `ROADMAP.md` holds the forward-looking publication plan (Q2 shortcut-learning
-> paper now, Q1 PANORAMA external-validation + domain-adversarial track next). `docs/preprocessing_audit.md`
-> holds the full CT preprocessing audit and the v2 (PANORAMA) reprocessing spec. This file covers the
+> Companion doc: `ROADMAP.md` holds the forward-looking publication plan (Q2 shortcut-learning
+> paper now, Q1 PANORAMA external-validation + domain-adversarial track next). This file covers the
 > *why* and the scope/structure rationale; the ROADMAP covers *what's next*.
 
 ## Current Project Position
@@ -154,22 +153,9 @@ not as a final clinical performance claim.
 - containerization purely for the sake of having Docker
 - heavy automation around experiments that are still rapidly changing
 
-## Near-Term Priorities
+## Priorities And Roadmap
 
-The highest-value work from the current state is:
-
-1. finish the notebook-to-module refactor for the remaining exploratory helpers
-2. add lightweight tests for stable helper modules
-3. improve documentation consistency and reproducibility guidance
-4. make key outputs easier to regenerate without re-reading the whole notebook manually
-5. keep the external-validation and matched-cohort story explicit in planning so future work addresses the real scientific bottlenecks
-6. explicitly track domain-adversarial training with gradient reversal as a future bias-reduction direction for CT modelling
-
-## Longer-Term Path
-
-If the repo becomes more stable and publication-facing, the next sensible path is:
-
-1. keep the current module boundaries stable
-2. add thin script or CLI runners around common experiment/report tasks
-3. improve test coverage around those stable entry points
-4. only then consider broader packaging or deployment-oriented structure
+Forward-looking priorities — near-term work, the longer-term hardening path, and the full
+publication plan — live in `ROADMAP.md` and are deliberately not duplicated here. This document
+covers scope and rationale (the *why*); `ROADMAP.md` is the single source of truth for *what's
+next*.

@@ -7,6 +7,21 @@ Historical note:
 - earlier work happened primarily in notebook-first local copies
 - the current entries focus on the GitHub-tracked repository state after consolidation into the working repo under `Documents/Projects`
 
+## Phase 0: Pre-Repository Thesis Execution (2025)
+
+Before the tracked repository existed, the project ran as a notebook-first thesis workflow covering
+CT classification, urinary biomarker modelling, exploratory multimodal fusion, and thesis figure /
+table / presentation outputs.
+
+Practical constraints during that phase:
+
+- CT and biomarker datasets were not patient-paired
+- CT-heavy work depended on Google Colab GPU usage
+- most implementation lived in evolving notebooks and local folders rather than a stable repo
+
+That phase produced the core experiment logic, many of the tracked figures and reports, and the
+thesis-oriented analysis direction that still shapes the repository.
+
 ## Phase 1: Hybrid Repo Consolidation
 
 - Confirmed the GitHub-tracked repository and treated it as the long-term source of truth.
@@ -101,3 +116,14 @@ The main validation steps currently used are:
 - the full notebook still is not executed as an automated smoke test
 - some earlier exploratory notebook sections still contain inline helper code that can be extracted later
 - CT generalization remains scientifically ambiguous until stronger external validation is added
+
+## Historical Caveats
+
+Some older planning assumptions no longer reflect the maintained repository, especially:
+
+- future-facing ideas that were never fully implemented
+- infrastructure concepts such as deployment-oriented APIs
+- day-by-day scheduling targets from the thesis execution window
+
+Those historical ideas still matter as context, but they are not the current source of truth for
+the repo. For current priorities use `ROADMAP.md`; for scope and rationale use `project_strategy.md`.
