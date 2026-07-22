@@ -85,16 +85,20 @@ A reframed methods / reproducibility paper is publishable today in a decent Q2 v
 - **Lead contributions:** (1) a stepwise bias detection + mitigation pipeline (pixel-mean logistic probe AUC 0.866 -> 0.569 after extreme standardization); (2) the demonstration that the shortcut survives in deep features (K-means-by-source at k=2, silhouette peak, cross-cluster non-identifiability with two institutions); (3) independent reproduction of the Debernardi et al. (2020) urinary panel (AUC 0.944 vs 0.936); (4) a negative-control-based fusion-evaluation framework showing modality dominance under synthetic pairing.
 - **Reuse existing figures:** dataset bias check, K-selection (elbow/silhouette), Grad-CAM, final model comparison, biomarker calibration â€” they already support this framing.
 - **Target venues (Q2):** *Diagnostics*, *Journal of Imaging*, *BMC Medical Imaging*, *Computers in Biology and Medicine*, or a reproducibility / negative-results venue.
-- **Effort:** weeks of rewriting, no new experiments. This is the recommended first submission.
+- **Effort:** weeks of rewriting, no new experiments. **Superseded 2026-07:** this was the recommended first submission while data acquisition was the Q1 blocker. PANORAMA is now staged, so the plan is Q1-direct and this reframe is retained only as a fallback (see Status below).
 
 ### Next: four steps required to reach Q1
 
 A Q1 venue (npj Digital Medicine, Medical Image Analysis, IEEE TMI, Radiology: AI) requires new substance, because the field already has 2025 tooling for this problem. Do these in order of leverage:
 
-1. **External multi-centre CT validation (THE blocker).** Re-run CT classification on cohorts where cancer and control are *balanced across sources*, so disease is decoupled from dataset-of-origin. Candidate public sources: MSD Task07 Pancreas, NIH Pancreas-CT, and additional TCIA PDAC collections across different scanner vendors/protocols. Without this, no CT performance claim is defensible.
-2. **Domain-adversarial training (gradient reversal).** Add a GRL branch to the ResNet50 backbone that penalizes encoding dataset-of-origin. Evaluate rigorously: show whether it removes embedding-level domain clustering, and quantify the effect on the cancer signal. A rigorous negative result here is still publishable.
-3. **Benchmark the bias pipeline against existing 2025 methods** (e.g. ShortKit-ML and related shortcut-detection frameworks) rather than presenting it standalone, to position the contribution against the current state of the art.
-4. **Genuine paired CT + biomarker cohort for fusion.** Replace synthetic pairing with real or quasi-paired same-patient data (even 50-100 patients) so fusion can be evaluated as a real clinical question. Hardest step; collaboration-dependent. Consider attention/cross-attention fusion once paired data exists.
+1. **External multi-centre CT validation — DONE (data acquired 2026-07-04).** PANORAMA is staged locally: 2,238 studies / 2,224 patients, MD5-verified, masks and labels reconciled. Two findings change the plan: there is **no institution column**, so leave-one-*site*-out is impossible and the domain axis becomes **scanner (manufacturer)**; and scanner is itself a **measured confound** (Cramér's V = 0.44). Details in the local CT preprocessing audit and `reports/panorama_confound_audit.md`.
+2. **Comparative evaluation of mitigation methods — NOT a proposed method.** Do *not* lead with gradient reversal: DANN is a 2015-16 method, and the DomainBed literature (Gulrajani & Lopez-Paz; *Failure Modes of DG Algorithms*, CVPR 2022) shows a well-tuned **ERM** matches or beats the whole family. Run a panel under one pre-registered model-selection rule — tuned ERM, **DFR** (last-layer retraining on a scanner-balanced subset), GRL, and an **SSL / foundation-model backbone** — and report honestly whether *any* of them removes a real, measured clinical confound. A rigorous negative result here is the contribution.
+3. **Benchmark against ShortKit-ML** (medRxiv 2026; 20+ detection methods, 6 mitigation strategies) rather than presenting the protocol standalone. Also position against intermediate-layer knowledge distillation (arXiv 2511.17421) and feature-disentanglement benchmarks (arXiv 2602.18502).
+4. **Genuine paired CT + biomarker cohort for fusion — OFF the critical path.** Collaboration-dependent and open-ended; it must not gate the Q1 paper. Defer to paper #2. Fusion stays a limitation paragraph, not a results section.
+
+**Novelty guard:** Ong Ly et al. (*npj Digital Medicine* 2024, 72 citations) already published a shortcut-diagnosis protocol showing up to 20% performance overestimation from acquisition bias. "We propose a shortcut diagnostic protocol" is therefore **not** novel on its own. Differentiate on: two independent confounds in one protocol, a measured confound in the flagship public PDAC cohort, the `level` label-leakage finding, and whether mitigation actually works.
+
+**Headline contrast for the paper:** the PANORAMA challenge winner (PanDx) reached **AUROC 0.926** on 957 held-out cases and only three teams beat the baseline — against our thesis CT model's **0.9999** on the confounded two-source set. That gap quantifies the inflation.
 
 ### Parallel option: standalone biomarker screening paper
 
@@ -102,9 +106,21 @@ The biomarker branch is the most translatable component (non-invasive, reproduci
 
 Status:
 
-- Q2 reframe: ready to write (recommended first action)
-- Q1 four-step programme: 6-12 months, new data required
-- Biomarker screening paper: optional parallel track
+- **Recommendation updated 2026-07 — go Q1-direct, skip the Q2 reframe.** The original "Q2 first" advice assumed data acquisition was the blocker (6-12 months, uncertain). PANORAMA is now staged and audited, compressing the Q1 timeline to roughly 4-6 months. The two papers share ~70% of the same narrative, so publishing the Q2 reframe first would spend the story and make the Q1 submission look incremental.
+- Q1 programme: step 1 complete (data); steps 2-3 are the work; step 4 deferred off the critical path.
+- Realistic venues: **Medical Image Analysis** or **Radiology: AI**. npj Digital Medicine is a stretch without clinical impact, and IEEE TMI wants methodological novelty that an off-the-shelf GRL will not supply.
+- Q2 reframe: retained as a fallback if the Milestone-A checkpoint (below) shows no image-level confound.
+- Biomarker screening paper: optional parallel track; in the Q1 paper the biomarker branch serves as a **clean positive control**, not a results section.
+
+### Milestone A — the go/no-go checkpoint (4-6 weeks)
+
+Everything downstream is wasted effort until this resolves. ROI-first preprocess PANORAMA, train a baseline, and measure three numbers:
+
+1. cancer AUC (in-distribution),
+2. **scanner predictability from the learned embeddings** — does the metadata confound propagate into image features?
+3. the **leave-one-manufacturer-out generalization gap**.
+
+A large LOMO gap ⇒ the Q1 paper is real. A negligible gap ⇒ the scanner confound does not reach the images; pivot honestly (still publishable, smaller venue). Do not build steps 2-3 before A reports.
 
 
 ---
@@ -142,10 +158,10 @@ Concrete strengths and gaps found by reading the actual cells, to guide the rewr
 
 **Upgrade for Q1 (feature-space debiasing â€” current 2025/26 standard):**
 
-- Add a **domain-adversarial branch (gradient reversal)** to the ResNet50 to penalize encoding of dataset-of-origin in the representation.
+- **Superseded 2026-07 (see "four steps to Q1" above).** GRL is no longer the proposed fix. Run a *panel* under one pre-registered model-selection rule: a properly tuned **ERM baseline** (per DomainBed, the real bar to clear), **DFR** (last-layer retraining on a scanner-balanced subset), **GRL**, and an **SSL / foundation-model backbone**. On PANORAMA the domain label is **scanner**, not institution.
 - Alternatives/complements from the 2025/26 literature: feature disentanglement (latent-space splitting), dependence-minimization (HSIC-style), knowledge distillation from a specialist teacher.
 - Acceptance criterion, measured with our *own* K-means/silhouette + embedding domain-classifier diagnostic: the source-aligned clustering that pixel standardization could not remove should collapse, while genuine cancer signal is retained (verified on PANORAMA where class â‰  institution).
-- Benchmark the pipeline against a 2025 dependence-measure or disentanglement baseline rather than presenting it standalone.
+- Benchmark against **ShortKit-ML** (medRxiv 2026) and a 2025/26 dependence-measure or disentanglement baseline rather than presenting the pipeline standalone.
 
 **Architectural note (ROI vs whole-image):** moving to a pancreas-ROI model (localize then classify) is good practice and removes the *easiest* global shortcuts, but it is necessary-not-sufficient: scanner/reconstruction texture lives inside the pancreas tissue too, and no receptive field fixes a data-design confound where one source = all cancer and the other = all control. The decisive fix is same-source class balance (PANORAMA) + feature-space debiasing; ROI cropping is a robustness improvement layered on top, and it requires pancreas masks (available in PANORAMA/MSD, absent in the thesis two-source set).
 
@@ -175,7 +191,8 @@ Beyond the four core steps, these analyses are near-mandatory for a strong medic
 
 - Report **95% confidence intervals** on all headline metrics (DeLong for AUROC; bootstrap for the rest). With small n, point estimates alone will be challenged.
 - Note the **power limitation** explicitly given cohort sizes; pre-register the analysis plan where possible.
-- Keep **leave-one-site-out / external** as the primary generalization metric, never random splits (mirrors the agroforestry repo's discipline).
+- Keep an **out-of-domain split** as the primary generalization metric, never random splits. Note: on PANORAMA, leave-one-*site*-out is **not possible** (no institution column), so the headline metric is **leave-one-manufacturer-out**; splits must also be **grouped by patient** (11 patients have >1 exam).
+- Include a **properly tuned ERM baseline** and a single pre-registered model-selection rule in any debiasing comparison — without these the DomainBed critique invalidates the result.
 
 ## Reporting Standards & Checklists (attach at submission)
 
@@ -193,7 +210,9 @@ Q1 clinical-AI venues increasingly require a completed reporting checklist. Targ
 
 ## Open Decisions To Resolve Before Writing
 
-- Which paper goes first - the Q2 methods reframe (fast, low-risk) or hold for the Q1 swing. Recommendation on record: submit the Q2 reframe first; it banks a publication and de-risks the narrative.
+- ~~Which paper goes first~~ **RESOLVED 2026-07: go Q1-direct.** The data blocker is gone and the two papers share too much narrative for Q2-first to be safe. The Q2 reframe is retained only as a fallback if Milestone A shows no image-level confound.
+- **Input geometry** for the v2 pipeline: 2D slices, 2.5D stacks, or full 3D volumetric. Open.
+- **Mask policy**: use all 2,238 masks (482 manual + 1,756 automatic) or restrict to manual-only as a robustness arm — automatic masks carry label noise and provenance correlates with class. Open.
 - Whether to pursue a real/quasi-paired CT+biomarker cohort for genuine fusion (collaboration-dependent) or keep fusion as an explicitly exploratory section.
-- Scope of feature-space debiasing: domain-adversarial only (minimum) vs. adding disentanglement/dependence-minimization baselines (stronger, more work).
+- ~~Scope of feature-space debiasing~~ **RESOLVED 2026-07:** run the panel (tuned ERM + DFR + GRL + SSL backbone). GRL alone is not defensible as a contribution, and a tuned ERM baseline is mandatory.
 

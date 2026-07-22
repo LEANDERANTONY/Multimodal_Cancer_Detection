@@ -2,9 +2,9 @@
 
 This document captures the current project and repository direction for the multimodal pancreatic cancer detection study.
 
-> Companion doc: `ROADMAP.md` holds the forward-looking publication plan (Q2 shortcut-learning
-> paper now, Q1 PANORAMA external-validation + domain-adversarial track next). This file covers the
-> *why* and the scope/structure rationale; the ROADMAP covers *what's next*.
+> Companion doc: `ROADMAP.md` holds the forward-looking publication plan (as of 2026-07: go
+> Q1-direct on the PANORAMA external-validation + mitigation-evaluation track). This file covers
+> the *why* and the scope/structure rationale; the ROADMAP covers *what's next*.
 
 ## Current Project Position
 
