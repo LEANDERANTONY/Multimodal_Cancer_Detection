@@ -211,8 +211,8 @@ Q1 clinical-AI venues increasingly require a completed reporting checklist. Targ
 ## Open Decisions To Resolve Before Writing
 
 - ~~Which paper goes first~~ **RESOLVED 2026-07: go Q1-direct.** The data blocker is gone and the two papers share too much narrative for Q2-first to be safe. The Q2 reframe is retained only as a fallback if Milestone A shows no image-level confound.
-- **Input geometry** for the v2 pipeline: 2D slices, 2.5D stacks, or full 3D volumetric. Open.
-- **Mask policy**: use all 2,238 masks (482 manual + 1,756 automatic) or restrict to manual-only as a robustness arm — automatic masks carry label noise and provenance correlates with class. Open.
+- ~~**Input geometry**~~ **RESOLVED 2026-07: 2.5D** (3-5 adjacent slices as channels). The DFR and SSL/foundation arms need a swappable 2D-style backbone, the scanner confound is a slice-wise phenomenon, and 8 GB VRAM makes full 3D a poor use of the timeline.
+- ~~**Mask policy**~~ **RESOLVED 2026-07: do not crop from the provided masks at all.** 479 of the 482 manual masks are PDAC, so a manual mask implies PDAC with **99.4%** probability — provenance is a stronger label proxy than scanner, and manual-only is not a viable arm (~3 controls). Instead run one uniform off-the-shelf pancreas segmentation over all 2,238 cases, crop the **pancreas** channel only (never the lesion channel), and use the provided masks solely to validate the segmentation and to stratify results by provenance.
 - Whether to pursue a real/quasi-paired CT+biomarker cohort for genuine fusion (collaboration-dependent) or keep fusion as an explicitly exploratory section.
 - ~~Scope of feature-space debiasing~~ **RESOLVED 2026-07:** run the panel (tuned ERM + DFR + GRL + SSL backbone). GRL alone is not defensible as a contribution, and a tuned ERM baseline is mandatory.
 
