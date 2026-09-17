@@ -101,6 +101,18 @@ thesis-oriented analysis direction that still shapes the repository.
 - Updated project path resolution so normal notebook runs prefer processed biomarker inputs and fall back to raw only for local rebuild scenarios.
 - Aligned README guidance with the actual maintained workflow: notebook-first analysis runs should start from `data/processed/` for both CT and biomarkers.
 
+## Phase 11: PANORAMA External-Validation Setup (2026-07 to 2026-09)
+
+Shifted from repo-hardening into the Q1 external-validation build.
+
+- Acquired PANORAMA (largest public PDAC-detection CT cohort): all 4 Zenodo image batches (~193 GB) downloaded + MD5-verified, extracted (2,238 studies / 2,224 patients), reconciled 1:1 with the separate `panorama_labels` masks + `clinical_information.xlsx` (see `data/raw/ct/panorama/INVENTORY.md`).
+- Ran a metadata confound audit (`reports/panorama_confound_audit.md`): scanner/manufacturer is a measured confound (Cramer's V = 0.44) and the `level` column is near-label leakage; there is no institution column, so the generalization axis becomes leave-one-manufacturer-out.
+- Replanned the publication track to Q1-direct and reframed the CT contribution from "propose gradient reversal" to a comparative evaluation of mitigations (tuned ERM / DFR / GRL / SSL). See ADR-003.
+- Consolidated docs (merged the former `docs/timeline.md` into this DEVLOG; centralized forward-looking plans in ROADMAP).
+- Modernized the dependency stack (numpy 2.x, pandas 3.x, scikit-learn 1.9, ...) and moved torch to 2.9.1+cu128 so the RTX 5060 Ti (Blackwell / sm_120) is usable; Linux CI still resolves CPU torch from PyPI.
+- Locked the v2 build decisions and a hybrid compute plan (3D nnU-Net reference on a rented RTX 4090; 2.5D mitigation panel local). See ADR-003 and `docs/preprocessing_audit.md` §5.
+- Built + validated the pancreas ROI-crop pipeline (TotalSegmentator in an isolated env; pancreas bbox + a validated 150x100x40 mm margin gives 100% lesion + pancreas containment) and launched the full 2,238-case crop to `data/processed/ct/panorama_roi/`. Operational note: deep-dependency tool envs (torch) must live at SHORT paths on Windows or they hit the 260-char MAX_PATH limit and corrupt silently.
+
 ## Current Verification Practice
 
 The main validation steps currently used are:

@@ -9,6 +9,12 @@ This project uses medical imaging and biomarker data related to pancreatic cance
 - thesis files, checkpoints, embeddings, and presentation materials are treated as local-only by default
 - contributors should never commit patient-level source data, exported scans, or derived files that could create privacy or governance issues
 
+## External Validation Data (PANORAMA)
+
+- The PANORAMA challenge CT dataset (2,238 studies) is used for external CT validation. It is licensed **CC BY-NC 4.0** (non-commercial) - fine for academic/thesis use with citation, not for a commercial product.
+- PANORAMA images and masks stay local under `data/raw/ct/panorama/` (gitignored), per the local-only data policy; only lightweight audits and reports are tracked.
+- A metadata confound audit found scanner/manufacturer is a measured acquisition confound and the `level` field is near-label leakage - both documented so results are reported stratified by scanner and neither is ever used as a feature.
+
 ## Privacy Posture
 
 - this repository is structured to avoid publishing raw patient data
@@ -54,8 +60,8 @@ When describing the project publicly, keep these points explicit:
 
 ## Future Ethical And Methodological Improvements
 
-- external validation on additional CT cohorts
-- domain-adversarial CT training to suppress dataset-of-origin shortcuts
+- external validation on additional CT cohorts (PANORAMA acquired; leave-one-manufacturer-out in progress)
+- comparative evaluation of debiasing methods (tuned ERM / DFR / gradient reversal / SSL) rather than proposing gradient reversal alone
 - clearer uncertainty reporting and calibration tracking
 - real paired multimodal cohorts instead of synthetic pairing
 - stronger dataset documentation and governance notes if data-sharing constraints change

@@ -8,3 +8,4 @@ The ADRs are historical records. Some decisions reflect thesis-stage planning co
 
 - [ADR-001: Scope and architecture updates for thesis execution](ADR-001.md)
 - [ADR-002: Hybrid notebook-plus-modules repository structure](ADR-002.md)
+- [ADR-003: PANORAMA external validation - pipeline, geometry, and compute](ADR-003.md)
