@@ -66,6 +66,7 @@ Potential later work includes:
 - domain-adversarial CT training, likely via a gradient reversal layer, to suppress dataset-of-origin information in learned representations
 - matched CT-plus-biomarker cohorts so fusion can be evaluated as a real clinical question instead of a synthetic pairing exercise
 - volumetric CT architectures or transformers once the data and validation setup justify moving beyond slice-based modelling
+- **nnDetection arm (future robustness control for the confound finding).** nnDetection (self-configuring 3D medical object detection, from the nnU-Net/DKFZ team) detects lesions directly from the image WITHOUT the provided pancreas masks. Running it and showing the manufacturer confound STILL appears would prove the confound is intrinsic to the imaging/task, not an artifact of our mask-based ROI pipeline — a direct rebuttal to a "maybe it's your preprocessing/masks" reviewer objection. Strengthens the confound claim; deferred as a follow-up arm, not part of the first Q1 submission.
 
 Status:
 
