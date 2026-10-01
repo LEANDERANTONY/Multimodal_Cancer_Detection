@@ -145,16 +145,22 @@ Section 5's headline 0.90 is inflated by `level` (near-label leakage), so it ove
 
 Predictor = P(PDAC | scanner), estimated empirically; out-of-fold rates are fit on train folds only (unseen scanner -> global train rate), pooled, with a 2000-sample bootstrap CI.
 
+All out-of-fold (per-scanner rate fit on train folds only), patient-grouped by `PANORAMA_patient_id`
+(2238 studies / 2224 patients -- grouping keeps a patient out of both train and test):
+
 | estimator | AUROC | AP |
 |---|---|---|
-| scanner-only, out-of-fold (**report this**) | **0.707**  95% CI [0.682, 0.731] | 0.560 |
-| scanner-only, in-sample | 0.713 | 0.543 |
+| **manufacturer alone (no Unknown), patient-grouped -- report this** | **0.700**  95% CI [0.670, 0.727] | 0.544 |
+| all scanner categories, patient-grouped | 0.706  [0.681, 0.730] | 0.555 |
+| all categories, study-level (prior reported figure) | 0.707  [0.682, 0.731] | 0.560 |
 | chance | 0.500 | 0.302 (base rate) |
 | full metadata incl. `level` (section 5) | 0.90 | -- |
 
-**Scanner brand alone detects PDAC at AUROC ~0.71 with zero pixels** -- AP rises from the 0.30 chance floor to 0.56. This is the floor any CT detection result must be read against: a model reporting, say, 0.85 is claiming only ~0.14 of AUROC above what scanner metadata gives for free, and only a confound-controlled (scanner-stratified or leave-one-manufacturer-out) evaluation can show that margin is tumour signal rather than acquisition signature.
+**Scanner manufacturer alone detects PDAC at AUROC ~0.70 with zero pixels** -- AP rises from the 0.30 chance floor to ~0.54. This is the floor any CT detection result must be read against: a model reporting, say, 0.85 is claiming only ~0.15 of AUROC above what scanner metadata gives for free, and only a confound-controlled (scanner-stratified or leave-one-manufacturer-out) evaluation can show that margin is tumour signal rather than acquisition signature.
 
-**Segmentation cross-check (3D nnU-Net, Dataset700).** A leave-one-manufacturer-out run (train on the other manufacturers, test on the held-out one) gave positive-case Dice of 0.365 (Siemens), 0.349 (Toshiba), 0.287 (Philips) -- all inside the random 5-fold CV band (0.28--0.39, mean ~0.33); the between-manufacturer spread (0.078) is smaller than the ordinary fold-to-fold spread (0.11). So the confound is **not** in how the network delineates a lesion (boundary-drawing is manufacturer-invariant); it is in **case selection** -- exactly where the scanner-only 0.71 lives. Positive-case Dice conditions on a lesion being present and is blind to the detection shortcut by construction, which is why the two tests must be read together.
+Two methodological points (both tighten the figure without changing the story): (i) the **report-this** row drops the `Unknown` (missing/"0") scanner group -- its non-random 36% PDAC prevalence is predictable, but an image model cannot read a *missing metadata field* from pixels, so only known manufacturers represent a true acquisition signature; including `Unknown` adds ~0.006 AUROC. (ii) Patient-grouping vs study-level moves the figure by <0.002 (only 14 repeat exams), but the metric is now genuinely patient-level.
+
+**Segmentation cross-check (3D nnU-Net, Dataset700).** A leave-one-manufacturer-out run (train on the other manufacturers, test on the held-out one) gave positive-case Dice of 0.365 (Siemens), 0.349 (Toshiba), 0.287 (Philips) -- all inside the random 5-fold CV band (0.28--0.39, mean ~0.33); the between-manufacturer spread (0.078) is smaller than the ordinary fold-to-fold spread (0.11). So the confound is **not** in how the network delineates a lesion (boundary-drawing is manufacturer-invariant); it is in **case selection** -- exactly where the scanner-only ~0.70 lives. Positive-case Dice conditions on a lesion being present and is blind to the detection shortcut by construction, which is why the two tests must be read together.
 
 Reproduce: `python tools/scanner_only_shortcut.py`.
 
