@@ -139,8 +139,28 @@ An AUC of **0.90** (CI [0.89, 0.91]) is *far* above the 0.5 no-information line:
 - **Keep the ~12% missing-scanner rows visible as `Unknown`** rather than dropping them; the Unknown group is itself 36% PDAC (above base rate), i.e. missingness is not random.
 
 
+## 7. Scanner-only shortcut ceiling (added 2026-10-01)
+
+Section 5's headline 0.90 is inflated by `level` (near-label leakage), so it overstates the *physically deployable* shortcut. The honest, narrower question: **how well does the scanner manufacturer alone -- no `level`, no demographics, no pixels -- predict PDAC?** That is the slice of "detection" an image model can obtain for free by reading acquisition signatures.
+
+Predictor = P(PDAC | scanner), estimated empirically; out-of-fold rates are fit on train folds only (unseen scanner -> global train rate), pooled, with a 2000-sample bootstrap CI.
+
+| estimator | AUROC | AP |
+|---|---|---|
+| scanner-only, out-of-fold (**report this**) | **0.707**  95% CI [0.682, 0.731] | 0.560 |
+| scanner-only, in-sample | 0.713 | 0.543 |
+| chance | 0.500 | 0.302 (base rate) |
+| full metadata incl. `level` (section 5) | 0.90 | -- |
+
+**Scanner brand alone detects PDAC at AUROC ~0.71 with zero pixels** -- AP rises from the 0.30 chance floor to 0.56. This is the floor any CT detection result must be read against: a model reporting, say, 0.85 is claiming only ~0.14 of AUROC above what scanner metadata gives for free, and only a confound-controlled (scanner-stratified or leave-one-manufacturer-out) evaluation can show that margin is tumour signal rather than acquisition signature.
+
+**Segmentation cross-check (3D nnU-Net, Dataset700).** A leave-one-manufacturer-out run (train on the other manufacturers, test on the held-out one) gave positive-case Dice of 0.365 (Siemens), 0.349 (Toshiba), 0.287 (Philips) -- all inside the random 5-fold CV band (0.28--0.39, mean ~0.33); the between-manufacturer spread (0.078) is smaller than the ordinary fold-to-fold spread (0.11). So the confound is **not** in how the network delineates a lesion (boundary-drawing is manufacturer-invariant); it is in **case selection** -- exactly where the scanner-only 0.71 lives. Positive-case Dice conditions on a lesion being present and is blind to the detection shortcut by construction, which is why the two tests must be read together.
+
+Reproduce: `python tools/scanner_only_shortcut.py`.
+
+
 ---
 
-**Artifacts:** figure `figures/panorama_confound_audit.png` (%PDAC by scanner and by level). This report: `reports/panorama_confound_audit.md`. Both are new tracked files.
+**Artifacts:** figure `figures/panorama_confound_audit.png` (%PDAC by scanner and by level); script `tools/scanner_only_shortcut.py` (section 7, scanner-only AUROC). This report: `reports/panorama_confound_audit.md`.
 
 **Anomaly note:** the `level` column's semantics differ from the task brief (it is diagnostic-method + source tags, with no separate Radboud/Groningen centre split available), and one scanner value was the literal string `"0"` (folded into Unknown). There is no explicit institution/centre column in the file.
