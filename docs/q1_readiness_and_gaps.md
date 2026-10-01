@@ -1,0 +1,76 @@
+# Q1 Readiness & Gap Analysis — Paper #1 (PDAC CT confound)
+
+_Living strategy note. Target: Q1 (MedIA / npj Digital Medicine / Radiology:AI), Q2 fallback (MIDL / specialised imaging journal). Written 2026-10-02._
+
+## 1. Findings so far (assets)
+- **Measured scanner confound in PANORAMA** (flagship public PDAC cohort): scanner↔label Cramer's V 0.44, chi2 432, p 3e-91; **scanner-alone AUROC 0.70** (manufacturer-only, patient-grouped) — reproducible (`tools/scanner_only_shortcut.py`).
+- **`level` near-label-leakage** in a public challenge dataset (full-metadata AUC 0.90 dominated by `level`) — a concrete community gotcha.
+- **3D nnU-Net reference** (loose ROI, CV 5-fold + LOMO): pos-case Dice ~0.33; detection AUROC ~0.6–0.68 within-scanner; **in-distribution confound tax ≈ 0**; generalises across manufacturers (CV ≈ LOMO within-scanner).
+- **Feature-space probe**: the trained model's bottleneck features encode scanner only weakly (0.586 linear / 0.602 RF / 0.614 MLP; shuffle 0.513) but encode cancer more (0.650/0.615/0.691) → **pipeline resists the confound at the representation level**.
+- **Thesis 2D model** (positive control): rode a dataset-of-origin confound (cancer=Pancreatic-CT-CBCT-SEG vs control=NIH Pancreas-CT) to **0.9999** — confound *was* exploited.
+- Tight-crop (100x50x15mm) CV: running.
+
+## 2. The reframed thesis: **confound present != confound exploited**
+We set out to show "CT PDAC detection is a confounded shortcut." On the **thesis** dataset that holds (0.9999 from source leakage). On **PANORAMA** the opposite held: the confound is strongly *in the data* (0.70 from metadata) yet the well-built nnU-Net **does not exploit it**. So the honest, sharper headline is: *the presence of a confound in the data does not mean the model rides it; pipeline design (HU-preserving normalisation + ROI crop + segmentation objective) is the mediator — and we give a protocol to measure the difference.*
+
+## 3. Novelty positioning (vs literature)
+Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
+- Ong Ly et al., npj Digital Medicine 2024 (PEst; generalisation estimate w/o external data) — https://www.nature.com/articles/s41746-024-01118-4
+- Boland et al. 2024 — locate shortcuts in network *layers* (Prediction Depth). **Closest neighbour to our feature-probe.**
+- MICCAI 2024 "Shortcut Learning in Medical Image Segmentation"; HSIC dependence benchmarking (MLMI 2024); survey arXiv 2412.05152.
+
+**Our defensible novelty (lead with these):**
+1. **"Present != exploited" on the flagship PDAC cohort** — measured confound (0.70) not propagated (tax≈0, weak feature-encoding).
+2. **The `level` label-leakage finding** in a public challenge dataset.
+3. **Deployment-ROI confound analysis** — oracle-mask vs predicted-segmenter ROI (see §6). Unclaimed in the literature.
+4. **Two independent confounds, one protocol** — thesis dataset-of-origin (positive control) vs PANORAMA scanner (test case).
+5. **Mitigation panel on a *real* clinical confound** — if ERM/robust-pipeline >= DFR/GRL/SSL, a citable negative result.
+
+## 4. Gap list for Q1
+| Gap | Status | Weight |
+|---|---|---|
+| Mitigation panel (tuned ERM / DFR / GRL / SSL), local 2.5D | not done | **critical** |
+| Deployment-ROI experiment (segmenter vs oracle, §6) | not done | **high / novel** |
+| External validation (held-out MSD + NIH; §5) | data in hand, not run | **high** |
+| Tight-crop ablation (loose vs tight) | running | medium |
+| Biomarker + fusion ("clean" arm) | exists, needs rigour | medium (multimodal lifts Q1) |
+| Nonlinear feature-probe | DONE | — |
+| DeLong CIs, calibration (ECE/Brier), subgroup-by-scanner/provenance | partial | needed |
+
+## 5. External validation plan
+**Primary — the held-out MSD + NIH set (already carved out, never trained on; 274 cases = `imagesTs` in Dataset700).**
+- **MSD** (n=194, ~50% PDAC): different institution, both classes → clean external AUROC/AP.
+- **NIH** (n=80, 0% PDAC): specificity / false-positive-rate only (no positives → no AUROC).
+- These have provided pancreas masks (part of PANORAMA auto-labels) → can crop with oracle ROI first, then segmenter ROI (§6).
+- Because the model never trained on these, strong generalisation evidence; if performance holds, it cannot be the *PANORAMA* scanner shortcut.
+
+**Secondary — the thesis TCIA cohort (CBCT-SEG cancer [n~34–40] + NIH Pancreas-CT control [n~82]) as a *confound control*, not a clean performance test.**
+- Caveats: (a) the thesis set has its OWN dataset-of-origin confound (cancer=CBCT vs control=NIH); (b) the CBCT-SEG cancer scans are cone-beam / RT-planning → large domain shift from diagnostic CT, so low detection there may be domain shift, not tumour-detection failure; (c) the 82 are **controls (healthy)**, not PDAC.
+- Its value: show the PANORAMA model does **not** reproduce the thesis 0.9999 (it cannot exploit a confound it never trained on) — a clean contrast demonstrating the confound is dataset-specific, not intrinsic to CT. Interpret as a control, not external accuracy.
+
+## 6. Deployment ROI: the two-stage practice + the oracle-vs-segmenter experiment
+**Field practice (PANDA Cao 2023; Chen Radiology 2022; PANORAMA baseline; PanDx): two-stage** — Stage 1 segments the pancreas on the raw scan, crop the ROI from that *prediction*, Stage 2 classifies the crop. Predicting on the whole scan is **not** standard (too much irrelevant FOV). So "segment -> ROI -> crop -> predict on crop" is correct; we do NOT predict directly on the full image.
+
+**The gap / experiment:** we trained on *oracle* (provided) mask crops, unavailable clinically. Re-run detection + confound diagnostics using a **predicted-segmenter ROI** (TotalSegmentator or baseline Stage-1), and compare to oracle ROI:
+- detection AUROC: oracle vs segmenter (the deployment gap);
+- confound tax + feature-probe: does the robustness survive, or does the **segmentation stage re-inject a scanner confound** (plausible if Stage-1 accuracy is scanner-dependent)?
+This answers clinical validity AND is the novelty differentiator. Run for BOTH the loose and tight models.
+
+## 7. Experiment matrix (run for BOTH models: loose Dataset700 + tight Dataset701)
+| Test | Loose model | Tight model |
+|---|---|---|
+| CV Dice + detection AUROC | done | pending (training) |
+| External MSD/NIH (oracle ROI) | to run | to run |
+| Deployment segmenter ROI (vs oracle) | to run | to run |
+| Feature-space scanner probe | done (0.59–0.61) | to run |
+| Mitigation panel (2.5D, local) | — | — (separate arm) |
+All external/segmenter/probe tests are **inference-only (cheap)** — run for both once a pod is free.
+
+## 8. Sequence
+1. Finish tight-crop CV (running) -> loose-vs-tight ablation.
+2. External MSD/NIH validation (oracle ROI) for both models.
+3. Deployment segmenter-ROI experiment (both models) — the high-novelty, clinical-validity piece.
+4. Mitigation panel (local 2.5D): tuned ERM / DFR / GRL / SSL under one pre-registered model-selection rule; scanner as domain label.
+5. Biomarker + fusion arm; DeLong CIs + calibration + subgroup tables.
+6. Thesis-cohort confound control.
+7. Reframe write-up around "present != exploited" + deployment-ROI; target MedIA/npj-DM.
