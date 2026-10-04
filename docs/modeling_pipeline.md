@@ -36,7 +36,8 @@ Extracts the trained encoder bottleneck (320-d, GAP of centre patch), patient-gr
 - **Segmentation Dice (pos-case CV):** loose 0.33 → **tight 0.505 ± 0.02**.
 - **Detection AUROC (best `cc_psz`):** loose 0.697 → **tight 0.787**; `p_max` loose 0.562 → tight 0.770. vs PanDx ceiling 0.926 (tuned two-stage ensemble; we are a single-stage reference).
 - **Scanner metadata-only AUROC = 0.70** (confound in the DATA). **Feature probe:** scanner 0.59–0.61 (any probe) vs cancer 0.65–0.69 → the pipeline resists the confound (robust, not just weak).
-- Loose LOMO (earlier): Siemens 0.641 / Toshiba 0.711 / Philips 0.588.
+- Loose LOMO pos-Dice: Siemens 0.365 / Toshiba 0.349 / Philips 0.287; loose LOMO detection AUROC (p_sum): 0.641 / 0.711 / 0.588.
+- Tight LOMO pos-Dice: Siemens holdout 0.547 (Toshiba, Philips pending).
 
 ## 7. Volume cleanup policy
 Keep on volume: **dataset tar(s)**, checkpoints, `summary.json`s. **Delete the big `--npz` softmax after extracting detection numbers** (regenerable from checkpoints). Pull `summary.json`s + feature npz to `reports/nnunet_summaries/` before deleting. Volume went 343 GB → ~6.5 GB this way (+ 22 GB tar kept = ~29 GB).
