@@ -71,6 +71,11 @@ This answers clinical validity AND is the novelty differentiator. Run for BOTH t
 | Mitigation panel (2.5D, local) | — | — (separate arm) |
 All external/segmenter/probe tests are **inference-only (cheap)** — run for both once a pod is free.
 
+## 7b. Borrowed from Kaggle grandmasters (`D:/Documents/Projects/Kaggle/Grandmasters/`, 2026-10-05)
+- **ren4yu (medical imaging specialist):** localise → crop → classify is his standard two-stage pipeline (= our deployment-ROI setup); get geometry exactly right first (cf. the zeroed origin we found in the first loose crop pass); **2.5D with a pretrained 2D backbone + depth pooling beat true 3D** in several competitions → backbone choice for the local mitigation panel; attention pooling with an auxiliary loss.
+- **sersasj (3D imaging, Biohub solo 1st):** **MAE self-supervised pretraining for robustness to an unseen domain** → a concrete SSL arm for the mitigation panel (unseen scanner = unseen domain); **train on deliberately corrupted inputs** → for deployment-ROI, train stage 2 on jittered / predicted-mask crops so it tolerates segmenter error (candidate mitigation of the deployment gap); model soups when epoch selection is unreliable.
+- **samson8 (synthetic data):** synthetic data matched to the real distribution, **always mixed with real data, and all validation on real data only** → rule for the fusion arm: synthetic samples may augment training, every reported number comes from real patients.
+
 ## 8. Sequence
 1. Finish tight-crop CV (running) -> loose-vs-tight ablation.
 2. External MSD/NIH validation (oracle ROI) for both models.
