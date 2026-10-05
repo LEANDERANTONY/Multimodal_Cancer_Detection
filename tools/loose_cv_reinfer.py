@@ -12,7 +12,8 @@ Stop: Ctrl+C, or kill the python process — rerunning resumes where it left off
 Then: .venv/Scripts/python.exe tools/confound_tax_ci.py reports/nnunet_summaries/loose_battery/cv_scores.csv
 """
 import os
-os.environ.setdefault("OMP_NUM_THREADS", "4"); os.environ.setdefault("MKL_NUM_THREADS", "4")
+THREADS = int(os.environ.get("REINFER_THREADS", "4"))  # <=8 keeps 4 of 12 cores free (CLAUDE.md)
+os.environ.setdefault("OMP_NUM_THREADS", str(THREADS)); os.environ.setdefault("MKL_NUM_THREADS", str(THREADS))
 os.environ.setdefault("nnUNet_raw", "unused"); os.environ.setdefault("nnUNet_preprocessed", "unused")
 os.environ.setdefault("nnUNet_results", "unused")
 import csv, json, sys, time
@@ -26,7 +27,8 @@ MODEL = f"{ROOT}/models/nnunet/loose_cv/Dataset700_PanoramaPDAC/nnUNetTrainer_25
 SUMM = f"{ROOT}/reports/nnunet_summaries/nnunet_results/Dataset700_PanoramaPDAC/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres"
 IMG = f"{ROOT}/data/processed/ct/nnunet_raw/Dataset700_PanoramaPDAC/imagesTr"
 SCANNER_CSV = f"{ROOT}/reports/nnunet_summaries/tight_battery/lomo_scores.csv"
-OUT = f"{ROOT}/reports/nnunet_summaries/loose_battery/cv_scores.csv"
+TTA = os.environ.get("REINFER_TTA", "1") == "1"  # mirroring TTA (nnU-Net default; ~8x slower in 3D)
+OUT = f"{ROOT}/reports/nnunet_summaries/loose_battery/cv_scores{'' if TTA else '_notta'}.csv"
 LOCK = f"{ROOT}/reports/nnunet_summaries/loose_battery/.running.pid"
 FOLDS = [int(a) for a in sys.argv[1:]] or [0, 1, 2, 3, 4]
 LIMIT = int(os.environ.get("REINFER_LIMIT", "0"))  # >0: smoke test, only this many cases per fold
@@ -49,7 +51,7 @@ def main():
             sys.exit(f"already running (pid {pid}); refusing to start a second copy")
     open(LOCK, "w").write(str(os.getpid()))
     psutil.Process().nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
-    torch.set_num_threads(4)
+    torch.set_num_threads(THREADS)
 
     from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
     from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
@@ -72,7 +74,7 @@ def main():
         todo = [(c, y) for c, y in cases if (f, c) not in done]
         print(f"fold {f}: {len(cases)} cases, {len(todo)} to do", flush=True)
         if not todo: continue
-        pred = nnUNetPredictor(tile_step_size=0.5, use_gaussian=True, use_mirroring=True,
+        pred = nnUNetPredictor(tile_step_size=0.5, use_gaussian=True, use_mirroring=TTA,
                                perform_everything_on_device=True, device=torch.device("cuda"), allow_tqdm=False)
         pred.initialize_from_trained_model_folder(MODEL, use_folds=(f,), checkpoint_name="checkpoint_final.pth")
         t0 = time.time()
