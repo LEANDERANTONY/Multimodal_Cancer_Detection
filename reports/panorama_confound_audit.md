@@ -167,6 +167,6 @@ Reproduce: `python tools/scanner_only_shortcut.py`.
 
 ---
 
-**Artifacts:** figure `figures/panorama_confound_audit.png` (%PDAC by scanner and by level); script `tools/scanner_only_shortcut.py` (section 7, scanner-only AUROC). This report: `reports/panorama_confound_audit.md`.
+**Artifacts:** figure `figures/panorama/panorama_confound_audit.png` (%PDAC by scanner and by level); script `tools/scanner_only_shortcut.py` (section 7, scanner-only AUROC). This report: `reports/panorama_confound_audit.md`.
 
 **Anomaly note:** the `level` column's semantics differ from the task brief (it is diagnostic-method + source tags, with no separate Radboud/Groningen centre split available), and one scanner value was the literal string `"0"` (folded into Unknown). There is no explicit institution/centre column in the file.

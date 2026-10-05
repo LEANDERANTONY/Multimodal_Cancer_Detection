@@ -1,87 +1,66 @@
-Multimodal_Cancer_Detection/
-|-- README.md
-|-- ROADMAP.md
-|-- DEVLOG.md
-|-- folder_structure.txt
-|-- LICENSE
-|-- .gitignore
-|-- .python-version
-|-- pyproject.toml
-|-- uv.lock
+Multimodal_Cancer_Detection/          (doc index: docs/README.md; local data map + filing rule: docs/data_layout.md)
+|-- README.md                      # project + current status
+|-- ROADMAP.md                     # publication plan, resolved decisions
+|-- DEVLOG.md                      # phase-by-phase history
+|-- folder_structure.txt           # this file
+|-- LICENSE, .gitignore, .python-version, pyproject.toml, uv.lock
+|-- AGENTS.md                      # local-only agent onboarding (git-ignored)
 |
-|-- docs/                       # index: docs/README.md
-|   |-- README.md                # documentation index (start here)
-|   |-- q1_readiness_and_gaps.md # living Q1 plan
-|   |-- modeling_pipeline.md     # 3D nnU-Net pipeline + results
-|   |-- deployment_and_mitigation_design.md  # pre-registered next experiments
-|   |-- data_layout.md           # where data / models / results live
+|-- docs/
+|   |-- README.md                  # documentation index (start here)
+|   |-- q1_readiness_and_gaps.md   # living Q1 plan
+|   |-- modeling_pipeline.md       # 3D nnU-Net pipeline + all results
+|   |-- deployment_and_mitigation_design.md   # pre-registered next experiments
+|   |-- data_layout.md             # where data / models / results live; where new things go
+|   |-- project_strategy.md        # scope and repo rationale
 |   |-- architecture.md, model_card.md, data_and_ethics.md, quickstart.md, figures-guide.md
-|   `-- architectural_decision_records/
-|       |-- README.md
-|       `-- ADR-001.md ... ADR-005.md
+|   |-- preprocessing_audit.md     # local-only (git-ignored)
+|   |-- licenses/                  # thesis TCIA dataset licences
+|   `-- architectural_decision_records/       # README.md + ADR-001 ... ADR-005
 |
-|-- data/                       # local-only datasets, ignored (full map: docs/data_layout.md)
-|   |-- raw/ct/{panorama, panorama_labels, cancer, control}, raw/biomarkers/
-|   |-- processed/ct/nnunet_raw/{Dataset700_PanoramaPDAC (loose), Dataset701_PanoramaPDAC_tight}
-|   `-- envs/nnunet/            # nnU-Net env (torch 2.8; project .venv pins 2.9)
+|-- reports/                       # tracked lightweight results (see reports/README.md)
+|   |-- *.csv, *.json              # thesis-era outputs (notebook / src read these; keep flat)
+|   |-- panorama_confound_audit.md
+|   `-- nnunet_summaries/          # Q1 evidence
+|       |-- nnunet_results{,_lomo,_tight,_tight_lomo}/   # per-run summaries (loose CV / loose LOMO / tight CV / tight LOMO)
+|       |-- tight_battery/, loose_battery/               # per-case detection scores, feature-probe npz
+|       |-- external/                                    # MSD + NIH external validation
+|       `-- run_logs/
 |
-|-- figures/
-|   `-- tracked curated figures for README, reports, and dissertation-aligned outputs
+|-- figures/                       # tracked curated figures
+|   |-- *.png                      # thesis-era (notebook writes these)
+|   `-- panorama/                  # Q1 / PANORAMA figures
 |
-|-- reports/
-|   |-- tracked lightweight CSV, JSON, and summary artifacts
-|   `-- nnunet_summaries/        # nnU-Net summaries, per-case detection scores, confound batteries
-|
-|-- results/
-|   `-- .gitkeep
+|-- scripts/
+|   `-- runpod/                    # pod-side drivers: training, LOMO, confound battery, detection scoring,
+|                                  #   feature probe, external validation, upload/download
+|-- tools/                         # local analysis: ROI builder, scanner-only baseline, confound-tax CI,
+|   |                              #   loose CV re-inference
+|   `-- thesis/                    # dissertation / notebook-writing utilities
 |
 |-- notebooks/
-|   `-- 01_multimodal_cancer_detection.ipynb
+|   `-- 01_multimodal_cancer_detection.ipynb  # thesis-era orchestration notebook
 |
-|-- src/
-|   |-- cli/
-|   |-- data/
-|   |   |-- __init__.py
-|   |   |-- ct_analysis.py
-|   |   |-- ct_embeddings.py
-|   |   |-- ct_pipeline.py
-|   |   `-- preprocess/
-|   |       |-- biomarker_preprocess.py
-|   |       `-- ct_preprocess.py
-|   |-- fusion/
-|   |   |-- __init__.py
-|   |   |-- decision_level.py
-|   |   `-- feature_level.py
-|   |-- interpretability/
-|   |   |-- __init__.py
-|   |   `-- gradcam.py
-|   |-- models/
-|   |   |-- __init__.py
-|   |   |-- biomarker.py
-|   |   |-- clustered_ct.py
-|   |   `-- ct.py
-|   |-- results/
-|   |   |-- __init__.py
-|   |   `-- summary.py
-|   |-- uncertainty/
-|   `-- utils/
-|       |-- __init__.py
-|       |-- logging.py
-|       |-- project.py
-|       `-- repro.py
+|-- src/                           # thesis-era reusable modules
+|   |-- cli/                       # stub
+|   |-- data/                      # ct_analysis, ct_embeddings, ct_pipeline, preprocess/{biomarker,ct}_preprocess
+|   |-- fusion/                    # decision_level, feature_level
+|   |-- interpretability/          # gradcam
+|   |-- models/                    # biomarker, clustered_ct, ct
+|   |-- results/                   # summary
+|   |-- uncertainty/               # stub
+|   `-- utils/                     # logging, project, repro
 |
-|-- tests/
-|   |-- test_decision_fusion.py
-|   |-- test_project_utils.py
-|   `-- test_results_summary.py
+|-- tests/                         # pytest suite for stable src helpers
 |
-|-- embeddings/                  # local-only, ignored
-|-- models/                      # local-only checkpoints, ignored
-|   |-- *.pt                     # thesis-era 2D CT / biomarker models
-|   `-- nnunet/{loose_cv, loose_lomo, tight_cv, tight_lomo, runpod_volume_misc}/  # 3D nnU-Net runs
-|-- thesis/                      # local-only dissertation assets, ignored
-|-- VideoPresentation_CodeFile_Dataset/   # local-only presentation assets, ignored
-|-- scripts/
-|   `-- runpod/                  # pod-side drivers: training, LOMO, confound battery, external validation, transfers
-`-- tools/                       # tracked analysis tools (ROI builder, detection scoring, feature probe,
-                                 #   scanner-only baseline, confound-tax CI, loose re-inference) + thesis notebook utilities
+|-- data/                          # local only (git-ignored)
+|   |-- raw/ct/{panorama, panorama_labels, cancer, control}, raw/biomarkers/
+|   |-- processed/ct/nnunet_raw/{Dataset700_PanoramaPDAC (loose), Dataset701_PanoramaPDAC_tight}
+|   |-- processed/ct_*, *.csv      # thesis-era 2D outputs
+|   `-- envs/nnunet/               # nnU-Net env (torch 2.8; project .venv pins 2.9)
+|-- models/                        # local only (git-ignored)
+|   |-- *.pt                       # thesis-era 2D CT / biomarker models
+|   `-- nnunet/{loose_cv, loose_lomo, tight_cv, tight_lomo, runpod_volume_misc}/
+|-- embeddings/                    # local only, thesis-era ResNet embeddings
+|-- thesis/                        # local only, dissertation assets
+`-- VideoPresentation_CodeFile_Dataset/      # local only, presentation assets

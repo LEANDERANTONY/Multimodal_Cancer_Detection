@@ -130,7 +130,8 @@ The Q1 work runs alongside the thesis code and does not use `src/` yet. It is sc
 | Training (CV, LOMO) | `scripts/runpod/run_train701.sh`, `run_lomo701.sh` (rented GPU) | nnU-Net v2 3d_fullres, `nnUNetTrainer_250epochs`; data staged from a network volume to local disk; pod self-stops |
 | Confound battery | `scripts/runpod/tight_battery.py`, `run_battery701.sh` | per-scanner detection, confound tax, feature probe; per-case CSVs |
 | External validation | `scripts/runpod/run_external.sh`, `ext_eval.py`, `run_external_perfold.sh` | MSD + NIH, 5-fold ensemble and per-fold |
-| Local analysis | `tools/` (`detection_candidate.py`, `feature_diag.py`, `scanner_only_shortcut.py`, `loose_cv_reinfer.py`, `confound_tax_ci.py`) | nnU-Net code runs in `data/envs/nnunet` (torch 2.8); analysis in the project `.venv` |
+| Detection scoring, feature probe | `scripts/runpod/detection_candidate.py`, `feature_diag.py` | read the pod volume; `detection_candidate.py` also works on any local results folder |
+| Local analysis | `tools/` (`scanner_only_shortcut.py`, `loose_cv_reinfer.py`, `confound_tax_ci.py`); thesis-writing utilities in `tools/thesis/` | nnU-Net code runs in `data/envs/nnunet` (torch 2.8); analysis in the project `.venv` |
 | Data movement | `scripts/runpod/upload_file.sh`, `download_volume.sh` | resumable; run from a user terminal |
 
 Data, models and results locations: `docs/data_layout.md`. Step-by-step method and results:

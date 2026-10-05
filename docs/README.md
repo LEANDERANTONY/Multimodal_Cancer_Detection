@@ -8,7 +8,8 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 |---|---|
 | [`../README.md`](../README.md) | What the project is, current status in one screen |
 | [`q1_readiness_and_gaps.md`](q1_readiness_and_gaps.md) | **The living Q1 plan:** findings so far, novelty positioning, gap list, experiment matrix, sequence |
-| [`data_layout.md`](data_layout.md) | Where every dataset, model checkpoint and result lives locally (and the RunPod volume ↔ local map) |
+| [`data_layout.md`](data_layout.md) | Where every dataset, model checkpoint and result lives locally, the RunPod volume ↔ local map, and **where new files go** |
+| [`../reports/README.md`](../reports/README.md) | What each results folder holds |
 
 ## Q1 paper (PANORAMA, 3D nnU-Net, scanner confound)
 | Doc | What it answers |
@@ -25,7 +26,7 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 |---|---|
 | [`../ROADMAP.md`](../ROADMAP.md) | Publication plan, validation-dataset notes, reviewer-expected analyses, resolved decisions |
 | [`../DEVLOG.md`](../DEVLOG.md) | What was done, phase by phase (thesis 2025 → PANORAMA 2026) |
-| [`../project_strategy.md`](../project_strategy.md) | Scope boundaries and why the repo is shaped as it is |
+| [`project_strategy.md`](project_strategy.md) | Scope boundaries and why the repo is shaped as it is |
 | [`architecture.md`](architecture.md) | Code map: thesis modules in `src/`, PANORAMA pipeline in `scripts/runpod/` + `tools/` |
 | [`model_card.md`](model_card.md) | Every model, what it is, how good it is, and its limitations |
 | [`data_and_ethics.md`](data_and_ethics.md) | Data licences, local-only policy, intended use |
@@ -36,8 +37,8 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 ## Code entry points for the Q1 work
 | Path | What |
 |---|---|
-| `scripts/runpod/` | Pod-side drivers (dataset build, training, LOMO, confound battery, external validation, upload/download) |
+| `scripts/runpod/` | Pod-side drivers (training, LOMO, confound battery, detection scoring, feature probe, external validation, upload/download) |
 | `tools/build_roi_dataset.py` | ROI crop builder (loose 150×100×40 mm / tight 100×50×15 mm) |
 | `tools/scanner_only_shortcut.py` | Scanner-metadata-only AUROC baseline |
-| `tools/detection_candidate.py`, `tools/feature_diag.py` | Detection scoring from softmax; encoder feature probe |
+| `scripts/runpod/detection_candidate.py`, `scripts/runpod/feature_diag.py` | Detection scoring from softmax; encoder feature probe (pod-side) |
 | `tools/loose_cv_reinfer.py`, `tools/confound_tax_ci.py` | Local CV re-inference; confound tax with bootstrap CI |

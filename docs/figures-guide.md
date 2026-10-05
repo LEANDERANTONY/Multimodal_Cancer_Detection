@@ -8,6 +8,11 @@ The `figures/` directory is for curated, lightweight, presentation- or report-wo
 
 It is not intended to hold every intermediate notebook plot generated during exploration.
 
+## Where Figures Go
+
+- `figures/*.png` (flat): thesis-era figures, written by the notebook — keep flat.
+- `figures/panorama/`: every Q1 / PANORAMA figure (confound audit, detection, LOMO, external, deployment-ROI, mitigation panel). Generate them from the tracked per-case CSVs in `reports/nnunet_summaries/` so they are reproducible without the models.
+
 ## What Should Be Tracked
 
 Good candidates for tracked figures:

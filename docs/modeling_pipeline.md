@@ -1,17 +1,17 @@
 # CT modeling pipeline — how the PANORAMA nnU-Net models were built (reproducible)
 
-_Durable record so the whole chain can be re-run / understood without chat history. Scripts in `scripts/runpod/`. Companion: `docs/preprocessing_audit.md` (rationale; local only, git-ignored), `docs/q1_readiness_and_gaps.md` (paper plan)._
+_Durable record so the whole chain can be re-run / understood without chat history. Pod-side scripts in `scripts/runpod/`, local tools in `tools/`. Companion: `docs/preprocessing_audit.md` (rationale; local only, git-ignored), `docs/q1_readiness_and_gaps.md` (paper plan)._
 
 ## 0. Data provenance
 - PANORAMA: 2238 studies / 2224 patients, local at `data/raw/ct/panorama/images` (182 GB) + masks `data/raw/ct/panorama_labels/{automatic,manual}_labels` + `clinical_information.xlsx`.
 - Mask label legend: **1=PDAC lesion, 2=veins, 3=arteries, 4=pancreas parenchyma, 5=pancreatic duct, 6=common bile duct**.
 - Cohorts (from `clinical_information.xlsx` scanner col / build manifest `source`): **Dutch=1964 (train/CV/LOMO), MSD=194, NIH=80** (the 274 MSD+NIH are held out as external test).
 
-## 1. ROI-crop dataset build — `scripts/runpod/build_roi_dataset.py` (local, CPU)
+## 1. ROI-crop dataset build — `tools/build_roi_dataset.py` (local, CPU)
 Crop each case to the **bbox of pancreas(4)+duct(5)** (label-blind; never the lesion mask) + a fixed per-side margin, at native resolution; training label = lesion (mask==1). One flag sets the margin:
 - **Loose = Dataset700**, margin `150 100 40` mm → median crop ~374x272x171 mm (near-full-FOV; pancreas is wide).
 - **Tight = Dataset701**, margin `100 50 15` mm (field/PanDx standard) → median ~319x174x114 mm.
-Run: `python scripts/runpod/build_roi_dataset.py --margin-mm 100 50 15 --out data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight`. Writes nnU-Net raw (imagesTr/labelsTr + dataset.json) + per-case `roi_build_qc.csv` (lesion containment). Tight containment: 667/676 PDAC fully contained, 10 mildly clipped (accepted; fixed margin keeps ROI label-independent). Machine-safe (streams one case, below-normal priority, resumable).
+Run: `python tools/build_roi_dataset.py --margin-mm 100 50 15 --out data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight`. Writes nnU-Net raw (imagesTr/labelsTr + dataset.json) + per-case `roi_build_qc.csv` (lesion containment). Tight containment: 667/676 PDAC fully contained, 10 mildly clipped (accepted; fixed margin keeps ROI label-independent). Machine-safe (streams one case, below-normal priority, resumable).
 - **Local copies:** loose `data/processed/ct/nnunet_raw/Dataset700_PanoramaPDAC/` (1964 Tr + 274 Ts); tight `data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight/` (2238). No local tars (re-create before any upload; the volume keeps `Dataset701_tight.tar`). Trained models: `models/nnunet/{loose_cv,loose_lomo,tight_cv,tight_lomo}/`. Full map: `docs/data_layout.md`.
 
 ## 2. Staging to RunPod (Global volume `panaroma_roi`, fuse.geesefs at /workspace)
@@ -30,7 +30,7 @@ Steps (both drivers): extract tar → **strip to 1964 Dutch** (keep only cases i
 Per-case score from the foreground softmax, 4 ways: `p_max`, `p_sum`, `cc_peak`, **`cc_psz`** (PanDx-style peak x size^(1/15)). Per-fold + pooled AUROC. Run: `python scripts/runpod/detection_candidate.py <results_base>`.
 
 ## 5. Feature-space confound probe — `scripts/runpod/feature_diag.py`
-Extracts the trained encoder bottleneck (320-d, GAP of centre patch), patient-grouped linear/RF/MLP probes for scanner vs cancer. Saves `feature_diag_features.npz` (local copy: `reports/nnunet_summaries/`).
+Extracts the trained encoder bottleneck (320-d, GAP of centre patch), patient-grouped linear/RF/MLP probes for scanner vs cancer. Saves `feature_diag_features.npz` (local copy: `reports/nnunet_summaries/loose_battery/`).
 
 ## 6. Results to date
 - **Segmentation Dice (pos-case CV):** loose 0.33 → **tight 0.505 ± 0.02**.

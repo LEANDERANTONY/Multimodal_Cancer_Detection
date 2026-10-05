@@ -162,4 +162,4 @@ Some older planning assumptions no longer reflect the maintained repository, esp
 - day-by-day scheduling targets from the thesis execution window
 
 Those historical ideas still matter as context, but they are not the current source of truth for
-the repo. For current priorities use `ROADMAP.md`; for scope and rationale use `project_strategy.md`.
+the repo. For current priorities use `ROADMAP.md`; for scope and rationale use `docs/project_strategy.md`.
