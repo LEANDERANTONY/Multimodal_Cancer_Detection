@@ -37,7 +37,9 @@ Extracts the trained encoder bottleneck (320-d, GAP of centre patch), patient-gr
 - **Detection AUROC (best `cc_psz`):** loose 0.697 → **tight 0.787**; `p_max` loose 0.562 → tight 0.770. vs PanDx ceiling 0.926 (tuned two-stage ensemble; we are a single-stage reference).
 - **Scanner metadata-only AUROC = 0.70** (confound in the DATA). **Feature probe:** scanner 0.59–0.61 (any probe) vs cancer 0.65–0.69 → the pipeline resists the confound (robust, not just weak).
 - Loose LOMO pos-Dice: Siemens 0.365 / Toshiba 0.349 / Philips 0.287; loose LOMO detection AUROC (p_sum): 0.641 / 0.711 / 0.588.
-- Tight LOMO pos-Dice: Siemens holdout 0.547 (Toshiba, Philips pending).
+- **Tight LOMO** (held-out manufacturer): pos-Dice Siemens 0.547 / Toshiba 0.450 / Philips 0.471 (tight-CV same scanner 0.508 / 0.483 / 0.516); detection cc_psz 0.811 [0.77,0.85] / 0.773 [0.73,0.82] / 0.706 [0.63,0.78] vs tight-CV within-scanner 0.807 / 0.784 / 0.676 → OOD ≈ in-distribution.
+- **Tight confound battery** (`scripts/runpod/tight_battery.py`; per-case CSVs in `reports/nnunet_summaries/tight_battery/`): CV confound tax cc_psz **+0.031 [+0.012,+0.054]**, p_max +0.026 [+0.008,+0.047] (patient bootstrap) — small but non-zero; mixed (0.787) does not exceed the best within-scanner AUROC (Siemens 0.807). Feature probe (tight fold-0 encoder, n=750): scanner 0.618/0.644/0.622 (lin/RF/MLP; shuffle ~0.50) vs cancer 0.756/0.752/0.767.
+- Tight-LOMO fold 2 first run collapsed to all-background at epoch 1 (per-sample Dice rewards empty predictions; fold 2 has the lowest positive rate, ~21%); re-run with the same config trained normally. Collapsed run archived as `fold_2_collapsed/`.
 
 ## 7. Volume cleanup policy
 Keep on volume: **dataset tar(s)**, checkpoints, `summary.json`s. **Delete the big `--npz` softmax after extracting detection numbers** (regenerable from checkpoints). Pull `summary.json`s + feature npz to `reports/nnunet_summaries/` before deleting. Volume went 343 GB → ~6.5 GB this way (+ 22 GB tar kept = ~29 GB).
