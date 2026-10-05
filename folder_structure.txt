@@ -20,7 +20,7 @@ Multimodal_Cancer_Detection/
 |
 |-- data/                       # local-only datasets, ignored (full map: docs/data_layout.md)
 |   |-- raw/ct/{panorama, panorama_labels, cancer, control}, raw/biomarkers/
-|   |-- processed/ct/nnunet_raw/{Dataset700_PanoramaPDAC (loose), Dataset701_PanoramaPDAC_tight} + .tar
+|   |-- processed/ct/nnunet_raw/{Dataset700_PanoramaPDAC (loose), Dataset701_PanoramaPDAC_tight}
 |   `-- envs/nnunet/            # nnU-Net env (torch 2.8; project .venv pins 2.9)
 |
 |-- figures/
