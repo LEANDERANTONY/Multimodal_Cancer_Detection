@@ -5,14 +5,14 @@ _Living strategy note. Target: Q1 (MedIA / npj Digital Medicine / Radiology:AI),
 ## 1. Findings so far (assets)
 - **Measured scanner confound in PANORAMA** (flagship public PDAC cohort): scanner↔label Cramer's V 0.44, chi2 432, p 3e-91; **scanner-alone AUROC 0.70** (manufacturer-only, patient-grouped) — reproducible (`tools/scanner_only_shortcut.py`).
 - **`level` near-label-leakage** in a public challenge dataset (full-metadata AUC 0.90 dominated by `level`) — a concrete community gotcha.
-- **3D nnU-Net reference** (loose ROI, CV 5-fold + LOMO): pos-case Dice ~0.33; detection AUROC ~0.6–0.68 within-scanner; **in-distribution confound tax ≈ 0**; generalises across manufacturers (CV ≈ LOMO within-scanner).
+- **3D nnU-Net reference** (loose ROI, CV 5-fold + LOMO): pos-case Dice ~0.33; detection AUROC ~0.6–0.68 within-scanner; in-distribution confound tax ≈ +0.02 (no CI yet — re-inference running); generalises across manufacturers (CV ≈ LOMO within-scanner).
 - **Feature-space probe**: the trained model's bottleneck features encode scanner only weakly (0.586 linear / 0.602 RF / 0.614 MLP; shuffle 0.513) but encode cancer more (0.650/0.615/0.691) → **pipeline resists the confound at the representation level**.
 - **Thesis 2D model** (positive control): rode a dataset-of-origin confound (cancer=Pancreatic-CT-CBCT-SEG vs control=NIH Pancreas-CT) to **0.9999** — confound *was* exploited.
 - **Tight-crop (100x50x15mm), 2026-10-05:** CV pos-Dice 0.505, detection cc_psz 0.787. **Tight LOMO** pos-Dice 0.547/0.450/0.471 (Siemens/Toshiba/Philips held out), detection 0.811/0.773/0.706 ≈ in-distribution within-scanner → no manufacturer-shift penalty. **Tight confound tax +0.031 [+0.010,+0.053]** (patient bootstrap) — small but CI excludes 0; mixed never exceeds best within-scanner. Feature probe: scanner 0.62–0.64 vs cancer 0.75–0.77.
 - **Headline wording update:** "present, only weakly exploited (bounded ≤~0.05 AUROC), no manufacturer-shift penalty" — not "not exploited". Loose tax CI pending (local re-inference, `tools/loose_cv_reinfer.py`).
 
 ## 2. The reframed thesis: **confound present != confound exploited**
-We set out to show "CT PDAC detection is a confounded shortcut." On the **thesis** dataset that holds (0.9999 from source leakage). On **PANORAMA** the opposite held: the confound is strongly *in the data* (0.70 from metadata) yet the well-built nnU-Net **does not exploit it**. So the honest, sharper headline is: *the presence of a confound in the data does not mean the model rides it; pipeline design (HU-preserving normalisation + ROI crop + segmentation objective) is the mediator — and we give a protocol to measure the difference.*
+We set out to show "CT PDAC detection is a confounded shortcut." On the **thesis** dataset that holds (0.9999 from source leakage). On **PANORAMA** the opposite largely held: the confound is strongly *in the data* (0.70 from metadata) yet the well-built nnU-Net **exploits it only weakly** — a small, bounded tax (tight +0.031 [+0.010, +0.053]), no manufacturer-shift penalty, and external-hospital performance at or above in-distribution. So the honest, sharper headline is: *the presence of a confound in the data does not mean the model rides it; pipeline design (HU-preserving normalisation + ROI crop + segmentation objective) is the mediator — and we give a protocol to measure the difference.*
 
 ## 3. Novelty positioning (vs literature)
 Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
@@ -21,7 +21,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 - MICCAI 2024 "Shortcut Learning in Medical Image Segmentation"; HSIC dependence benchmarking (MLMI 2024); survey arXiv 2412.05152.
 
 **Our defensible novelty (lead with these):**
-1. **"Present != exploited" on the flagship PDAC cohort** — measured confound (0.70) not propagated (tax≈0, weak feature-encoding).
+1. **"Present, only weakly exploited" on the flagship PDAC cohort** — measured confound (0.70) barely propagated (tax bounded ≈0.05 AUROC with CI, weak feature encoding, no LOMO or external penalty).
 2. **The `level` label-leakage finding** in a public challenge dataset.
 3. **Deployment-ROI confound analysis** — oracle-mask vs predicted-segmenter ROI (see §6). Unclaimed in the literature.
 4. **Two independent confounds, one protocol** — thesis dataset-of-origin (positive control) vs PANORAMA scanner (test case).
@@ -32,7 +32,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 |---|---|---|
 | Mitigation panel (tuned ERM / DFR / GRL / SSL), local 2.5D | not done | **critical** |
 | Deployment-ROI experiment (segmenter vs oracle, §6) | not done | **high / novel** |
-| External validation (held-out MSD + NIH; §5) | data in hand, not run | **high** |
+| External validation (held-out MSD + NIH; §5) | tight DONE (MSD AUROC 0.82, Dice 0.555); loose + per-fold operating points running | **high** |
 | Tight-crop ablation (loose vs tight) | DONE (tight better on Dice + detection); loose tax CI running | medium |
 | Biomarker + fusion ("clean" arm) | exists, needs rigour | medium (multimodal lifts Q1) |
 | Nonlinear feature-probe | DONE | — |

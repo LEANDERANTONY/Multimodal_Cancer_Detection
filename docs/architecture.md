@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document describes the current runtime architecture of the multimodal pancreatic cancer detection project.
+This document describes the current runtime architecture of the multimodal pancreatic cancer detection project: the thesis-era hybrid notebook-plus-modules code, and (section "PANORAMA / Q1 Pipeline") the script-driven 3D nnU-Net pipeline used for the Q1 paper.
 
 ## System Goal
 
@@ -119,6 +119,23 @@ Owns report assembly helpers for:
 - loading current or saved metrics
 - building final summary JSON payloads
 - building model comparison tables
+
+## PANORAMA / Q1 Pipeline (3D nnU-Net, 2026)
+
+The Q1 work runs alongside the thesis code and does not use `src/` yet. It is script-driven:
+
+| Stage | Where | Notes |
+|---|---|---|
+| ROI crop build | `tools/build_roi_dataset.py` (local, CPU) | bbox of the provided pancreas + duct masks + fixed margin (loose 150×100×40 mm, tight 100×50×15 mm) → nnU-Net raw Dataset700 / Dataset701 |
+| Training (CV, LOMO) | `scripts/runpod/run_train701.sh`, `run_lomo701.sh` (rented GPU) | nnU-Net v2 3d_fullres, `nnUNetTrainer_250epochs`; data staged from a network volume to local disk; pod self-stops |
+| Confound battery | `scripts/runpod/tight_battery.py`, `run_battery701.sh` | per-scanner detection, confound tax, feature probe; per-case CSVs |
+| External validation | `scripts/runpod/run_external.sh`, `ext_eval.py`, `run_external_perfold.sh` | MSD + NIH, 5-fold ensemble and per-fold |
+| Local analysis | `tools/` (`detection_candidate.py`, `feature_diag.py`, `scanner_only_shortcut.py`, `loose_cv_reinfer.py`, `confound_tax_ci.py`) | nnU-Net code runs in `data/envs/nnunet` (torch 2.8); analysis in the project `.venv` |
+| Data movement | `scripts/runpod/upload_file.sh`, `download_volume.sh` | resumable; run from a user terminal |
+
+Data, models and results locations: `docs/data_layout.md`. Step-by-step method and results:
+`docs/modeling_pipeline.md`. Operational rules for rented GPUs (staging, auto-stop, failure modes) are
+recorded in the run drivers' headers.
 
 ## State Model
 

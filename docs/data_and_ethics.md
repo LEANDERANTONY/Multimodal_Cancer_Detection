@@ -14,6 +14,9 @@ This project uses medical imaging and biomarker data related to pancreatic cance
 - The PANORAMA challenge CT dataset (2,238 studies) is used for external CT validation. It is licensed **CC BY-NC 4.0** (non-commercial) - fine for academic/thesis use with citation, not for a commercial product.
 - PANORAMA images and masks stay local under `data/raw/ct/panorama/` (gitignored), per the local-only data policy; only lightweight audits and reports are tracked.
 - A metadata confound audit found scanner/manufacturer is a measured acquisition confound and the `level` field is near-label leakage - both documented so results are reported stratified by scanner and neither is ever used as a feature.
+- Models train only on the 1,964 Dutch scans; the 194 MSD and 80 NIH scans are held out as external tests and reported **separately** (NIH contains only healthy scans, so pooling it with MSD would recreate a dataset-of-origin confound).
+- Derived crops, trained checkpoints and per-case scores stay local (`data/`, `models/`); only summaries and per-case score tables (no images) are tracked in `reports/nnunet_summaries/`. Locations: `docs/data_layout.md`.
+- Training ran on rented cloud GPUs (RunPod); only cropped, de-identified volumes were uploaded to a private network volume, never the raw set.
 
 ## Privacy Posture
 
@@ -60,8 +63,8 @@ When describing the project publicly, keep these points explicit:
 
 ## Future Ethical And Methodological Improvements
 
-- external validation on additional CT cohorts (PANORAMA acquired; leave-one-manufacturer-out in progress)
-- comparative evaluation of debiasing methods (tuned ERM / DFR / gradient reversal / SSL) rather than proposing gradient reversal alone
+- external validation on additional CT cohorts (PANORAMA done: leave-one-manufacturer-out and external MSD/NIH completed 2026-10)
+- comparative evaluation of debiasing methods (tuned ERM / group-balanced / DFR / gradient reversal / MAE) under a pre-registered selection rule (ADR-005)
 - clearer uncertainty reporting and calibration tracking
 - real paired multimodal cohorts instead of synthetic pairing
 - stronger dataset documentation and governance notes if data-sharing constraints change

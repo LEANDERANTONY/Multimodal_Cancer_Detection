@@ -9,14 +9,16 @@ Multimodal_Cancer_Detection/
 |-- pyproject.toml
 |-- uv.lock
 |
-|-- docs/
-|   |-- architecture.md
-|   |-- figures-guide.md
-|   |-- timeline.md
+|-- docs/                       # index: docs/README.md
+|   |-- README.md                # documentation index (start here)
+|   |-- q1_readiness_and_gaps.md # living Q1 plan
+|   |-- modeling_pipeline.md     # 3D nnU-Net pipeline + results
+|   |-- deployment_and_mitigation_design.md  # pre-registered next experiments
+|   |-- data_layout.md           # where data / models / results live
+|   |-- architecture.md, model_card.md, data_and_ethics.md, quickstart.md, figures-guide.md
 |   `-- architectural_decision_records/
 |       |-- README.md
-|       |-- ADR-001.md
-|       `-- ADR-002.md
+|       `-- ADR-001.md ... ADR-005.md
 |
 |-- data/                       # local-only datasets, ignored (full map: docs/data_layout.md)
 |   |-- raw/ct/{panorama, panorama_labels, cancer, control}, raw/biomarkers/
@@ -79,4 +81,7 @@ Multimodal_Cancer_Detection/
 |   `-- nnunet/{loose_cv, loose_lomo, tight_cv, tight_lomo, runpod_volume_misc}/  # 3D nnU-Net runs
 |-- thesis/                      # local-only dissertation assets, ignored
 |-- VideoPresentation_CodeFile_Dataset/   # local-only presentation assets, ignored
-`-- tools/                       # local utility outputs, mostly ignored or not needed for GitHub
+|-- scripts/
+|   `-- runpod/                  # pod-side drivers: training, LOMO, confound battery, external validation, transfers
+`-- tools/                       # tracked analysis tools (ROI builder, detection scoring, feature probe,
+                                 #   scanner-only baseline, confound-tax CI, loose re-inference) + thesis notebook utilities

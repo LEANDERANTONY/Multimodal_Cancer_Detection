@@ -20,10 +20,13 @@ Its active purpose is to support:
 The current scientific stance of the repo should mirror the dissertation:
 
 - the biomarker branch is the clearest positive result and strongest reproducibility story
-- the CT branch is promising but still scientifically ambiguous because residual domain structure remains a live concern
+- the thesis CT branch is confounded by dataset of origin and is kept as the motivating example
+- the PANORAMA 3D CT models (2026) generalise across manufacturers and to an external hospital; the measured scanner confound is only weakly exploited (bounded ≈0.05 AUROC) — see `docs/modeling_pipeline.md`
 - the fusion branch is valuable mainly as a carefully controlled exploratory framework, not as evidence of proven multimodal clinical benefit
 
-That means the docs should describe the implemented CT pipeline as bias-aware preprocessing plus ResNet50 classification, not as a YOLO-based detector pipeline.
+That means the docs should describe the thesis CT pipeline as bias-aware preprocessing plus ResNet50 classification (not a YOLO-based detector pipeline), and the Q1 CT pipeline as pancreas-ROI crops plus 3D nnU-Net.
+
+The Q1 pipeline is script-driven (`scripts/runpod/`, `tools/`) and sits outside `src/` for now; folding its stable parts into `src/` is a later hardening step, not a priority while experiments are still changing.
 
 The repository is no longer just a dump of notebooks and artifacts, but it is also not yet a fully script-driven research pipeline. It sits deliberately in the middle:
 

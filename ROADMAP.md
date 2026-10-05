@@ -2,6 +2,13 @@
 
 This roadmap reflects the current project state and the next major build priorities for the multimodal pancreatic cancer detection repository.
 
+## Status 2026-10-05 (read this first)
+
+- **Milestone A has reported** (see below): the 3D nnU-Net shows no leave-one-manufacturer-out gap and only weak scanner encoding; the confound tax is small but non-zero (+0.031 [+0.010, +0.053], tight crop). The paper framing is now "present in the data, only weakly exploited (bounded ≈0.05 AUROC)". Decisions: ADR-004.
+- **The living Q1 plan, gap list and experiment matrix now live in [`docs/q1_readiness_and_gaps.md`](docs/q1_readiness_and_gaps.md)**; the pre-registered next experiments in [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md) (ADR-005). Results: [`docs/modeling_pipeline.md`](docs/modeling_pipeline.md).
+- Order of remaining work: loose confound-tax CI → external operating points → **deployment-ROI experiment (main novelty)** → mitigation panel → biomarker/fusion arm → statistics (DeLong, calibration, subgroups) → thesis-cohort control → figures and write-up.
+- The repo-hardening items below ("Now / Next / Later") are still valid but are secondary to the Q1 work.
+
 ## Now: Stabilize The Hybrid Research Repo
 
 Current baseline:
@@ -123,6 +130,8 @@ Everything downstream is wasted effort until this resolves. ROI-first preprocess
 
 A large LOMO gap ⇒ the Q1 paper is real. A negligible gap ⇒ the scanner confound does not reach the images; pivot honestly (still publishable, smaller venue). Do not build steps 2-3 before A reports.
 
+**RESOLVED 2026-10-05 (ADR-004):** (1) tight-crop CV detection AUROC 0.787, lesion Dice 0.505; (2) scanner decodable from the encoder only weakly (0.62-0.64 vs 0.50 shuffled; cancer 0.75-0.77); (3) **no LOMO gap** (held-out-manufacturer detection 0.81 / 0.77 / 0.71 ≈ in-distribution). The confound tax is small but non-zero (+0.031 [+0.010, +0.053]) and the model generalises to the external MSD hospital (AUROC 0.82). Instead of pivoting to a smaller venue, the paper keeps Q1 ambitions through the bounded-exploitation measurement, the deployment-ROI experiment and the mitigation panel (ADR-005).
+
 
 ---
 
@@ -212,8 +221,8 @@ Q1 clinical-AI venues increasingly require a completed reporting checklist. Targ
 ## Open Decisions To Resolve Before Writing
 
 - ~~Which paper goes first~~ **RESOLVED 2026-07: go Q1-direct.** The data blocker is gone and the two papers share too much narrative for Q2-first to be safe. The Q2 reframe is retained only as a fallback if Milestone A shows no image-level confound.
-- ~~**Input geometry**~~ **RESOLVED 2026-07: 2.5D** (3-5 adjacent slices as channels). The DFR and SSL/foundation arms need a swappable 2D-style backbone, the scanner confound is a slice-wise phenomenon, and 8 GB VRAM makes full 3D a poor use of the timeline.
-- ~~**Mask policy**~~ **RESOLVED 2026-07: do not crop from the provided masks at all.** 479 of the 482 manual masks are PDAC, so a manual mask implies PDAC with **99.4%** probability — provenance is a stronger label proxy than scanner, and manual-only is not a viable arm (~3 controls). Instead run one uniform off-the-shelf pancreas segmentation over all 2,238 cases, crop the **pancreas** channel only (never the lesion channel), and use the provided masks solely to validate the segmentation and to stratify results by provenance.
+- ~~**Input geometry**~~ **RESOLVED 2026-07: 2.5D** (3-5 adjacent slices as channels) for the mitigation panel. **Updated 2026-10 (ADR-004):** the 3D nnU-Net became the main model of the paper; 2.5D stays for the local mitigation panel.
+- ~~**Mask policy**~~ **RESOLVED 2026-07, REVISED 2026-09 (ADR-003):** crop from PANORAMA's provided **pancreas (4) + duct (5)** masks, which are auto-generated for every case and label-blind; **never** from the lesion mask (label 1), whose manual/automatic provenance is a near-perfect PDAC proxy (479 of 482 manual masks are PDAC). The earlier plan to run an off-the-shelf segmenter instead was dropped because TotalSegmentator failed on ~5-14% of scans. Predicted-mask crops return as the **deployment-ROI experiment** (ADR-005).
 - Whether to pursue a real/quasi-paired CT+biomarker cohort for genuine fusion (collaboration-dependent) or keep fusion as an explicitly exploratory section.
 - ~~Scope of feature-space debiasing~~ **RESOLVED 2026-07:** run the panel (tuned ERM + DFR + GRL + SSL backbone). GRL alone is not defensible as a contribution, and a tuned ERM baseline is mandatory.
 

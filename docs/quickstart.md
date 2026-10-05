@@ -71,13 +71,28 @@ These stay outside Git and are expected to exist only on local machines with app
 - `embeddings/`
 - `thesis/`
 
-## 7. Practical reading order
+## 7. nnU-Net environment (PANORAMA / Q1 work)
+
+nnU-Net v2 excludes torch 2.9, which the project `.venv` pins, so nnU-Net code runs in a separate env
+inside the git-ignored `data/` folder. Never install `nnunetv2` into the project `.venv` (it replaces the
+CUDA torch build).
+
+```powershell
+uv venv --python 3.12 data/envs/nnunet
+uv pip install --python data/envs/nnunet/Scripts/python.exe "torch==2.8.0+cu128" --index-url https://download.pytorch.org/whl/cu128
+uv pip install --python data/envs/nnunet/Scripts/python.exe nnunetv2 psutil "torch==2.8.0+cu128" --index-url https://pypi.org/simple --extra-index-url https://download.pytorch.org/whl/cu128 --index-strategy unsafe-best-match
+```
+
+Trained models are in `models/nnunet/` (local only); each run folder works as an `nnUNet_results` root.
+See `docs/data_layout.md`.
+
+## 8. Practical reading order
 
 If you are new to the repo, use this order:
 
-1. `README.md`
-2. `docs/quickstart.md`
-3. `docs/architecture.md`
-4. `docs/data_and_ethics.md`
-5. `docs/model_card.md`
-6. `notebooks/01_multimodal_cancer_detection.ipynb`
+1. `README.md` (current status)
+2. `docs/README.md` (documentation index)
+3. `docs/q1_readiness_and_gaps.md` (living Q1 plan) and `docs/modeling_pipeline.md` (results)
+4. `docs/data_layout.md` (where things are)
+5. `docs/architecture.md`, `docs/model_card.md`, `docs/data_and_ethics.md`
+6. `notebooks/01_multimodal_cancer_detection.ipynb` (thesis-era pipeline)
