@@ -11,8 +11,8 @@ _Durable record so the whole chain can be re-run / understood without chat histo
 Crop each case to the **bbox of pancreas(4)+duct(5)** (label-blind; never the lesion mask) + a fixed per-side margin, at native resolution; training label = lesion (mask==1). One flag sets the margin:
 - **Loose = Dataset700**, margin `150 100 40` mm → median crop ~374x272x171 mm (near-full-FOV; pancreas is wide).
 - **Tight = Dataset701**, margin `100 50 15` mm (field/PanDx standard) → median ~319x174x114 mm.
-Run: `python scripts/runpod/build_roi_dataset.py --margin-mm 100 50 15 --out data/nnUNet_raw/Dataset701_PanoramaPDAC_tight`. Writes nnU-Net raw (imagesTr/labelsTr + dataset.json) + per-case `roi_build_qc.csv` (lesion containment). Tight containment: 667/676 PDAC fully contained, 10 mildly clipped (accepted; fixed margin keeps ROI label-independent). Machine-safe (streams one case, below-normal priority, resumable).
-- **Local copies:** loose `data/processed/ct/nnunet_raw/Dataset700_PanoramaPDAC/` (1964 Tr + 274 Ts); tight `data/nnUNet_raw/Dataset701_PanoramaPDAC_tight/` (2238) + tar `data/nnUNet_raw/Dataset701_tight.tar`.
+Run: `python scripts/runpod/build_roi_dataset.py --margin-mm 100 50 15 --out data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight`. Writes nnU-Net raw (imagesTr/labelsTr + dataset.json) + per-case `roi_build_qc.csv` (lesion containment). Tight containment: 667/676 PDAC fully contained, 10 mildly clipped (accepted; fixed margin keeps ROI label-independent). Machine-safe (streams one case, below-normal priority, resumable).
+- **Local copies:** loose `data/processed/ct/nnunet_raw/Dataset700_PanoramaPDAC/` (1964 Tr + 274 Ts); tight `data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight/` (2238) + tar `Dataset701_tight.tar` alongside. Trained models: `models/nnunet/{loose_cv,loose_lomo,tight_cv,tight_lomo}/`. Full map: `docs/data_layout.md`.
 
 ## 2. Staging to RunPod (Global volume `panaroma_roi`, fuse.geesefs at /workspace)
 - **KEEP the dataset tar on the volume** (`/workspace/Dataset701_tight.tar`, 22.98 GB) — deleting it once cost an 8h re-upload. Storage is cheap (~$0.07/GB/mo).

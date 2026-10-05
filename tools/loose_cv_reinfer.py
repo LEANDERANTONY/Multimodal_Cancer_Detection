@@ -22,7 +22,7 @@ import torch
 from scipy import ndimage
 
 ROOT = "D:/Documents/Projects/Multimodal_Cancer_Detection"
-MODEL = f"{ROOT}/data/nnunet_checkpoints/nnunet_results/Dataset700_PanoramaPDAC/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres"
+MODEL = f"{ROOT}/models/nnunet/loose_cv/Dataset700_PanoramaPDAC/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres"
 SUMM = f"{ROOT}/reports/nnunet_summaries/nnunet_results/Dataset700_PanoramaPDAC/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres"
 IMG = f"{ROOT}/data/processed/ct/nnunet_raw/Dataset700_PanoramaPDAC/imagesTr"
 SCANNER_CSV = f"{ROOT}/reports/nnunet_summaries/tight_battery/lomo_scores.csv"

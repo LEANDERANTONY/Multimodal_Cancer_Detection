@@ -18,15 +18,17 @@ Multimodal_Cancer_Detection/
 |       |-- ADR-001.md
 |       `-- ADR-002.md
 |
-|-- data/                       # local-only datasets, ignored
-|   |-- raw/
-|   `-- processed/
+|-- data/                       # local-only datasets, ignored (full map: docs/data_layout.md)
+|   |-- raw/ct/{panorama, panorama_labels, cancer, control}, raw/biomarkers/
+|   |-- processed/ct/nnunet_raw/{Dataset700_PanoramaPDAC (loose), Dataset701_PanoramaPDAC_tight} + .tar
+|   `-- envs/nnunet/            # nnU-Net env (torch 2.8; project .venv pins 2.9)
 |
 |-- figures/
 |   `-- tracked curated figures for README, reports, and dissertation-aligned outputs
 |
 |-- reports/
-|   `-- tracked lightweight CSV, JSON, and summary artifacts
+|   |-- tracked lightweight CSV, JSON, and summary artifacts
+|   `-- nnunet_summaries/        # nnU-Net summaries, per-case detection scores, confound batteries
 |
 |-- results/
 |   `-- .gitkeep
@@ -73,6 +75,8 @@ Multimodal_Cancer_Detection/
 |
 |-- embeddings/                  # local-only, ignored
 |-- models/                      # local-only checkpoints, ignored
+|   |-- *.pt                     # thesis-era 2D CT / biomarker models
+|   `-- nnunet/{loose_cv, loose_lomo, tight_cv, tight_lomo, runpod_volume_misc}/  # 3D nnU-Net runs
 |-- thesis/                      # local-only dissertation assets, ignored
 |-- VideoPresentation_CodeFile_Dataset/   # local-only presentation assets, ignored
 `-- tools/                       # local utility outputs, mostly ignored or not needed for GitHub
