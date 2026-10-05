@@ -65,9 +65,7 @@ chapter_3.txt
 dissertation_writing_instruction.txt
 
 # Keep only curated GitHub-safe figures and reports
-figures/visual_audit/
-figures/body_segmentation_filtered/
-figures/body_segmentation_examples_filtered.png
+figures/local_thesis_audit/
 figures/Screenshot *.png
 
 # Tooling outputs should remain local

@@ -49,6 +49,8 @@ log, `progress.png`, `validation/` (predicted masks + `summary.json`; softmax `.
 
 ## Figures — `figures/` (tracked)
 Flat `figures/*.png` are thesis-era (written by the notebook). Q1 / PANORAMA figures go in `figures/panorama/`.
+`figures/local_thesis_audit/` (git-ignored, ~190 MB) holds thesis-era bulk audit images and screenshots
+(`visual_audit/`, `body_segmentation_filtered/`, `body_segmentation_examples_filtered.png`, `Screenshot *.png`).
 
 ## Thesis-era local folders (local only, unchanged)
 `thesis/` (dissertation, interim report, papers), `embeddings/` (ResNet embeddings),
