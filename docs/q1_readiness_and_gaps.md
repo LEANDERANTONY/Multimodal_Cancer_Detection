@@ -8,7 +8,8 @@ _Living strategy note. Target: Q1 (MedIA / npj Digital Medicine / Radiology:AI),
 - **3D nnU-Net reference** (loose ROI, CV 5-fold + LOMO): pos-case Dice ~0.33; detection AUROC ~0.6–0.68 within-scanner; **in-distribution confound tax ≈ 0**; generalises across manufacturers (CV ≈ LOMO within-scanner).
 - **Feature-space probe**: the trained model's bottleneck features encode scanner only weakly (0.586 linear / 0.602 RF / 0.614 MLP; shuffle 0.513) but encode cancer more (0.650/0.615/0.691) → **pipeline resists the confound at the representation level**.
 - **Thesis 2D model** (positive control): rode a dataset-of-origin confound (cancer=Pancreatic-CT-CBCT-SEG vs control=NIH Pancreas-CT) to **0.9999** — confound *was* exploited.
-- Tight-crop (100x50x15mm) CV: running.
+- **Tight-crop (100x50x15mm), 2026-10-05:** CV pos-Dice 0.505, detection cc_psz 0.787. **Tight LOMO** pos-Dice 0.547/0.450/0.471 (Siemens/Toshiba/Philips held out), detection 0.811/0.773/0.706 ≈ in-distribution within-scanner → no manufacturer-shift penalty. **Tight confound tax +0.031 [+0.010,+0.053]** (patient bootstrap) — small but CI excludes 0; mixed never exceeds best within-scanner. Feature probe: scanner 0.62–0.64 vs cancer 0.75–0.77.
+- **Headline wording update:** "present, only weakly exploited (bounded ≤~0.05 AUROC), no manufacturer-shift penalty" — not "not exploited". Loose tax CI pending (local re-inference, `tools/loose_cv_reinfer.py`).
 
 ## 2. The reframed thesis: **confound present != confound exploited**
 We set out to show "CT PDAC detection is a confounded shortcut." On the **thesis** dataset that holds (0.9999 from source leakage). On **PANORAMA** the opposite held: the confound is strongly *in the data* (0.70 from metadata) yet the well-built nnU-Net **does not exploit it**. So the honest, sharper headline is: *the presence of a confound in the data does not mean the model rides it; pipeline design (HU-preserving normalisation + ROI crop + segmentation objective) is the mediator — and we give a protocol to measure the difference.*
@@ -32,7 +33,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 | Mitigation panel (tuned ERM / DFR / GRL / SSL), local 2.5D | not done | **critical** |
 | Deployment-ROI experiment (segmenter vs oracle, §6) | not done | **high / novel** |
 | External validation (held-out MSD + NIH; §5) | data in hand, not run | **high** |
-| Tight-crop ablation (loose vs tight) | running | medium |
+| Tight-crop ablation (loose vs tight) | DONE (tight better on Dice + detection); loose tax CI running | medium |
 | Biomarker + fusion ("clean" arm) | exists, needs rigour | medium (multimodal lifts Q1) |
 | Nonlinear feature-probe | DONE | — |
 | DeLong CIs, calibration (ECE/Brier), subgroup-by-scanner/provenance | partial | needed |
@@ -43,6 +44,8 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 - **NIH** (n=80, 0% PDAC): specificity / false-positive-rate only (no positives → no AUROC).
 - These have provided pancreas masks (part of PANORAMA auto-labels) → can crop with oracle ROI first, then segmenter ROI (§6).
 - Because the model never trained on these, strong generalisation evidence; if performance holds, it cannot be the *PANORAMA* scanner shortcut.
+- **Report MSD and NIH separately** (MSD: AUROC/AP/Dice; NIH: specificity / FP rate). A pooled MSD+NIH AUROC is itself confounded by dataset of origin (NIH all negative, MSD mostly positive) — the exact trap the thesis model fell into.
+- Data: loose Ts = `Dataset700/imagesTs` (local only); tight = the 274 non-Dutch cases inside Dataset701 `imagesTr` (local + volume tar). Checkpoints local in `models/nnunet/`.
 
 **Secondary — the thesis TCIA cohort (CBCT-SEG cancer [n~34–40] + NIH Pancreas-CT control [n~82]) as a *confound control*, not a clean performance test.**
 - Caveats: (a) the thesis set has its OWN dataset-of-origin confound (cancer=CBCT vs control=NIH); (b) the CBCT-SEG cancer scans are cone-beam / RT-planning → large domain shift from diagnostic CT, so low detection there may be domain shift, not tumour-detection failure; (c) the 82 are **controls (healthy)**, not PDAC.
@@ -59,10 +62,12 @@ This answers clinical validity AND is the novelty differentiator. Run for BOTH t
 ## 7. Experiment matrix (run for BOTH models: loose Dataset700 + tight Dataset701)
 | Test | Loose model | Tight model |
 |---|---|---|
-| CV Dice + detection AUROC | done | pending (training) |
+| CV Dice + detection AUROC | done | done |
+| LOMO Dice + per-scanner detection | done | done |
+| Confound tax with CI | running (local re-inference) | done (+0.031 [+0.010,+0.053]) |
 | External MSD/NIH (oracle ROI) | to run | to run |
 | Deployment segmenter ROI (vs oracle) | to run | to run |
-| Feature-space scanner probe | done (0.59–0.61) | to run |
+| Feature-space scanner probe | done (0.59–0.61) | done (0.62–0.64) |
 | Mitigation panel (2.5D, local) | — | — (separate arm) |
 All external/segmenter/probe tests are **inference-only (cheap)** — run for both once a pod is free.
 
