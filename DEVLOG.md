@@ -130,7 +130,7 @@ Shifted from repo-hardening into the Q1 external-validation build.
 
 ## Phase 14: External Validation, Local Mirror, Pre-Registration (2026-10-05)
 
-- External validation on the never-trained-on MSD (194, 98 PDAC) and NIH (80, all healthy) sets, 5-fold ensemble: tight MSD AUROC 0.82 [0.76, 0.88], Dice 0.555. MSD and NIH are reported separately (pooling would reintroduce a dataset-of-origin confound). Per-fold operating-point check queued; loose external running.
+- External validation on the never-trained-on MSD (194, 98 PDAC) and NIH (80, all healthy) sets, 5-fold ensemble: tight MSD AUROC 0.82 [0.76, 0.88], Dice 0.555. MSD and NIH are reported separately (pooling would reintroduce a dataset-of-origin confound). Loose external: MSD AUROC 0.71, Dice 0.35 (its in-distribution level). Per-fold operating points: p_max thresholds set on Dutch CV transfer to MSD/NIH; cc_psz thresholds shift (lower MSD sensitivity), a score-scale effect, not ensemble smoothing.
 - Mirrored every run from the RunPod volume locally (`models/nnunet/`, 16 models), reorganised local data into a documented layout (`docs/data_layout.md`), removed duplicate crops/tars, committed all run summaries and per-case scores to `reports/nnunet_summaries/`.
 - Started a local loose-CV re-inference (`tools/loose_cv_reinfer.py`, separate torch-2.8 env because nnU-Net excludes torch 2.9) to put a CI on the loose confound tax.
 - Pre-registered the deployment-ROI experiment and the mitigation panel (`docs/deployment_and_mitigation_design.md`, ADR-005), borrowing practices from studied Kaggle grandmasters.
@@ -151,7 +151,7 @@ The main validation steps currently used are:
 - the full notebook still is not executed as an automated smoke test
 - some earlier exploratory notebook sections still contain inline helper code that can be extracted later
 - the PANORAMA pipeline lives in scripts (`scripts/runpod/`, `tools/`) rather than `src/`, and has no automated tests yet
-- open Q1 items: loose tax CI, external operating points, deployment-ROI, mitigation panel (see `docs/q1_readiness_and_gaps.md`)
+- open Q1 items: loose tax CI, deployment-ROI, mitigation panel (see `docs/q1_readiness_and_gaps.md`)
 
 ## Historical Caveats
 

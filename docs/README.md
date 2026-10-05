@@ -41,4 +41,4 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 | `tools/build_roi_dataset.py` | ROI crop builder (loose 150×100×40 mm / tight 100×50×15 mm) |
 | `tools/scanner_only_shortcut.py` | Scanner-metadata-only AUROC baseline |
 | `scripts/runpod/detection_candidate.py`, `scripts/runpod/feature_diag.py` | Detection scoring from softmax; encoder feature probe (pod-side) |
-| `tools/loose_cv_reinfer.py`, `tools/confound_tax_ci.py` | Local CV re-inference; confound tax with bootstrap CI |
+| `tools/loose_cv_reinfer.py`, `tools/confound_tax_ci.py`, `tools/external_threshold_check.py` | Local CV re-inference; confound tax with bootstrap CI; external operating-point transfer |

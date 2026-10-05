@@ -17,10 +17,10 @@ Tracked, lightweight results (CSV / JSON / Markdown / small npz). No images or s
 | `nnunet_results_tight_lomo/` | Tight ROI, LOMO; incl. training logs and `fold_2_collapsed/` (failed first fold-2 run) |
 | `tight_battery/` | Tight confound battery: per-case scores `cv_scores.csv`, `lomo_scores.csv`; `feature_diag_tight.npz` |
 | `loose_battery/` | Loose re-inferred CV per-case scores `cv_scores.csv`; `feature_diag_features.npz` |
-| `external/` | External validation (MSD + NIH): `external_cases.csv`, per-case score files per model |
+| `external/` | External validation (MSD + NIH): `external_cases.csv`, per-case scores `tight_external.csv` / `loose_external.csv` (5-fold ensembles), `tight_external_fold{0-4}.csv` (single folds), `threshold_check.csv` (operating-point transfer) |
 | `run_logs/` | Pod run logs |
 
 Folder names follow the RunPod volume run names; the matching local checkpoints are in
 `models/nnunet/{loose_cv, loose_lomo, tight_cv, tight_lomo}` (map: `docs/data_layout.md`).
 Per-case CSV columns: `fold, case, scanner, y, p_max, p_sum, cc_psz` (external files add `source, n_ref, n_pred, dice`).
-Analysis from these files: `tools/confound_tax_ci.py` (confound tax + bootstrap CI).
+Analysis from these files: `tools/confound_tax_ci.py` (confound tax + bootstrap CI), `tools/external_threshold_check.py` (operating points).
