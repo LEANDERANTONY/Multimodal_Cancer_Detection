@@ -13,7 +13,7 @@ Multimodal Pancreatic Cancer Detection is a bias-aware research repository for p
 The Q1 work uses PANORAMA (2,238 contrast-enhanced CTs; 1,964 Dutch scans for training, 194 MSD + 80 NIH held out as external tests) and 3D nnU-Net models trained on pancreas-region crops.
 
 - **The confound is real in the data:** scanner manufacturer alone predicts PDAC with AUROC 0.70 (Philips scans are 75% PDAC, Siemens/Toshiba ~19%).
-- **The model exploits it only weakly:** the in-distribution confound tax of the tight-crop model is +0.031 AUROC (95% CI +0.010 to +0.053), there is no penalty when a whole manufacturer is held out, and the encoder carries little scanner information.
+- **The model exploits it only weakly:** the in-distribution confound tax is +0.031 AUROC (95% CI +0.010 to +0.053) for the tight-crop model and +0.021 (−0.002 to +0.045) for the loose one, there is no penalty when a whole manufacturer is held out, and the encoder carries little scanner information.
 - **It generalises to a new hospital:** on the external MSD cohort the tight model reaches detection AUROC 0.82 [0.76, 0.88] and lesion Dice 0.555, at or above its in-distribution performance.
 - **Next:** the deployment-ROI experiment (predicted instead of provided pancreas masks) and a pre-registered mitigation panel — see [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md).
 

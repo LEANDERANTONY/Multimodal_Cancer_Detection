@@ -6,7 +6,7 @@ This roadmap reflects the current project state and the next major build priorit
 
 - **Milestone A has reported** (see below): the 3D nnU-Net shows no leave-one-manufacturer-out gap and only weak scanner encoding; the confound tax is small but non-zero (+0.031 [+0.010, +0.053], tight crop). The paper framing is now "present in the data, only weakly exploited (bounded ≈0.05 AUROC)". Decisions: ADR-004.
 - **The living Q1 plan, gap list and experiment matrix now live in [`docs/q1_readiness_and_gaps.md`](docs/q1_readiness_and_gaps.md)**; the pre-registered next experiments in [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md) (ADR-005). Results: [`docs/modeling_pipeline.md`](docs/modeling_pipeline.md).
-- Order of remaining work: loose confound-tax CI → external operating points → **deployment-ROI experiment (main novelty)** → mitigation panel → biomarker/fusion arm → statistics (DeLong, calibration, subgroups) → thesis-cohort control → figures and write-up.
+- Order of remaining work (loose tax CI and external operating points done 2026-10-06): **deployment-ROI experiment (main novelty)** → mitigation panel → biomarker/fusion arm → statistics (DeLong, calibration, subgroups) → thesis-cohort control → figures and write-up.
 - The repo-hardening items below ("Now / Next / Later") are still valid but are secondary to the Q1 work.
 
 ## Now: Stabilize The Hybrid Research Repo
