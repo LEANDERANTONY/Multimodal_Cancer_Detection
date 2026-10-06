@@ -48,6 +48,7 @@ from the predicted mask instead of labels 4+5. Nothing else changes.
 - segmentation failure rate (empty / implausible pancreas).
 If containment or IoU differs by scanner, that is the mechanism by which stage 1 could re-inject the confound.
 _Result, arm B on the 274 external scans (2026-10-06, `reports/deployment_roi/`):_ 0 empty masks; pancreas Dice median 0.55 (low by design at 4.5×4.5×9 mm); centroid offset median 3.5 mm (95th pct 11 mm); tight-crop IoU with the oracle crop median 0.85 (min 0.62); **all 98 MSD tumours entirely inside the predicted crop**. Same on MSD and NIH.
+_Arm A, TotalSegmentator, same 274 scans:_ 0 empty masks; pancreas Dice median 0.85 (5th pct 0.61; its published level); crop IoU with the oracle median 0.93; centroid offset median 3.2 mm but a heavier tail (95th pct 14 mm, worst 32 mm). **Its mask holds only 80 % of the tumour on average (arm B 99 %)** — it tends to leave PDAC out of "pancreas", the risk named above — yet the tight-crop margins still keep **all 98 MSD tumours entirely inside the crop**. So on external data neither segmenter loses a tumour from the crop; any detection gap must come from crop framing, not missed lesions.
 
 The reference masks are partly machine-generated themselves (PANORAMA automatic labels), so the oracle is
 an upper bound on crop placement, not perfect manual truth — stated in the paper.
