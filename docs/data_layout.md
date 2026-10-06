@@ -16,6 +16,7 @@ RunPod volume `panaroma_roi` is only a cloud mirror. Pipeline that produced it: 
 | `data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight/` | **Tight ROI** nnU-Net raw (margin 100×50×15 mm): all 2238 in `imagesTr` (training strips to the 1964 Dutch IDs) + `roi_build_qc.csv` |
 | `data/processed/ct_*/`, `data/processed/*.csv` | Thesis-era 2D pipeline outputs (oriented / segmented / cropped slices, indices, biomarker CSVs) |
 | `data/processed/ct/stage1_masks/` | Deployment-ROI stage-1 pancreas masks on the raw scans: `totalseg/` (arm A), `baseline_oof/` (arm B, official PANORAMA baseline, out-of-fold); `_smoke_totalseg/` = 1-case install test |
+| `data/processed/ct/deploy_crops/<arm>/` | Tight crops cut from each arm's predicted masks (`imagesTs`, `labelsTs` = reference lesion) and the tight-ensemble predictions (`pred/`); `tools/deploy_infer.py` |
 | `data/envs/totalseg/` | TotalSegmentator 2.18 weights (`TOTALSEG_HOME_DIR`); the package itself is installed in `data/envs/nnunet` |
 | `data/envs/nnunet/` | Separate Python env for nnU-Net (torch 2.8.0+cu128 + nnunetv2). nnU-Net excludes torch 2.9, which the project `.venv` pins — run nnU-Net code with `data/envs/nnunet/Scripts/python.exe` |
 
