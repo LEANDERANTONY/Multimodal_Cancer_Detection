@@ -15,6 +15,8 @@ RunPod volume `panaroma_roi` is only a cloud mirror. Pipeline that produced it: 
 | `data/processed/ct/nnunet_raw/Dataset700_PanoramaPDAC/` | **Loose ROI** nnU-Net raw (margin 150×100×40 mm): 1964 Dutch `imagesTr/labelsTr` + 274 MSD/NIH `imagesTs/labelsTs`, `build_manifest.csv` (case → source), `splits_final.json`; `panorama_roi_meta/` = log/manifest/splits of the first crop pass |
 | `data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight/` | **Tight ROI** nnU-Net raw (margin 100×50×15 mm): all 2238 in `imagesTr` (training strips to the 1964 Dutch IDs) + `roi_build_qc.csv` |
 | `data/processed/ct_*/`, `data/processed/*.csv` | Thesis-era 2D pipeline outputs (oriented / segmented / cropped slices, indices, biomarker CSVs) |
+| `data/processed/ct/stage1_masks/` | Deployment-ROI stage-1 pancreas masks on the raw scans: `totalseg/` (arm A), `baseline_oof/` (arm B, official PANORAMA baseline, out-of-fold); `_smoke_totalseg/` = 1-case install test |
+| `data/envs/totalseg/` | TotalSegmentator 2.18 weights (`TOTALSEG_HOME_DIR`); the package itself is installed in `data/envs/nnunet` |
 | `data/envs/nnunet/` | Separate Python env for nnU-Net (torch 2.8.0+cu128 + nnunetv2). nnU-Net excludes torch 2.9, which the project `.venv` pins — run nnU-Net code with `data/envs/nnunet/Scripts/python.exe` |
 
 **No local tars.** Tars are only made for uploads and deleted afterwards (all were deleted 2026-10-05).
@@ -30,6 +32,7 @@ crop pass (`data/processed/ct/panorama_roi/`) was deleted: same voxels as Datase
 | `models/nnunet/tight_cv/` | Dataset701, 5-fold CV (random) |
 | `models/nnunet/tight_lomo/` | Dataset701, LOMO as above; `fold_2_collapsed/` = failed first fold-2 run (logs only) |
 | `models/nnunet/runpod_volume_misc/` | Everything else from the volume: run logs, drivers as they ran, `splits_final_lomo.json` (manufacturer-holdout splits), feature npz, `tight_battery/` |
+| `models/panorama_baseline/` | Official PANORAMA baseline pancreas segmenter (Dataset103, nnU-Net v2, 5 folds; Zenodo 11160381, MD5-checked) + its fold file — stage 1, arm B |
 | `models/*.pt` | Thesis-era 2D ResNet / biomarker checkpoints |
 
 Each `models/nnunet/<run>/` is a valid `nnUNet_results` root: `Dataset70x_*/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres/`

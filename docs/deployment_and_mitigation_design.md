@@ -20,19 +20,40 @@ which a clinic doesn't have. With a predicted pancreas mask instead: how much de
 the segmentation stage re-introduce the scanner confound?
 
 **Stage 1 — pancreas segmenter (two, for robustness):**
-- **Primary: TotalSegmentator** (off-the-shelf, never saw PANORAMA) — the clinically realistic choice and a
-  strong pretrained foundation, as the winners prefer.
-- **Secondary: our own nnU-Net pancreas segmenter** trained on the Dutch pancreas+duct labels, used only
-  out-of-fold (each case segmented by a model that never saw it) — the in-domain upper bound.
+- **Arm A, generalist: TotalSegmentator 2.18** (`--roi_subset pancreas`, full-resolution model, not
+  `--fast`; off-the-shelf, never saw PANORAMA) — what a hospital would run.
+- **Arm B, domain standard: the official PANORAMA baseline pancreas nnU-Net** (Dataset103, Zenodo
+  11160381; nnU-Net v2 3d_fullres at 4.5×4.5×9 mm). This is the stage 1 the PANORAMA winner (PanDx,
+  AUROC 0.926) reused unchanged, with the same 100×50×15 mm crop we use. Run **out-of-fold**: its fold file
+  holds each of the 2238 cases out in exactly one fold, so every case is segmented by the fold model that
+  never saw it (no training needed).
+
+_Amendment 2026-10-06 (before any stage-1 run):_ arm B replaces "train our own nnU-Net pancreas
+segmenter". Reasons: it is the field-standard stage 1 for this exact task, public weights make it
+reproducible, and the official folds give a leakage-free out-of-fold run on all cases including MSD/NIH.
+**Both segmenters are used as published, without our own improvements** — the experiment asks what happens
+with a standard segmenter; tuning the segmenter on our own evaluation data would make it non-standard and
+optimistic. The question "would a better segmenter close the gap?" is answered by the dose-response curve
+below, not by tuning.
 
 **Crop.** Same builder and margins as the oracle crops (`build_roi_dataset.py`, tight 100×50×15 mm), bbox
 from the predicted mask instead of labels 4+5. Nothing else changes.
 
-**Measure the crop itself first [ren4yu]** — per case and **per scanner**:
+**Measure the segmentation and the crop first [ren4yu]** — per case and **per scanner**:
+- **segmentation quality vs the reference masks** (pancreas Dice, against labels 4+5 and 1+4+5) — shows
+  each segmenter performs at its published level on our data (TotalSegmentator smoke test, 1 MSD PDAC
+  case: Dice 0.85, 96 % of the lesion inside the mask);
 - bbox IoU with the oracle crop, centroid offset (mm), and **lesion containment** (fraction of the PDAC
-  lesion inside the predicted crop);
+  lesion inside the predicted crop) — the risk is a segmenter leaving the tumour out of "pancreas";
 - segmentation failure rate (empty / implausible pancreas).
 If containment or IoU differs by scanner, that is the mechanism by which stage 1 could re-inject the confound.
+The reference masks are partly machine-generated themselves (PANORAMA automatic labels), so the oracle is
+an upper bound on crop placement, not perfect manual truth — stated in the paper.
+
+**Dose-response curve (pre-empts "a better segmenter would fix it").** Shift / scale the oracle crop by
+increasing amounts (centroid offsets in mm, box scale factors) and plot detection AUROC against crop
+error, with the two real segmenters placed on the same axes. This shows how much segmentation quality
+matters and where each segmenter sits, so the conclusion does not depend on the segmenter chosen.
 
 **Then the scores** (tight model primary; loose if time allows):
 1. External MSD/NIH (274): detection AUROC + Dice, oracle vs predicted crop, paired bootstrap.

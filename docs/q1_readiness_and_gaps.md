@@ -54,7 +54,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 ## 6. Deployment ROI: the two-stage practice + the oracle-vs-segmenter experiment
 **Field practice (PANDA Cao 2023; Chen Radiology 2022; PANORAMA baseline; PanDx): two-stage** — Stage 1 segments the pancreas on the raw scan, crop the ROI from that *prediction*, Stage 2 classifies the crop. Predicting on the whole scan is **not** standard (too much irrelevant FOV). So "segment -> ROI -> crop -> predict on crop" is correct; we do NOT predict directly on the full image.
 
-**The gap / experiment:** we trained on *oracle* (provided) mask crops, unavailable clinically. Re-run detection + confound diagnostics using a **predicted-segmenter ROI** (TotalSegmentator or baseline Stage-1), and compare to oracle ROI:
+**The gap / experiment:** we trained on *oracle* (provided) mask crops, unavailable clinically. Re-run detection + confound diagnostics using a **predicted-segmenter ROI** (TotalSegmentator and the official baseline stage 1, out-of-fold — both, as published; see the design doc), and compare to oracle ROI:
 - detection AUROC: oracle vs segmenter (the deployment gap);
 - confound tax + feature-probe: does the robustness survive, or does the **segmentation stage re-inject a scanner confound** (plausible if Stage-1 accuracy is scanner-dependent)?
 This answers clinical validity AND is the novelty differentiator. Run for BOTH the loose and tight models.
