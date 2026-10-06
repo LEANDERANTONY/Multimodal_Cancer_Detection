@@ -47,6 +47,8 @@ from the predicted mask instead of labels 4+5. Nothing else changes.
   lesion inside the predicted crop) — the risk is a segmenter leaving the tumour out of "pancreas";
 - segmentation failure rate (empty / implausible pancreas).
 If containment or IoU differs by scanner, that is the mechanism by which stage 1 could re-inject the confound.
+_Result, arm B on the 274 external scans (2026-10-06, `reports/deployment_roi/`):_ 0 empty masks; pancreas Dice median 0.55 (low by design at 4.5×4.5×9 mm); centroid offset median 3.5 mm (95th pct 11 mm); tight-crop IoU with the oracle crop median 0.85 (min 0.62); **all 98 MSD tumours entirely inside the predicted crop**. Same on MSD and NIH.
+
 The reference masks are partly machine-generated themselves (PANORAMA automatic labels), so the oracle is
 an upper bound on crop placement, not perfect manual truth — stated in the paper.
 

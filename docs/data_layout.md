@@ -48,6 +48,7 @@ log, `progress.png`, `validation/` (predicted masks + `summary.json`; softmax `.
 | `reports/nnunet_summaries/tight_battery/` | Tight confound battery: `cv_scores.csv`, `lomo_scores.csv` (per-case p_max / p_sum / cc_psz), `feature_diag_tight.npz` |
 | `reports/nnunet_summaries/loose_battery/` | Loose model: re-inferred CV per-case scores (`cv_scores.csv`), feature-probe features (`feature_diag_features.npz`) |
 | `reports/nnunet_summaries/external/` | External validation: `external_cases.csv` (case, source MSD/NIH, label), `tight_external.csv`, `loose_external.csv`, per-fold files |
+| `reports/deployment_roi/` | Deployment-ROI experiment: stage-1 segmentation quality and crop geometry per case and arm (later: detection on predicted crops) |
 | `reports/nnunet_summaries/run_logs/` | Pod run logs (LOMO, confound battery, fold-2 retry) |
 
 ## Figures — `figures/` (tracked)
