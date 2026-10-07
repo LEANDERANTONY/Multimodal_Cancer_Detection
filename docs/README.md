@@ -42,4 +42,4 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 | `tools/scanner_only_shortcut.py` | Scanner-metadata-only AUROC baseline |
 | `scripts/runpod/detection_candidate.py`, `scripts/runpod/feature_diag.py` | Detection scoring from softmax; encoder feature probe (pod-side) |
 | `tools/loose_cv_reinfer.py`, `tools/confound_tax_ci.py`, `tools/external_threshold_check.py` | Local CV re-inference; confound tax with bootstrap CI; external operating-point transfer |
-| `tools/stage1_segment.py`, `tools/stage1_quality.py`, `tools/deploy_infer.py` | Deployment-ROI stage 1: TotalSegmentator / official PANORAMA baseline (out-of-fold) pancreas masks on the raw scans; their Dice, crop geometry and lesion containment vs the reference; tight-model detection on the predicted crops |
+| `tools/stage1_segment.py`, `tools/stage1_quality.py`, `tools/deploy_infer.py`, `tools/deploy_gap.py` | Deployment-ROI stage 1: TotalSegmentator / official PANORAMA baseline (out-of-fold) pancreas masks on the raw scans; their Dice, crop geometry and lesion containment vs the reference; tight-model detection on the predicted crops |
