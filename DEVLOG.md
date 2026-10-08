@@ -152,7 +152,8 @@ The main validation steps currently used are:
 - the full notebook still is not executed as an automated smoke test
 - some earlier exploratory notebook sections still contain inline helper code that can be extracted later
 - the PANORAMA pipeline lives in scripts (`scripts/runpod/`, `tools/`) rather than `src/`, and has no automated tests yet
-- open Q1 items: deployment-ROI, mitigation panel (see `docs/q1_readiness_and_gaps.md`)
+- 2026-10-06/08: deployment-ROI on the external set. Two stage-1 segmenters used as published (TotalSegmentator; official PANORAMA baseline, out-of-fold): no failures, every MSD tumour inside the predicted crop; tight-model detection on predicted crops matches the oracle pipeline (paired MSD AUROC gaps +0.015 [−0.024, +0.056] and −0.010 [−0.045, +0.026]). Local jobs now run as detached processes after the app's terminal tabs killed three runs.
+- open Q1 items: deployment-ROI (Dutch + dose-response), mitigation panel (see `docs/q1_readiness_and_gaps.md`)
 
 ## Historical Caveats
 

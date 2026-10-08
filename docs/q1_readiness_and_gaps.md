@@ -31,7 +31,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 | Gap | Status | Weight |
 |---|---|---|
 | Mitigation panel (tuned ERM / DFR / GRL / SSL), local 2.5D | not done | **critical** |
-| Deployment-ROI experiment (segmenter vs oracle, §6) | not done | **high / novel** |
+| Deployment-ROI experiment (segmenter vs oracle, §6) | external DONE: no deployment gap with either segmenter (MSD AUROC gap +0.015 [−0.024, +0.056] baseline, −0.010 [−0.045, +0.026] TotalSegmentator); Dutch tax under predicted crops + dose-response to do | **high / novel** |
 | External validation (held-out MSD + NIH; §5) | DONE: tight MSD AUROC 0.82, Dice 0.555; loose 0.71, Dice 0.35; p_max operating points transfer per fold, cc_psz thresholds shift | **high** |
 | Tight-crop ablation (loose vs tight) | DONE (tight better on Dice + detection); loose tax CI done (+0.021 [−0.002, +0.045]) | medium |
 | Biomarker + fusion ("clean" arm) | exists, needs rigour | medium (multimodal lifts Q1) |
@@ -66,7 +66,7 @@ This answers clinical validity AND is the novelty differentiator. Run for BOTH t
 | LOMO Dice + per-scanner detection | done | done |
 | Confound tax with CI | done (+0.021 [−0.002,+0.045]) | done (+0.031 [+0.010,+0.053]) |
 | External MSD/NIH (oracle ROI) | done (MSD p_max 0.713, Dice 0.349) | done (MSD p_max 0.823, Dice 0.555; per-fold thresholds checked) |
-| Deployment segmenter ROI (vs oracle) | to run | to run |
+| Deployment segmenter ROI (vs oracle) | — | external done (no gap); Dutch to run |
 | Feature-space scanner probe | done (0.59–0.61) | done (0.62–0.64) |
 | Mitigation panel (2.5D, local) | — | — (separate arm) |
 All external/segmenter/probe tests are **inference-only (cheap)** — run for both once a pod is free.
