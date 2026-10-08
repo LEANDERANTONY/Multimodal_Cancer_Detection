@@ -96,7 +96,7 @@ def main():
         if pid and psutil.pid_exists(pid) and "python" in psutil.Process(pid).name().lower():
             sys.exit(f"already running (pid {pid}); refusing to start a second copy")
     open(lock, "w").write(str(os.getpid()))
-    psutil.Process().nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
+    psutil.Process().nice(getattr(psutil, "BELOW_NORMAL_PRIORITY_CLASS", 10))
     torch.set_num_threads(THREADS)
     os.makedirs(f"{ROOT}/reports/deployment_roi", exist_ok=True)
     try:

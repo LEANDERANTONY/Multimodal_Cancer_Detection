@@ -64,7 +64,7 @@ def one_case(case, arm):
 def main():
     arm = sys.argv[1]
     cohort = sys.argv[2] if len(sys.argv) > 2 else "external"
-    psutil.Process().nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
+    psutil.Process().nice(getattr(psutil, "BELOW_NORMAL_PRIORITY_CLASS", 10))
     ext = pd.read_csv("reports/nnunet_summaries/external/external_cases.csv")
     if cohort == "external":
         meta = ext.rename(columns={"source": "group"})[["case", "group", "y"]]

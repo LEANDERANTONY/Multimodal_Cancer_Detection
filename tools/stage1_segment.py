@@ -10,6 +10,7 @@ Arms (docs/deployment_and_mitigation_design.md, both used as published):
 Writes data/processed/ct/stage1_masks/<arm>/<case>.nii.gz (uint8 0/1) and _log.csv (case, seconds,
 status, voxels). Resumable (skips cases already written), refuses to run twice, below-normal priority,
 STAGE1_THREADS (default 8) caps CPU threads. STAGE1_LIMIT=n runs only n cases (smoke test).
+STAGE1_SHARD=i/n runs every n-th case starting at i (parallel workers; processing is unchanged).
 """
 import csv
 import json
@@ -36,6 +37,7 @@ BASE_MODEL = f"{BASE}/Dataset103_PANORAMA_baseline_Pancreas_Segmentation/nnUNetT
 BASE_FOLDS = f"{BASE}/Dataset103_PANORAMA_baseline_Pancreas_Segmentation_folds.json"
 os.environ.setdefault("TOTALSEG_HOME_DIR", f"{ROOT}/data/envs/totalseg")
 LIMIT = int(os.environ.get("STAGE1_LIMIT", "0"))
+SHARD = os.environ.get("STAGE1_SHARD", "")  # "i/n"
 
 
 def case_list(cohort):
@@ -120,21 +122,25 @@ def main():
     assert arm in ("totalseg", "baseline") and cohort in ("external", "dutch")
     out_dir = f"{OUT_ROOT}/{'baseline_oof' if arm == 'baseline' else 'totalseg'}"
     os.makedirs(out_dir, exist_ok=True)
-    lock = f"{out_dir}/.running.pid"
+    tag = SHARD.replace("/", "of") if SHARD else ""
+    lock = f"{out_dir}/.running{tag}.pid"
     if os.path.exists(lock):
         pid = int(open(lock).read().strip() or 0)
         if pid and psutil.pid_exists(pid) and "python" in psutil.Process(pid).name().lower():
             sys.exit(f"already running (pid {pid}); refusing to start a second copy")
     open(lock, "w").write(str(os.getpid()))
-    psutil.Process().nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
+    psutil.Process().nice(getattr(psutil, "BELOW_NORMAL_PRIORITY_CLASS", 10))  # Windows class / Unix niceness
     torch.set_num_threads(THREADS)
     try:
         cases = case_list(cohort)
+        if SHARD:
+            i, n = map(int, SHARD.split("/"))
+            cases = cases[i::n]
         todo = [c for c in cases if not os.path.exists(f"{out_dir}/{c}.nii.gz")]
         if LIMIT:
             todo = todo[:LIMIT]
         print(f"{arm} {cohort}: {len(cases)} cases, {len(todo)} to do", flush=True)
-        (run_totalseg if arm == "totalseg" else run_baseline)(todo, out_dir, f"{out_dir}/_log.csv")
+        (run_totalseg if arm == "totalseg" else run_baseline)(todo, out_dir, f"{out_dir}/_log{tag}.csv")
         print("STAGE1_DONE", flush=True)
     finally:
         os.remove(lock)
