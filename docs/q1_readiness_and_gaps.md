@@ -31,7 +31,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 | Gap | Status | Weight |
 |---|---|---|
 | Mitigation panel (tuned ERM / DFR / GRL / SSL), local 2.5D | not done | **critical** |
-| Deployment-ROI experiment (segmenter vs oracle, §6) | external DONE: no deployment gap with either segmenter (MSD AUROC gap +0.015 [−0.024, +0.056] baseline, −0.010 [−0.045, +0.026] TotalSegmentator); Dutch tax under predicted crops + dose-response to do | **high / novel** |
+| Deployment-ROI experiment (segmenter vs oracle, §6) | external DONE: no deployment gap with either segmenter (MSD AUROC gap +0.015 [−0.024, +0.056] baseline, −0.010 [−0.045, +0.026] TotalSegmentator); dose-response done (flat ≤ 20 mm shift; −0.07 beyond 30 mm or with enlarged margins); Dutch tax under predicted crops to do | **high / novel** |
 | External validation (held-out MSD + NIH; §5) | DONE: tight MSD AUROC 0.82, Dice 0.555; loose 0.71, Dice 0.35; p_max operating points transfer per fold, cc_psz thresholds shift | **high** |
 | Tight-crop ablation (loose vs tight) | DONE (tight better on Dice + detection); loose tax CI done (+0.021 [−0.002, +0.045]) | medium |
 | Biomarker + fusion ("clean" arm) | exists, needs rigour | medium (multimodal lifts Q1) |
