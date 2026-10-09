@@ -4,12 +4,14 @@
 # labels are the uploaded local copy (hash manifest); code = the repo's tools/ (same as local runs).
 # Identity gate first: rebuilt oracle crops must equal the Dataset701 training crops voxel-for-voxel and
 # reproduce the Dutch CV scores. Any failure -> save logs, stop the pod. 30 h failsafe.
-# Expects in /root: work/ (bundle), labels.tar, labels_md5.txt, raw_md5_sample.txt, gate_cases.txt, .runpod_api
+# Expects in /root: work/ (bundle), labels_md5.txt, raw_md5_sample.txt, gate_cases.txt, .runpod_api, and either
+# labels.tar (uploaded local copy) or nothing (labels are then cloned from GitHub; same hash manifest check).
 set -u
 source /root/.runpod_api
 W=/root/work; V=/workspace/deploy_dutch; LOG=$V/run.log; mkdir -p $V
 RAW=$W/data/raw/ct/panorama/images; LAB=$W/data/raw/ct/panorama_labels; mkdir -p $RAW $LAB
 export TOTALSEG_HOME_DIR=$W/data/envs/totalseg PYTHONUNBUFFERED=1
+mkdir -p $TOTALSEG_HOME_DIR   # TotalSegmentator creates only the last path component
 cd $W
 log() { echo "$* $(date -u +%H:%M:%S)" >> $LOG; }
 save() {
@@ -35,11 +37,18 @@ pip install -q --break-system-packages --root-user-action=ignore -c /root/constr
 python3 -c "import torch,nnunetv2,totalsegmentator,importlib.metadata as m; print('torch',torch.__version__,'cuda',torch.cuda.is_available(),'nnunetv2',m.version('nnunetv2'),'totalseg',m.version('totalsegmentator'))" >> $LOG 2>&1 || fail "imports"
 
 log "=== [1] labels (uploaded local copy) + models"
-tar xf /root/labels.tar -C $LAB --no-same-owner || fail "labels untar"
+if [ -f /root/labels.tar ]; then tar xf /root/labels.tar -C $LAB --no-same-owner || fail "labels untar"
+else
+  git clone -q --depth 1 https://github.com/DIAGNijmegen/panorama_labels.git /root/pl || fail "labels clone"
+  mv /root/pl/manual_labels /root/pl/automatic_labels $LAB/ || fail "labels move"
+fi
 ( cd $LAB && md5sum -c --quiet /root/labels_md5.txt ) >> $LOG 2>&1 || fail "labels md5"
 log "  labels md5 OK ($(wc -l < /root/labels_md5.txt) files)"
 mkdir -p $W/models/nnunet/tight_cv
-cp -r /workspace/nnunet_results_tight/Dataset701_PanoramaPDAC_tight $W/models/nnunet/tight_cv/ || fail "copy tight model"
+T=/workspace/nnunet_results_tight/Dataset701_PanoramaPDAC_tight/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres
+D=$W/models/nnunet/tight_cv/Dataset701_PanoramaPDAC_tight/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres
+for f in 0 1 2 3 4; do mkdir -p $D/fold_$f; cp $T/fold_$f/checkpoint_final.pth $D/fold_$f/ || fail "copy fold $f"; done
+cp $T/plans.json $T/dataset.json $T/dataset_fingerprint.json $D/ || fail "copy model json"
 curl -sL --retry 10 -o /root/ds103.zip "https://zenodo.org/records/11160381/files/Dataset103_PANORAMA_baseline_Pancreas_Segmentation.zip?download=1"
 [ "$(md5sum /root/ds103.zip | cut -d' ' -f1)" = "d4c7e9666157e712f90649086ed395a5" ] || fail "baseline weights md5"
 ( cd $W/models/panorama_baseline && unzip -q /root/ds103.zip ) && rm /root/ds103.zip
