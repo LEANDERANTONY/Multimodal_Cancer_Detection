@@ -11,6 +11,8 @@ Writes data/processed/ct/stage1_masks/<arm>/<case>.nii.gz (uint8 0/1) and _log.c
 status, voxels). Resumable (skips cases already written), refuses to run twice, below-normal priority,
 STAGE1_THREADS (default 8) caps CPU threads. STAGE1_LIMIT=n runs only n cases (smoke test).
 STAGE1_SHARD=i/n runs every n-th case starting at i (parallel workers; processing is unchanged).
+STAGE1_MAX_VOXELS=n defers scans larger than n voxels (listed in _deferred.txt) - for a RAM-limited machine;
+the export of a 1024x1024x331 scan needs ~20 GB RAM. A later run without the limit fills them in.
 """
 import csv
 import json
@@ -24,6 +26,7 @@ THREADS = int(os.environ.get("STAGE1_THREADS", "8"))  # <=8 keeps 4 of 12 cores 
 for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
     os.environ[v] = str(THREADS)
 
+import numpy as np
 import pandas as pd
 import psutil
 import SimpleITK as sitk
@@ -38,6 +41,7 @@ BASE_FOLDS = f"{BASE}/Dataset103_PANORAMA_baseline_Pancreas_Segmentation_folds.j
 os.environ.setdefault("TOTALSEG_HOME_DIR", f"{ROOT}/data/envs/totalseg")
 LIMIT = int(os.environ.get("STAGE1_LIMIT", "0"))
 SHARD = os.environ.get("STAGE1_SHARD", "")  # "i/n"
+MAX_VOX = int(os.environ.get("STAGE1_MAX_VOXELS", "0"))
 
 
 def case_list(cohort):
@@ -137,6 +141,12 @@ def main():
             i, n = map(int, SHARD.split("/"))
             cases = cases[i::n]
         todo = [c for c in cases if not os.path.exists(f"{out_dir}/{c}.nii.gz")]
+        if MAX_VOX:
+            import nibabel as nib
+            big = [c for c in todo if np.prod(nib.load(f"{RAW}/{c}_0000.nii.gz").shape[:3]) > MAX_VOX]
+            open(f"{out_dir}/_deferred.txt", "w").write("".join(c + chr(10) for c in big))
+            todo = [c for c in todo if c not in set(big)]
+            print(f"deferred {len(big)} scans > {MAX_VOX} voxels (see _deferred.txt)", flush=True)
         if LIMIT:
             todo = todo[:LIMIT]
         print(f"{arm} {cohort}: {len(cases)} cases, {len(todo)} to do", flush=True)
