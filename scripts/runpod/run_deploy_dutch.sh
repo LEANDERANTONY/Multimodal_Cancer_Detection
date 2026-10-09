@@ -81,11 +81,17 @@ print(f"{os.path.basename(z)}: extracted {n} Dutch scans", flush=True)
 PY
   rm -f $z
 }
+if [ -f /workspace/panorama_raw_dutch.tar ]; then   # saved by an earlier run: copy, don't re-download
+  log "  using /workspace/panorama_raw_dutch.tar"
+  cp /workspace/panorama_raw_dutch.tar /root/ && tar xf /root/panorama_raw_dutch.tar -C $W/data/raw/ct/panorama --no-same-owner \
+    && rm /root/panorama_raw_dutch.tar || fail "raw tar from volume"
+else
 fetch batch_1 13715870 b3b3669a82696b954b449c27a9d85074 >> $LOG 2>&1 & F1=$!
 fetch batch_2 13742336 9668a43c24d5eb3473fbaa979b1dbaf8 >> $LOG 2>&1 & F2=$!
 fetch batch_3 11034011 9d852d09d750fd2e2a2e32a371d3bdd8 >> $LOG 2>&1 & F3=$!
 fetch batch_4 10999754 f2820a214aa24fa90daeedbaf99d0609 >> $LOG 2>&1 & F4=$!
 wait $F1 $F2 $F3 $F4   # never a bare `wait`: it would also wait for the failsafe timer
+fi
 N=$(ls $RAW | wc -l); log "  raw Dutch scans: $N"
 [ "$N" -eq 1964 ] || fail "expected 1964 Dutch scans, got $N"
 ( cd $RAW && md5sum -c --quiet /root/raw_md5_sample.txt ) >> $LOG 2>&1 || fail "raw sample md5 vs local copy"
