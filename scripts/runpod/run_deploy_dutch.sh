@@ -3,7 +3,10 @@
 # docs/deployment_and_mitigation_design.md. Raw scans come from the official Zenodo batches (MD5-checked);
 # labels are the uploaded local copy (hash manifest); code = the repo's tools/ (same as local runs).
 # Identity gate first: rebuilt oracle crops must equal the Dataset701 training crops voxel-for-voxel and
-# reproduce the Dutch CV scores. Any failure -> save logs, stop the pod. 30 h failsafe.
+# reproduce the Dutch CV scores. Any failure -> save logs, stop the pod. 40 h failsafe.
+# PREP_ONLY=1: download + verify + identity gate + TotalSegmentator smoke, save the verified Dutch scans to
+#   /workspace/panorama_raw_dutch.tar, then stop (cheap pod). A later full run reads that tar, not Zenodo.
+# TS_WORKERS (default 2): parallel TotalSegmentator workers.
 # Expects in /root: work/ (bundle), labels_md5.txt, raw_md5_sample.txt, gate_cases.txt, .runpod_api, and either
 # labels.tar (uploaded local copy) or nothing (labels are then cloned from GitHub; same hash manifest check).
 set -u
@@ -27,7 +30,8 @@ stop_pod() {
   done
 }
 fail() { log "FAIL: $*"; save; stop_pod; exit 1; }
-( sleep 108000; log "FAILSAFE"; save; stop_pod ) &
+PREP_ONLY=${PREP_ONLY:-0}; TS_WORKERS=${TS_WORKERS:-2}
+( sleep 144000; log "FAILSAFE"; save; stop_pod ) &
 
 log "=== [0] environment"
 TV=$(python3 -c "import torch; print(torch.__version__)")
@@ -90,8 +94,7 @@ PY
 }
 if [ -f /workspace/panorama_raw_dutch.tar ]; then   # saved by an earlier run: copy, don't re-download
   log "  using /workspace/panorama_raw_dutch.tar"
-  cp /workspace/panorama_raw_dutch.tar /root/ && tar xf /root/panorama_raw_dutch.tar -C $W/data/raw/ct/panorama --no-same-owner \
-    && rm /root/panorama_raw_dutch.tar || fail "raw tar from volume"
+  tar xf /workspace/panorama_raw_dutch.tar -C $W/data/raw/ct/panorama --no-same-owner || fail "raw tar from volume"  # sequential read
 else
 fetch batch_1 13715870 b3b3669a82696b954b449c27a9d85074 49338585294 >> $LOG 2>&1 & F1=$!
 fetch batch_2 13742336 9668a43c24d5eb3473fbaa979b1dbaf8 49284974263 >> $LOG 2>&1 & F2=$!
@@ -103,6 +106,11 @@ N=$(ls $RAW | wc -l); log "  raw Dutch scans: $N"
 [ "$N" -eq 1964 ] || fail "expected 1964 Dutch scans, got $N"
 ( cd $RAW && md5sum -c --quiet /root/raw_md5_sample.txt ) >> $LOG 2>&1 || fail "raw sample md5 vs local copy"
 log "  raw sample md5 matches the local copy (30 files)"
+if [ ! -f /workspace/panorama_raw_dutch.tar ]; then   # keep the verified scans for later pods
+  tar cf /workspace/panorama_raw_dutch.tar.part -C $W/data/raw/ct/panorama images \
+    && mv /workspace/panorama_raw_dutch.tar.part /workspace/panorama_raw_dutch.tar \
+    && log "  saved verified Dutch scans to /workspace/panorama_raw_dutch.tar" || log "  WARNING: could not save the raw tar"
+fi
 
 log "=== [3] identity gate (24 cases): rebuilt oracle crops vs Dataset701, scores vs Dutch CV"
 cp /workspace/Dataset701_tight.tar /root/ || fail "copy Dataset701 tar"
@@ -118,6 +126,7 @@ C1=$(head -1 /root/gate_cases.txt)   # fetch TotalSegmentator weights once, befo
 python3 -c "from totalsegmentator.python_api import totalsegmentator as t; t('$RAW/${C1}_0000.nii.gz', '/root/ts_smoke', roi_subset=['pancreas'], quiet=True)" \
   >> $V/ts_smoke.log 2>&1 && [ -f /root/ts_smoke/pancreas.nii.gz ] || fail "TotalSegmentator smoke"
 log "  TotalSegmentator weights + smoke OK"
+if [ "$PREP_ONLY" = 1 ]; then log "PREP_COMPLETE"; save; stop_pod; exit 0; fi
 
 log "=== [4] stage 1 (baseline OOF + TotalSegmentator x2) and stage 2 baseline as soon as its masks exist"
 ( STAGE1_THREADS=4 python3 tools/stage1_segment.py baseline dutch > $V/s1_baseline.log 2>&1
@@ -125,11 +134,12 @@ log "=== [4] stage 1 (baseline OOF + TotalSegmentator x2) and stage 2 baseline a
   DEPLOY_THREADS=6 python3 tools/deploy_infer_oof.py baseline_oof > $V/s2_baseline.log 2>&1
   wait $Q ) &
 CHAIN=$!
-STAGE1_SHARD=0/2 STAGE1_THREADS=6 python3 tools/stage1_segment.py totalseg dutch > $V/s1_ts0.log 2>&1 &
-T0=$!
-STAGE1_SHARD=1/2 STAGE1_THREADS=6 python3 tools/stage1_segment.py totalseg dutch > $V/s1_ts1.log 2>&1 &
-T1=$!
-wait $T0 $T1
+TP=""
+for i in $(seq 0 $((TS_WORKERS-1))); do
+  STAGE1_SHARD=$i/$TS_WORKERS STAGE1_THREADS=6 python3 tools/stage1_segment.py totalseg dutch > $V/s1_ts$i.log 2>&1 &
+  TP="$TP $!"
+done
+wait $TP
 log "  totalseg masks: $(ls $W/data/processed/ct/stage1_masks/totalseg/*.nii.gz | wc -l)"
 python3 tools/stage1_quality.py totalseg dutch > $V/q_totalseg.log 2>&1 & QT=$!
 wait $CHAIN
