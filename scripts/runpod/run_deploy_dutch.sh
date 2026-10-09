@@ -37,7 +37,8 @@ pip install -q --break-system-packages --root-user-action=ignore -c /root/constr
 python3 -c "import torch,nnunetv2,totalsegmentator,importlib.metadata as m; print('torch',torch.__version__,'cuda',torch.cuda.is_available(),'nnunetv2',m.version('nnunetv2'),'totalseg',m.version('totalsegmentator'))" >> $LOG 2>&1 || fail "imports"
 
 log "=== [1] labels (uploaded local copy) + models"
-if [ -f /root/labels.tar ]; then tar xf /root/labels.tar -C $LAB --no-same-owner || fail "labels untar"
+if ( cd $LAB && md5sum -c --quiet /root/labels_md5.txt ) > /dev/null 2>&1; then log "  labels already in place"
+elif [ -f /root/labels.tar ]; then tar xf /root/labels.tar -C $LAB --no-same-owner || fail "labels untar"
 else
   git clone -q --depth 1 https://github.com/DIAGNijmegen/panorama_labels.git /root/pl || fail "labels clone"
   mv /root/pl/manual_labels /root/pl/automatic_labels $LAB/ || fail "labels move"
@@ -47,22 +48,28 @@ log "  labels md5 OK ($(wc -l < /root/labels_md5.txt) files)"
 mkdir -p $W/models/nnunet/tight_cv
 T=/workspace/nnunet_results_tight/Dataset701_PanoramaPDAC_tight/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres
 D=$W/models/nnunet/tight_cv/Dataset701_PanoramaPDAC_tight/nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres
-for f in 0 1 2 3 4; do mkdir -p $D/fold_$f; cp $T/fold_$f/checkpoint_final.pth $D/fold_$f/ || fail "copy fold $f"; done
+for f in 0 1 2 3 4; do mkdir -p $D/fold_$f
+  [ "$(stat -c %s $D/fold_$f/checkpoint_final.pth 2>/dev/null)" = "$(stat -c %s $T/fold_$f/checkpoint_final.pth)" ]     || cp $T/fold_$f/checkpoint_final.pth $D/fold_$f/ || fail "copy fold $f"; done
 cp $T/plans.json $T/dataset.json $T/dataset_fingerprint.json $D/ || fail "copy model json"
+[ -f $W/models/panorama_baseline/Dataset103_PANORAMA_baseline_Pancreas_Segmentation/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_4/checkpoint_final.pth ] || {
 curl -sL --retry 10 -o /root/ds103.zip "https://zenodo.org/records/11160381/files/Dataset103_PANORAMA_baseline_Pancreas_Segmentation.zip?download=1"
 [ "$(md5sum /root/ds103.zip | cut -d' ' -f1)" = "d4c7e9666157e712f90649086ed395a5" ] || fail "baseline weights md5"
-( cd $W/models/panorama_baseline && unzip -q /root/ds103.zip ) && rm /root/ds103.zip
+( cd $W/models/panorama_baseline && unzip -q /root/ds103.zip ) && rm /root/ds103.zip; }
 log "  models OK"
 
 log "=== [2] raw scans from Zenodo (4 batches in parallel, MD5, keep Dutch only)"
-fetch() {  # name record md5
-  local z=/root/$1.zip
-  for attempt in 1 2 3; do
-    curl -sL --retry 20 --retry-delay 5 -C - -o $z "https://zenodo.org/api/records/$2/files/$1.zip/content"
+fetch() {  # name record md5 bytes
+  local z=/root/$1.zip url="https://zenodo.org/api/records/$2/files/$1.zip/content"
+  for attempt in 1 2; do
+    local n=0   # connections drop mid-transfer: resume (-C -) until the published size is reached
+    while [ "$(stat -c %s $z 2>/dev/null || echo 0)" -lt "$4" ] && [ $n -lt 300 ]; do
+      curl -sL --max-time 3600 -C - -o $z "$url" || sleep 15; n=$((n+1))
+    done
     [ "$(md5sum $z | cut -d' ' -f1)" = "$3" ] && break
-    log "  $1 md5 mismatch (attempt $attempt)"; rm -f $z
+    log "  $1 md5 mismatch after $n connections (attempt $attempt)"; rm -f $z
   done
   [ -f $z ] || { log "  $1 FAILED"; return 1; }
+  log "  $1 downloaded + md5 OK"
   flock /root/extract.lock python3 - "$z" "$RAW" <<'PY' || return 1  # one extraction at a time (disk)
 import os, sys, zipfile, csv
 z, raw = sys.argv[1:3]
@@ -86,10 +93,10 @@ if [ -f /workspace/panorama_raw_dutch.tar ]; then   # saved by an earlier run: c
   cp /workspace/panorama_raw_dutch.tar /root/ && tar xf /root/panorama_raw_dutch.tar -C $W/data/raw/ct/panorama --no-same-owner \
     && rm /root/panorama_raw_dutch.tar || fail "raw tar from volume"
 else
-fetch batch_1 13715870 b3b3669a82696b954b449c27a9d85074 >> $LOG 2>&1 & F1=$!
-fetch batch_2 13742336 9668a43c24d5eb3473fbaa979b1dbaf8 >> $LOG 2>&1 & F2=$!
-fetch batch_3 11034011 9d852d09d750fd2e2a2e32a371d3bdd8 >> $LOG 2>&1 & F3=$!
-fetch batch_4 10999754 f2820a214aa24fa90daeedbaf99d0609 >> $LOG 2>&1 & F4=$!
+fetch batch_1 13715870 b3b3669a82696b954b449c27a9d85074 49338585294 >> $LOG 2>&1 & F1=$!
+fetch batch_2 13742336 9668a43c24d5eb3473fbaa979b1dbaf8 49284974263 >> $LOG 2>&1 & F2=$!
+fetch batch_3 11034011 9d852d09d750fd2e2a2e32a371d3bdd8 49287047956 >> $LOG 2>&1 & F3=$!
+fetch batch_4 10999754 f2820a214aa24fa90daeedbaf99d0609 46271075077 >> $LOG 2>&1 & F4=$!
 wait $F1 $F2 $F3 $F4   # never a bare `wait`: it would also wait for the failsafe timer
 fi
 N=$(ls $RAW | wc -l); log "  raw Dutch scans: $N"
