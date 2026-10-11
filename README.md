@@ -75,4 +75,4 @@ See **[`docs/README.md`](docs/README.md)** for the full index. Most-used:
 - [`docs/modeling_pipeline.md`](docs/modeling_pipeline.md) — 3D nnU-Net pipeline and results
 - [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md) — pre-registered next experiments
 - [`docs/data_layout.md`](docs/data_layout.md) — where data, models and results live
-- [`ROADMAP.md`](ROADMAP.md), [`DEVLOG.md`](DEVLOG.md), [`docs/architectural_decision_records/`](docs/architectural_decision_records/README.md)
+- [`ROADMAP.md`](ROADMAP.md), [`DEVLOG.md`](DEVLOG.md), [`DEAD_ENDS.md`](DEAD_ENDS.md), [`docs/architectural_decision_records/`](docs/architectural_decision_records/README.md)

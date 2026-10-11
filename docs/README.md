@@ -26,6 +26,7 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 |---|---|
 | [`../ROADMAP.md`](../ROADMAP.md) | Publication plan, validation-dataset notes, reviewer-expected analyses, resolved decisions |
 | [`../DEVLOG.md`](../DEVLOG.md) | What was done, phase by phase (thesis 2025 → PANORAMA 2026) |
+| [`../DEAD_ENDS.md`](../DEAD_ENDS.md) | Failure ledger: what was tried or ruled out, the evidence, and when to revisit; process mistakes and their guards. Read before any experiment |
 | [`project_strategy.md`](project_strategy.md) | Scope boundaries and why the repo is shaped as it is |
 | [`architecture.md`](architecture.md) | Code map: thesis modules in `src/`, PANORAMA pipeline in `scripts/runpod/` + `tools/` |
 | [`model_card.md`](model_card.md) | Every model, what it is, how good it is, and its limitations |
