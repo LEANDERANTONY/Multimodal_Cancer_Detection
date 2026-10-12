@@ -11,6 +11,7 @@ Writes data/processed/ct/stage1_masks/<arm>/<case>.nii.gz (uint8 0/1) and _log.c
 status, voxels). Resumable (skips cases already written), refuses to run twice, below-normal priority,
 STAGE1_THREADS (default 8) caps CPU threads. STAGE1_LIMIT=n runs only n cases (smoke test).
 STAGE1_SHARD=i/n runs every n-th case starting at i (parallel workers; processing is unchanged).
+STAGE1_TS_RESAMP_THREADS (default 4) sets TotalSegmentator's resampling / saving threads (1 = lower peak RAM).
 STAGE1_MAX_VOXELS=n defers scans larger than n voxels (listed in _deferred.txt) - for a RAM-limited machine;
 the export of a 1024x1024x331 scan needs ~20 GB RAM. A later run without the limit fills them in.
 """
@@ -42,6 +43,7 @@ os.environ.setdefault("TOTALSEG_HOME_DIR", f"{ROOT}/data/envs/totalseg")
 LIMIT = int(os.environ.get("STAGE1_LIMIT", "0"))
 SHARD = os.environ.get("STAGE1_SHARD", "")  # "i/n"
 MAX_VOX = int(os.environ.get("STAGE1_MAX_VOXELS", "0"))
+TS_THR = int(os.environ.get("STAGE1_TS_RESAMP_THREADS", "4"))  # 1 lowers peak RAM on very large scans; same output
 
 
 def case_list(cohort):
@@ -78,8 +80,8 @@ def run_totalseg(cases, out_dir, log):
         t = time.time()
         tmp = tempfile.mkdtemp(dir=out_dir, prefix="_tmp_")
         try:
-            totalsegmentator(f"{RAW}/{c}_0000.nii.gz", tmp, roi_subset=["pancreas"], nr_thr_resamp=4,
-                             nr_thr_saving=2, quiet=True)
+            totalsegmentator(f"{RAW}/{c}_0000.nii.gz", tmp, roi_subset=["pancreas"], nr_thr_resamp=TS_THR,
+                             nr_thr_saving=min(2, TS_THR), quiet=True)
             to_uint8(f"{tmp}/pancreas.nii.gz", out)
             status = "ok"
         except Exception as e:  # keep going; a failure is a result to report
