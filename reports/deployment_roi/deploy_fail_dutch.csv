@@ -1,0 +1,5 @@
+arm,scanner,n,pos,failed,failed_pos
+baseline_oof,Other,56,33,0,0
+baseline_oof,Philips,319,241,0,0
+baseline_oof,Siemens,938,170,0,0
+baseline_oof,Toshiba,651,134,0,0
