@@ -1,5 +1,5 @@
 """Neighbouring-organ probe on the Dutch scans where TotalSegmentator returned an empty pancreas
-(stage1_quality_totalseg_dutch.csv, empty == True). Same TotalSegmentator 2.18 and settings as stage 1.
+(status "empty" in the stage-1 logs; all Dutch scans incl. the large ones). Same TotalSegmentator 2.18 and settings as stage 1.
 
   subset  roi_subset = pancreas + liver, spleen, kidneys, stomach, duodenum (the stage-1 call plus
           neighbours): does it still find the organs around the pancreas on these scans?
@@ -12,6 +12,7 @@ the roi_subset cropping step causes it.
 Appends reports/deployment_roi/totalseg_organ_probe.csv (case, mode, organ, voxels); resumable per case.
 """
 import csv
+import glob
 import os
 import shutil
 import sys
@@ -29,7 +30,8 @@ import SimpleITK as sitk
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault("TOTALSEG_HOME_DIR", f"{ROOT}/data/envs/totalseg")
 RAW = f"{ROOT}/data/raw/ct/panorama/images"
-QUAL = f"{ROOT}/reports/deployment_roi/stage1_quality_totalseg_dutch.csv"
+MASKS = f"{ROOT}/data/processed/ct/stage1_masks/totalseg"
+EXT = f"{ROOT}/reports/nnunet_summaries/external/external_cases.csv"
 OUT = f"{ROOT}/reports/deployment_roi/totalseg_organ_probe.csv"
 ORGANS = ["pancreas", "liver", "spleen", "kidney_left", "kidney_right", "stomach", "duodenum"]
 
@@ -39,8 +41,10 @@ def main():
     assert mode in ("subset", "full")
     psutil.Process().nice(getattr(psutil, "BELOW_NORMAL_PRIORITY_CLASS", 10))
     from totalsegmentator.python_api import totalsegmentator
-    q = pd.read_csv(QUAL)
-    cases = q[q["empty"].astype(str).str.lower() == "true"].case.tolist()
+    logs = pd.concat([pd.read_csv(f) for f in glob.glob(f"{MASKS}/_log*.csv")])
+    last = logs.drop_duplicates("case", keep="last")
+    dutch = set(c[:12] for c in os.listdir(RAW)) - set(pd.read_csv(EXT).case)
+    cases = sorted(c for c in last[last.status == "empty"].case if c in dutch)
     done = set()
     if os.path.exists(OUT) and os.path.getsize(OUT) == 0:
         os.remove(OUT)  # left by a run killed before its header was flushed
