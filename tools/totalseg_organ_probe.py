@@ -42,6 +42,8 @@ def main():
     q = pd.read_csv(QUAL)
     cases = q[q["empty"].astype(str).str.lower() == "true"].case.tolist()
     done = set()
+    if os.path.exists(OUT) and os.path.getsize(OUT) == 0:
+        os.remove(OUT)  # left by a run killed before its header was flushed
     if os.path.exists(OUT):
         d = pd.read_csv(OUT)
         done = set(d[d["mode"] == mode].case)
