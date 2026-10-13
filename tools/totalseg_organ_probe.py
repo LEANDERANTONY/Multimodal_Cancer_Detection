@@ -68,7 +68,7 @@ def main():
                                  nr_thr_resamp=4, nr_thr_saving=2, quiet=True)
                 for o in ORGANS:
                     p = f"{tmp}/{o}.nii.gz"
-                    vox = int((sitk.GetArrayViewFromImage(sitk.ReadImage(p)) > 0).sum()) if os.path.exists(p) else -1
+                    vox = int((sitk.GetArrayFromImage(sitk.ReadImage(p)) > 0).sum()) if os.path.exists(p) else -1
                     w.writerow([c, mode, o, vox])
             except Exception as e:
                 print(f"  {c} FAILED: {e}", flush=True)
