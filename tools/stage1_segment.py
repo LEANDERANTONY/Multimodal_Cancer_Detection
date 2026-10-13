@@ -2,6 +2,10 @@
 
 Arms (docs/deployment_and_mitigation_design.md, both used as published):
   totalseg  TotalSegmentator 2.18, --roi_subset pancreas, full-resolution model
+  totalseg_nb  sensitivity arm (2026-10-13): the same model with roi_subset = pancreas + liver, spleen,
+            kidneys, stomach, duodenum; only the pancreas mask is kept. Pancreas-only roi_subset crops to a
+            region from a coarse pass that misses the pancreas on 6 % of Dutch scans
+            (tools/totalseg_organ_probe.py); requesting neighbours widens that region.
   baseline  official PANORAMA baseline pancreas nnU-Net (Dataset103), out-of-fold: each case is
             segmented by the one fold model that held it out
 
@@ -73,14 +77,17 @@ def to_uint8(src, dst):
     sitk.WriteImage(out, dst, useCompression=True)
 
 
-def run_totalseg(cases, out_dir, log):
+NEIGHBOURS = ["pancreas", "liver", "spleen", "kidney_left", "kidney_right", "stomach", "duodenum"]
+
+
+def run_totalseg(cases, out_dir, log, roi=("pancreas",)):
     from totalsegmentator.python_api import totalsegmentator
     for i, c in enumerate(cases, 1):
         out = f"{out_dir}/{c}.nii.gz"
         t = time.time()
         tmp = tempfile.mkdtemp(dir=out_dir, prefix="_tmp_")
         try:
-            totalsegmentator(f"{RAW}/{c}_0000.nii.gz", tmp, roi_subset=["pancreas"], nr_thr_resamp=TS_THR,
+            totalsegmentator(f"{RAW}/{c}_0000.nii.gz", tmp, roi_subset=list(roi), nr_thr_resamp=TS_THR,
                              nr_thr_saving=min(2, TS_THR), quiet=True)
             to_uint8(f"{tmp}/pancreas.nii.gz", out)
             status = "ok"
@@ -125,8 +132,8 @@ def run_baseline(cases, out_dir, log):
 
 def main():
     arm, cohort = sys.argv[1], sys.argv[2]
-    assert arm in ("totalseg", "baseline") and cohort in ("external", "dutch")
-    out_dir = f"{OUT_ROOT}/{'baseline_oof' if arm == 'baseline' else 'totalseg'}"
+    assert arm in ("totalseg", "totalseg_nb", "baseline") and cohort in ("external", "dutch")
+    out_dir = f"{OUT_ROOT}/{'baseline_oof' if arm == 'baseline' else arm}"
     os.makedirs(out_dir, exist_ok=True)
     tag = SHARD.replace("/", "of") if SHARD else ""
     lock = f"{out_dir}/.running{tag}.pid"
@@ -152,7 +159,11 @@ def main():
         if LIMIT:
             todo = todo[:LIMIT]
         print(f"{arm} {cohort}: {len(cases)} cases, {len(todo)} to do", flush=True)
-        (run_totalseg if arm == "totalseg" else run_baseline)(todo, out_dir, f"{out_dir}/_log{tag}.csv")
+        log = f"{out_dir}/_log{tag}.csv"
+        if arm == "baseline":
+            run_baseline(todo, out_dir, log)
+        else:
+            run_totalseg(todo, out_dir, log, NEIGHBOURS if arm == "totalseg_nb" else ("pancreas",))
         print("STAGE1_DONE", flush=True)
     finally:
         os.remove(lock)
