@@ -14,6 +14,38 @@ grandmasters we study (`D:/Documents/Projects/Kaggle/Grandmasters/`: ren4yu, ser
    it. [sersasj, samson8]
 5. **Keep a "didn't work" list** in this doc, filled as we go. [all three]
 
+## Status and next steps (updated 2026-10-13, all local; Zenodo still throttled to ~0.2 MB/s per connection, so no pods)
+
+**Deployment-ROI — done:** external (no gap), dose-response, Dutch full cohort for both pre-registered arms
+(baseline segmenter: AUROC −0.013, tax n.s.; TotalSegmentator as published: 118 empty masks, deployed
+AUROC 0.787 → 0.700, tax +0.031 → +0.046). Cause of the TotalSegmentator failures found: the coarse 6 mm
+cropping pass of `roi_subset pancreas` picks a tiny, misplaced region (case 100002: 73×81×52 voxels → 0);
+requesting neighbouring organs recovers the pancreas on every failure probed so far; the developers'
+documented fix `robust_crop` did NOT recover case 100002.
+
+**Running / queued locally (one chain, resumable; log `data/processed/ct/probe.log`, then
+`data/processed/ct/totalseg_sensitivity.log`; queue script `data/processed/ct/queue_totalseg_nb.ps1`):**
+1. Organ probe `full` mode (whole `total` task, no roi_subset) on the 118 failures.
+2. Organ probe `robust` mode (roi_subset pancreas + `robust_crop`) on the 118 failures.
+3. Sensitivity arm `totalseg_rc` (robust_crop) — stage 1 + stage 2 on all 1964.
+4. Sensitivity arm `totalseg_nb` (pancreas + liver, spleen, kidneys, stomach, duodenum) — stage 1 + stage 2.
+
+**After the chain (analysis, CPU, ~1 h):**
+5. Summarise the probe (pancreas found per mode) → `docs` + `DEAD_ENDS.md` (pancreas-only roi_subset is a
+   usage trap; say whether robust_crop fixes it).
+6. `tools/deploy_gap_dutch.py baseline_oof totalseg totalseg_rc totalseg_nb` (paired + ITT, per scanner).
+7. Rerun `tools/stage1_quality.py <arm> dutch` for all arms on the full 1964 (the committed TotalSegmentator
+   quality CSV covers 1702); refresh `totalseg_failure_*` with the 21 large-scan failures.
+8. Write the deployment-ROI results paragraph + figure (AUROC and tax per arm, failures per scanner × class).
+
+**Jitter fine-tune (pre-registered "fix the gap, if there is one"): not triggered.** The baseline segmenter's
+gap is −0.013 AUROC with an unchanged tax, and both segmenters' centroid errors sit in the flat region of
+the dose-response; TotalSegmentator's loss comes from empty masks, which no crop-jitter training can fix.
+
+**Then, in order:** B. mitigation panel (2.5D *classifier* panel below — tuned ERM / group-balanced / DFR /
+GRL / MAE-SSL + planted-shortcut control; local 8 GB GPU) → C. biomarker / fusion arm → statistics (DeLong,
+calibration, subgroups) → thesis-cohort control → figures and write-up.
+
 ## A. Deployment-ROI experiment (the novel piece)
 **Question.** Our models were trained and tested on crops cut from the provided (oracle) pancreas masks,
 which a clinic doesn't have. With a predicted pancreas mask instead: how much detection is lost, and does
