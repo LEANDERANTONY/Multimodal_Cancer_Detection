@@ -6,6 +6,8 @@ Arms (docs/deployment_and_mitigation_design.md, both used as published):
             kidneys, stomach, duodenum; only the pancreas mask is kept. Pancreas-only roi_subset crops to a
             region from a coarse pass that misses the pancreas on 6 % of Dutch scans
             (tools/totalseg_organ_probe.py); requesting neighbours widens that region.
+  totalseg_rc  sensitivity arm, the developers' documented fix: roi_subset pancreas with robust_crop=True
+            (a 3 mm instead of 6 mm model for the cropping pass).
   baseline  official PANORAMA baseline pancreas nnU-Net (Dataset103), out-of-fold: each case is
             segmented by the one fold model that held it out
 
@@ -80,7 +82,7 @@ def to_uint8(src, dst):
 NEIGHBOURS = ["pancreas", "liver", "spleen", "kidney_left", "kidney_right", "stomach", "duodenum"]
 
 
-def run_totalseg(cases, out_dir, log, roi=("pancreas",)):
+def run_totalseg(cases, out_dir, log, roi=("pancreas",), robust=False):
     from totalsegmentator.python_api import totalsegmentator
     for i, c in enumerate(cases, 1):
         out = f"{out_dir}/{c}.nii.gz"
@@ -88,7 +90,7 @@ def run_totalseg(cases, out_dir, log, roi=("pancreas",)):
         tmp = tempfile.mkdtemp(dir=out_dir, prefix="_tmp_")
         try:
             totalsegmentator(f"{RAW}/{c}_0000.nii.gz", tmp, roi_subset=list(roi), nr_thr_resamp=TS_THR,
-                             nr_thr_saving=min(2, TS_THR), quiet=True)
+                             nr_thr_saving=min(2, TS_THR), robust_crop=robust, quiet=True)
             to_uint8(f"{tmp}/pancreas.nii.gz", out)
             status = "ok"
         except Exception as e:  # keep going; a failure is a result to report
@@ -132,7 +134,7 @@ def run_baseline(cases, out_dir, log):
 
 def main():
     arm, cohort = sys.argv[1], sys.argv[2]
-    assert arm in ("totalseg", "totalseg_nb", "baseline") and cohort in ("external", "dutch")
+    assert arm in ("totalseg", "totalseg_nb", "totalseg_rc", "baseline") and cohort in ("external", "dutch")
     out_dir = f"{OUT_ROOT}/{'baseline_oof' if arm == 'baseline' else arm}"
     os.makedirs(out_dir, exist_ok=True)
     tag = SHARD.replace("/", "of") if SHARD else ""
@@ -163,7 +165,8 @@ def main():
         if arm == "baseline":
             run_baseline(todo, out_dir, log)
         else:
-            run_totalseg(todo, out_dir, log, NEIGHBOURS if arm == "totalseg_nb" else ("pancreas",))
+            run_totalseg(todo, out_dir, log, NEIGHBOURS if arm == "totalseg_nb" else ("pancreas",),
+                         robust=arm == "totalseg_rc")
         print("STAGE1_DONE", flush=True)
     finally:
         os.remove(lock)

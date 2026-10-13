@@ -6,7 +6,7 @@ Crops are cut by tools/deploy_infer.py:build_crop (same code as the external run
 data/processed/ct/stage1_masks/<arm>/<case>.nii.gz. Arm "oracle_rebuild" = masks rebuilt from the provided
 labels 4+5 (tools/deploy_identity_gate.py) - it must reproduce the training crops and the oracle scores.
 
-    python tools/deploy_infer_oof.py <arm>           # baseline_oof | totalseg | totalseg_nb | oracle_rebuild
+    python tools/deploy_infer_oof.py <arm>           # baseline_oof | totalseg | totalseg_nb | totalseg_rc | oracle_rebuild
 Writes reports/deployment_roi/detect_<arm>_dutch.csv (fold, case, scanner, y, n_ref, n_pred, dice, p_max,
 p_sum, cc_psz), appended per case; softmax files are deleted after scoring; cases without a usable stage-1
 mask are listed in <crop dir>/skipped.txt (segmenter failures). Resumable; refuses to run twice.
@@ -58,7 +58,7 @@ def score(pred_base, lab_path):
 
 def main():
     arm = sys.argv[1]
-    assert arm in ("baseline_oof", "totalseg", "totalseg_nb", "oracle_rebuild")
+    assert arm in ("baseline_oof", "totalseg", "totalseg_nb", "totalseg_rc", "oracle_rebuild")
     d = f"{ROOT}/data/processed/ct/deploy_crops/{arm}_dutch"
     for sub in ("imagesTs", "labelsTs", "pred"):
         os.makedirs(f"{d}/{sub}", exist_ok=True)

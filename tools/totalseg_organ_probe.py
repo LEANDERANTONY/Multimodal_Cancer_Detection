@@ -5,10 +5,11 @@
           neighbours): does it still find the organs around the pancreas on these scans?
   full    the whole `total` task without roi_subset (no region-cropping step): does it find the pancreas
           when it segments the entire scan?
+  robust  roi_subset pancreas with robust_crop=True (the developers' documented fix: a 3 mm cropping model)
 If neighbours are found but not the pancreas, the failure is pancreas-specific; if `full` finds the pancreas,
 the roi_subset cropping step causes it.
 
-    python tools/totalseg_organ_probe.py subset|full
+    python tools/totalseg_organ_probe.py subset|full|robust
 Appends reports/deployment_roi/totalseg_organ_probe.csv (case, mode, organ, voxels); resumable per case.
 """
 import csv
@@ -38,7 +39,7 @@ ORGANS = ["pancreas", "liver", "spleen", "kidney_left", "kidney_right", "stomach
 
 def main():
     mode = sys.argv[1]
-    assert mode in ("subset", "full")
+    assert mode in ("subset", "full", "robust")
     psutil.Process().nice(getattr(psutil, "BELOW_NORMAL_PRIORITY_CLASS", 10))
     from totalsegmentator.python_api import totalsegmentator
     logs = pd.concat([pd.read_csv(f) for f in glob.glob(f"{MASKS}/_log*.csv")])
@@ -64,7 +65,8 @@ def main():
             t = time.time()
             tmp = tempfile.mkdtemp(dir=tmp_root)
             try:
-                totalsegmentator(f"{RAW}/{c}_0000.nii.gz", tmp, roi_subset=ORGANS if mode == "subset" else None,
+                totalsegmentator(f"{RAW}/{c}_0000.nii.gz", tmp, roi_subset=ORGANS if mode == "subset" else ["pancreas"] if mode == "robust" else None,
+                                 robust_crop=mode == "robust",
                                  nr_thr_resamp=4, nr_thr_saving=2, quiet=True)
                 for o in ORGANS:
                     p = f"{tmp}/{o}.nii.gz"
