@@ -20,13 +20,16 @@ grandmasters we study (`D:/Documents/Projects/Kaggle/Grandmasters/`: ren4yu, ser
 (baseline segmenter: AUROC −0.013, tax n.s.; TotalSegmentator as published: 118 empty masks, deployed
 AUROC 0.787 → 0.700, tax +0.031 → +0.046). Cause of the TotalSegmentator failures found: the coarse 6 mm
 cropping pass of `roi_subset pancreas` picks a tiny, misplaced region (case 100002: 73×81×52 voxels → 0);
-requesting neighbouring organs recovers the pancreas on every failure probed so far; the developers'
-documented fix `robust_crop` did NOT recover case 100002.
+probe on all 118 failures (`tools/totalseg_organ_probe.py`, `totalseg_organ_probe.csv`, 2026-10-14): requesting
+neighbouring organs finds the pancreas on **118 / 118**, the whole `total` task (no cropping pass) on **117 / 118**,
+but the developers' documented fix `robust_crop` (3 mm cropping model) on only **63 / 118 (53 %)** — and only
+29 / 67 (43 %) of the PDAC failures (non-PDAC 34 / 51). So the cause is the pancreas-only cropping pass, the
+documented remedy recovers about half, and adding neighbouring organs (or running the full task) recovers all.
 
 **Running / queued locally (one chain, resumable; log `data/processed/ct/probe.log`, then
 `data/processed/ct/totalseg_sensitivity.log`; queue script `data/processed/ct/queue_totalseg_nb.ps1`):**
-1. Organ probe `full` mode (whole `total` task, no roi_subset) on the 118 failures.
-2. Organ probe `robust` mode (roi_subset pancreas + `robust_crop`) on the 118 failures.
+1. ~~Organ probe `full`~~ done: 117 / 118.
+2. ~~Organ probe `robust`~~ done: 63 / 118.
 3. Sensitivity arm `totalseg_rc` (robust_crop) — stage 1 + stage 2 on all 1964.
 4. Sensitivity arm `totalseg_nb` (pancreas + liver, spleen, kidneys, stomach, duodenum) — stage 1 + stage 2.
 
