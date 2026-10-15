@@ -30,7 +30,7 @@ documented remedy recovers about half, and adding neighbouring organs (or runnin
 `data/processed/ct/totalseg_sensitivity.log`; queue script `data/processed/ct/queue_totalseg_nb.ps1`):**
 1. ~~Organ probe `full`~~ done: 117 / 118.
 2. ~~Organ probe `robust`~~ done: 63 / 118.
-3. Sensitivity arm `totalseg_rc` (robust_crop) — stage 1 + stage 2 on all 1964.
+3. ~~Sensitivity arm `totalseg_rc`~~ done 2026-10-16: **66 empty masks (3.4 %) vs 118** — recovers 63 of the 118 but creates 11 new failures; Siemens 43 / 938 (30 of 170 PDAC). Deployed (ITT) mixed cc_psz 0.787 → 0.719 (−0.068 [−0.091, −0.044]; as published −0.087), within-Siemens 0.807 → 0.634, tax +0.031 → +0.046 (+0.015 [−0.001, +0.031]); when it works (paired, n = 1898) accuracy matches the oracle (−0.001). So the documented fix recovers about a fifth of the AUROC loss and leaves the confound increase unchanged.
 4. Sensitivity arm `totalseg_nb` (pancreas + liver, spleen, kidneys, stomach, duodenum) — stage 1 + stage 2.
 
 **After the chain (analysis, CPU, ~1 h):**
