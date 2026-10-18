@@ -7,3 +7,11 @@ totalseg,Other,56,33,1,0
 totalseg,Philips,319,241,16,9
 totalseg,Siemens,938,170,74,40
 totalseg,Toshiba,651,134,27,18
+totalseg_rc,Other,56,33,1,0
+totalseg_rc,Philips,319,241,7,6
+totalseg_rc,Siemens,938,170,43,30
+totalseg_rc,Toshiba,651,134,15,11
+totalseg_nb,Other,56,33,0,0
+totalseg_nb,Philips,319,241,0,0
+totalseg_nb,Siemens,938,170,0,0
+totalseg_nb,Toshiba,651,134,0,0

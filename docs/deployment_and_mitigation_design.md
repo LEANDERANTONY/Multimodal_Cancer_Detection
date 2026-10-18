@@ -31,12 +31,30 @@ documented remedy recovers about half, and adding neighbouring organs (or runnin
 1. ~~Organ probe `full`~~ done: 117 / 118.
 2. ~~Organ probe `robust`~~ done: 63 / 118.
 3. ~~Sensitivity arm `totalseg_rc`~~ done 2026-10-16: **66 empty masks (3.4 %) vs 118** — recovers 63 of the 118 but creates 11 new failures; Siemens 43 / 938 (30 of 170 PDAC). Deployed (ITT) mixed cc_psz 0.787 → 0.719 (−0.068 [−0.091, −0.044]; as published −0.087), within-Siemens 0.807 → 0.634, tax +0.031 → +0.046 (+0.015 [−0.001, +0.031]); when it works (paired, n = 1898) accuracy matches the oracle (−0.001). So the documented fix recovers about a fifth of the AUROC loss and leaves the confound increase unchanged.
-4. Sensitivity arm `totalseg_nb` (pancreas + liver, spleen, kidneys, stomach, duodenum) — stage 1 + stage 2.
+4. ~~Sensitivity arm `totalseg_nb`~~ done 2026-10-18: **0 / 1964 empty masks** (all 118 recovered, none new). Deployed
+   mixed cc_psz 0.787 → **0.782 (−0.004 [−0.015, +0.007])**, tax +0.031 → **+0.034 (+0.003 [−0.006, +0.012])**,
+   within-scanner Siemens 0.811 / Toshiba 0.765 / Philips 0.668 — matches the oracle crop and is slightly better
+   than the official baseline segmenter (0.774, tax +0.036).
+
+**Four-arm summary (Dutch, 1964, out-of-fold, failures called negative; `deploy_gap_dutch.csv`, `deploy_fail_dutch.csv`,
+figure `figures/panorama/deployment_arms.png` via `tools/plot_deployment_arms.py`):**
+
+| Stage-1 segmenter | Empty masks | Deployed AUROC (cc_psz) | Δ vs oracle 0.787 | Tax (oracle +0.031) | Within Siemens (oracle 0.807) |
+|---|---|---|---|---|---|
+| Official PANORAMA baseline (trained on this cohort) | 0 | 0.774 | −0.013 [−0.025, +0.000] | +0.036 | 0.783 |
+| TotalSegmentator, `roi_subset pancreas` (as published) | 118 (6.0 %) | 0.700 | −0.087 [−0.111, −0.063] | +0.046 | 0.587 |
+| TotalSegmentator + `robust_crop` (documented fix) | 66 (3.4 %) | 0.719 | −0.068 [−0.092, −0.045] | +0.046 | 0.634 |
+| TotalSegmentator + neighbouring organs | 0 | 0.782 | −0.004 [−0.015, +0.007] | +0.034 | 0.811 |
+
+Reading: the deployment cost and the confound increase come entirely from segmenter *failures*, which fall on
+PDAC and Siemens scans; when every scan gets a crop, a deployed two-stage pipeline matches the oracle and the tax
+stays ≈ +0.03. The developers' `robust_crop` recovers half the failures but none of the confound increase; requesting
+the neighbouring organs (or the full task) removes the failures at the cost of ~50 % more segmentation time.
 
 **After the chain (analysis, CPU, ~1 h):**
 5. Summarise the probe (pancreas found per mode) → `docs` + `DEAD_ENDS.md` (pancreas-only roi_subset is a
    usage trap; say whether robust_crop fixes it).
-6. `tools/deploy_gap_dutch.py baseline_oof totalseg totalseg_rc totalseg_nb` (paired + ITT, per scanner).
+6. ~~`tools/deploy_gap_dutch.py` all four arms~~ done (table above).
 7. Rerun `tools/stage1_quality.py <arm> dutch` for all arms on the full 1964 (the committed TotalSegmentator
    quality CSV covers 1702); refresh `totalseg_failure_*` with the 21 large-scan failures.
 8. Write the deployment-ROI results paragraph + figure (AUROC and tax per arm, failures per scanner × class).
