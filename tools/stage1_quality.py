@@ -7,7 +7,10 @@ clipped to the image), applied to the predicted mask instead of labels 4+5.
 
     python tools/stage1_quality.py <baseline_oof|totalseg> [external|dutch]
 Writes reports/deployment_roi/stage1_quality_<arm>_<cohort>.csv and prints a summary by source/scanner.
+Each case is appended to _partial_quality_<arm>_<cohort>.csv as it is done, so a killed run resumes where it
+stopped (power cuts); the partial file is removed once the final CSV is written.
 """
+import csv
 import os
 import sys
 
@@ -22,6 +25,8 @@ from build_roi_dataset import bbox_from_roi, expand_clip, mask_path  # noqa: E40
 MARGIN_MM = (100.0, 50.0, 15.0)  # tight crop, per side (x, y, z)
 MASKS = "data/processed/ct/stage1_masks"
 OUT = "reports/deployment_roi"
+FIELDS = ["case", "pred_vox", "empty", "dice_panc", "dice_panc_lesion", "lesion_vox", "lesion_in_mask",
+          "centroid_offset_mm", "crop_iou", "lesion_in_crop"]
 
 
 def crop_box(roi, sp):
@@ -73,14 +78,24 @@ def main():
         meta = meta.rename(columns={"scanner": "group"})[["case", "group", "y"]]
     done = {f[:12] for f in os.listdir(f"{MASKS}/{arm}") if f.endswith(".nii.gz") and not f.startswith("_")}
     meta = meta[meta.case.isin(done)]
-    rows = []
-    for i, c in enumerate(meta.case, 1):
-        rows.append(one_case(c, arm))
-        if i % 50 == 0:
-            print(f"  {i}/{len(meta)}", flush=True)
-    df = meta.merge(pd.DataFrame(rows), on="case")
     os.makedirs(OUT, exist_ok=True)
+    part = f"{OUT}/_partial_quality_{arm}_{cohort}.csv"
+    seen = set(pd.read_csv(part).case) if os.path.exists(part) and os.path.getsize(part) > 0 else set()
+    todo = [c for c in meta.case if c not in seen]
+    print(f"{arm} {cohort}: {len(meta)} cases, {len(seen)} already done, {len(todo)} to do", flush=True)
+    with open(part, "a", newline="") as fh:
+        w = csv.DictWriter(fh, FIELDS)
+        if not seen:
+            w.writeheader()
+        for i, c in enumerate(todo, 1):
+            w.writerow(one_case(c, arm))
+            fh.flush()
+            if i % 50 == 0:
+                print(f"  {i}/{len(todo)}", flush=True)
+    rows = pd.read_csv(part).drop_duplicates("case", keep="last")
+    df = meta.merge(rows, on="case")
     df.to_csv(f"{OUT}/stage1_quality_{arm}_{cohort}.csv", index=False)
+    os.remove(part)
     cols = ["dice_panc", "dice_panc_lesion", "centroid_offset_mm", "crop_iou"]
     summ = df.groupby("group")[cols].median().round(3)
     summ["n"] = df.groupby("group").size()
