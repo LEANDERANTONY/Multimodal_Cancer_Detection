@@ -1,6 +1,6 @@
 """Mitigation panel: build the 2.5D slice dataset from the tight oracle crops (Dataset701).
 
-Per case: resample to 1.0 x 1.0 x 2.0 mm (one z spacing for every scanner, so slice spacing can't leak the
+Per case: reorient to LPS, resample to 1.0 x 1.0 x 2.0 mm (one z spacing for every scanner, so slice spacing can't leak the
 scanner), apply the tight nnU-Net CT normalisation (clip [-34, 172], (x - 69.91) / 36.21; from the tight
 plans.json), centre pad / crop in-plane to 352 x 192 (x, y), and save
     <case>_img.npy  float16 (Z, 192, 352)   axis order z, y, x
@@ -50,8 +50,10 @@ def fit(a, fill):
 
 
 def one_case(case):
-    img = sitk.ReadImage(f"{SRC}/imagesTr/{case}_0000.nii.gz", sitk.sitkFloat32)
-    les = sitk.ReadImage(f"{SRC}/labelsTr/{case}.nii.gz", sitk.sitkUInt8)
+    # one orientation for every scan (LPS = identity direction, as in 1962 of 1964 Dutch scans); MSD is stored
+    # rotated 180 degrees in-plane and NIH flipped front-back with the slices reversed
+    img = sitk.DICOMOrient(sitk.ReadImage(f"{SRC}/imagesTr/{case}_0000.nii.gz", sitk.sitkFloat32), "LPS")
+    les = sitk.DICOMOrient(sitk.ReadImage(f"{SRC}/labelsTr/{case}.nii.gz", sitk.sitkUInt8), "LPS")
     x = sitk.GetArrayFromImage(resample(img, sitk.sitkLinear))  # (z, y, x)
     m = sitk.GetArrayFromImage(resample(les, sitk.sitkNearestNeighbor)) > 0
     x = ((np.clip(x, *CLIP) - MEAN) / STD).astype(np.float16)

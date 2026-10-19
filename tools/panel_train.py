@@ -55,6 +55,7 @@ def get_args():
     p.add_argument("--workers", type=int, default=3)
     p.add_argument("--tag", default="")
     p.add_argument("--smoke", action="store_true", help="40 train / 20 val / 20 test cases, 2 epochs")
+    p.add_argument("--rescore-ext", action="store_true", help="finished run: rewrite the external scores from soup.pt")
     return p.parse_args()
 
 
@@ -180,6 +181,15 @@ def main():
     np.random.seed(args.seed)
     run = f"{args.arm}_{args.backbone}_d{args.depth}{args.tag}_s{args.seed}" + ("_smoke" if args.smoke else "")
     rdir = f"{RUNS}/{run}/{args.split}{args.fold}"
+    if args.rescore_ext:
+        ext = splits(args)[3]
+        model = Net(args.backbone).cuda()
+        model.load_state_dict(torch.load(f"{rdir}/soup.pt", map_location="cuda"))
+        ext.assign(p=predict(model, ext, args, "cuda"), split=f"{args.split}{args.fold}")[
+            ["split", "fold", "case", "scanner", "y", "p"]].to_csv(
+            f"{REPORTS}/{run}/ext_{args.split}{args.fold}.csv", index=False)
+        print(f"{run} {args.split}{args.fold}: external rescored", flush=True)
+        return
     if os.path.exists(f"{REPORTS}/{run}/summary_{args.split}{args.fold}.json"):
         print(f"{run} {args.split}{args.fold}: already done", flush=True)
         return
