@@ -180,6 +180,9 @@ def main():
     np.random.seed(args.seed)
     run = f"{args.arm}_{args.backbone}_d{args.depth}{args.tag}_s{args.seed}" + ("_smoke" if args.smoke else "")
     rdir = f"{RUNS}/{run}/{args.split}{args.fold}"
+    if os.path.exists(f"{REPORTS}/{run}/summary_{args.split}{args.fold}.json"):
+        print(f"{run} {args.split}{args.fold}: already done", flush=True)
+        return
     os.makedirs(rdir, exist_ok=True)
     lock = f"{rdir}/.running.pid"
     if os.path.exists(lock) and psutil.pid_exists(int(open(lock).read() or 0)):

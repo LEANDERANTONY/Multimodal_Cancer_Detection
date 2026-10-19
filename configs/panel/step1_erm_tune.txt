@@ -1,0 +1,7 @@
+# Step 1: ERM tuning on CV fold 0; selection = soup_val_mean_scanner_auc (inner validation only)
+--arm erm --split cv --fold 0 --lr 1e-4 --epochs 8 --batch 8 --tag _tune_lr1e-4_ep8
+--arm erm --split cv --fold 0 --lr 1e-4 --epochs 16 --batch 8 --tag _tune_lr1e-4_ep16
+--arm erm --split cv --fold 0 --lr 3e-4 --epochs 8 --batch 8 --tag _tune_lr3e-4_ep8
+--arm erm --split cv --fold 0 --lr 3e-4 --epochs 16 --batch 8 --tag _tune_lr3e-4_ep16
+--arm erm --split cv --fold 0 --lr 1e-3 --epochs 8 --batch 8 --tag _tune_lr1e-3_ep8
+--arm erm --split cv --fold 0 --lr 1e-3 --epochs 16 --batch 8 --tag _tune_lr1e-3_ep16
