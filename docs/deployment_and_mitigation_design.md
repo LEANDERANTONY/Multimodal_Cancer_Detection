@@ -66,8 +66,11 @@ the neighbouring organs (or the full task) removes the failures at the cost of ~
    inside the crop (its coarse mask includes the lesion); with neighbours requested, 23 tumours are only partly inside
    and detection still matches the oracle, so partial containment costs little.
 8. ~~Results table + figure~~ done (four-arm table above, `figures/panorama/deployment_arms.png`).
-9. Optional, small (CPU, minutes): rerun `tools/totalseg_failure_analysis.py` + `totalseg_failure_model.py` on all
-   118 failures (the committed run used the 97 non-large ones; the 21 large-scan failures are not yet in it).
+9. ~~Failure analysis on all 118 failures~~ done 2026-10-19 (all 1964 scans incl. the large ones): unchanged picture.
+   PDAC 67 / 578 = 11.6 % vs non-PDAC 51 / 1386 = 3.7 %; failed scans have a median 250 mm of scan above the pancreas
+   (ok 99 mm) and 93 mm below it (ok 261 mm); lowest quartile of scan-below-pancreas fails 14.5 %; matched model
+   (118 failures + 354 controls, same scanner and label) held-out AUROC 0.81 (logistic) / 0.86 (boosted trees),
+   pancreas position dominating.
 
 **Jitter fine-tune (pre-registered "fix the gap, if there is one"): not triggered.** The baseline segmenter's
 gap is −0.013 AUROC with an unchanged tax, and both segmenters' centroid errors sit in the flat region of
