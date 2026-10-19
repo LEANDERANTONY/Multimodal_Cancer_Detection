@@ -55,7 +55,18 @@ the neighbouring organs (or the full task) removes the failures at the cost of ~
 5. Summarise the probe (pancreas found per mode) → `docs` + `DEAD_ENDS.md` (pancreas-only roi_subset is a
    usage trap; say whether robust_crop fixes it).
 6. ~~`tools/deploy_gap_dutch.py` all four arms~~ done (table above).
-7. Rerun `tools/stage1_quality.py <arm> dutch` for all arms on the full 1964 (the committed TotalSegmentator
+7. ~~Stage-1 quality, all arms, full 1964~~ done 2026-10-19 (`stage1_quality_<arm>_dutch.csv`; failures count as tumour not in crop):
+
+   | Arm | Empty | Pancreas Dice (median) | Centroid offset median / 95th pct (mm) | Crop IoU vs oracle | Tumours fully inside crop (578) |
+   |---|---|---|---|---|---|
+   | Official baseline segmenter | 0 | 0.58 (low by design, 4.5 mm grid) | 3.2 / 12.1 | 0.87 | 99.3 % |
+   | TotalSegmentator, pancreas only | 118 | 0.87 | 2.9 / 17.6 | 0.93 | 81.8 % |
+   | TotalSegmentator + robust_crop | 66 | 0.86 | 3.1 / 22.0 | 0.93 | 84.8 % |
+   | TotalSegmentator + neighbouring organs | 0 | 0.89 | 2.8 / 14.9 | 0.94 | 96.0 % |
+
+   TotalSegmentator draws a far more accurate pancreas than the baseline segmenter, yet the baseline keeps more tumours
+   inside the crop (its coarse mask includes the lesion); with neighbours requested, 23 tumours are only partly inside
+   and detection still matches the oracle, so partial containment costs little.
    quality CSV covers 1702); refresh `totalseg_failure_*` with the 21 large-scan failures.
 8. Write the deployment-ROI results paragraph + figure (AUROC and tax per arm, failures per scanner × class).
 
