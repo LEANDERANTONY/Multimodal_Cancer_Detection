@@ -1,6 +1,6 @@
 # Documentation index
 
-Where to find what. Last reviewed 2026-10-05. Start with the **Q1 paper** block if you are picking up the
+Where to find what. Last reviewed 2026-10-19. Start with the **Q1 paper** block if you are picking up the
 current work; the **thesis-era** block documents the original 2D pipeline.
 
 ## Start here
@@ -15,7 +15,7 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 | Doc | What it answers |
 |---|---|
 | [`modeling_pipeline.md`](modeling_pipeline.md) | How the 3D nnU-Net models were built and evaluated, step by step, with all results |
-| [`deployment_and_mitigation_design.md`](deployment_and_mitigation_design.md) | **Pre-registered** design of the deployment-ROI experiment and the mitigation panel |
+| [`deployment_and_mitigation_design.md`](deployment_and_mitigation_design.md) | **Pre-registered** design; deployment-ROI results (four-arm table) and the **live next-step checklist** (top section: mitigation panel next) |
 | [`../reports/panorama_confound_audit.md`](../reports/panorama_confound_audit.md) | The dataset audit: scanner confound (Cramér's V 0.44, scanner-only AUROC 0.70), `level` leakage |
 | [`architectural_decision_records/`](architectural_decision_records/README.md) | Why the big choices were made (ADR-003 PANORAMA pipeline, ADR-004 modelling/evaluation, ADR-005 pre-registration) |
 | [`../reports/nnunet_summaries/`](../reports/nnunet_summaries/) | Raw evidence: per-run `summary.json`, per-case detection scores, confound-battery outputs, run logs |

@@ -9,6 +9,7 @@ _Living strategy note. Target: Q1 (MedIA / npj Digital Medicine / Radiology:AI),
 - **Feature-space probe**: the trained model's bottleneck features encode scanner only weakly (0.586 linear / 0.602 RF / 0.614 MLP; shuffle 0.513) but encode cancer more (0.650/0.615/0.691) → **pipeline resists the confound at the representation level**.
 - **Thesis 2D model** (positive control): rode a dataset-of-origin confound (cancer=Pancreatic-CT-CBCT-SEG vs control=NIH Pancreas-CT) to **0.9999** — confound *was* exploited.
 - **Tight-crop (100x50x15mm), 2026-10-05:** CV pos-Dice 0.505, detection cc_psz 0.787. **Tight LOMO** pos-Dice 0.547/0.450/0.471 (Siemens/Toshiba/Philips held out), detection 0.811/0.773/0.706 ≈ in-distribution within-scanner → no manufacturer-shift penalty. **Tight confound tax +0.031 [+0.010,+0.053]** (patient bootstrap) — small but CI excludes 0; mixed never exceeds best within-scanner. Feature probe: scanner 0.62–0.64 vs cancer 0.75–0.77.
+- **Deployment-ROI (2026-10-19):** with a segmenter that never fails, a deployed two-stage pipeline matches the oracle crop (0.782 vs 0.787) and the tax stays ~+0.03; TotalSegmentator used as documented (`roi_subset pancreas`) fails on 6 % of scans (PDAC- and Siemens-heavy), costing 0.087 AUROC and raising the tax to +0.046; the documented `robust_crop` fix recovers only half; requesting neighbouring organs removes every failure.
 - **Headline wording update:** "present, only weakly exploited (bounded ≤~0.05 AUROC), no manufacturer-shift penalty" — not "not exploited". Loose tax +0.021 [−0.002, +0.045]; both models' upper bounds < 0.055.
 
 ## 2. The reframed thesis: **confound present != confound exploited**
@@ -31,7 +32,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 | Gap | Status | Weight |
 |---|---|---|
 | Mitigation panel (tuned ERM / DFR / GRL / SSL), local 2.5D | not done | **critical** |
-| Deployment-ROI experiment (segmenter vs oracle, §6) | external DONE: no deployment gap with either segmenter (MSD AUROC gap +0.015 [−0.024, +0.056] baseline, −0.010 [−0.045, +0.026] TotalSegmentator); dose-response done (flat ≤ 20 mm shift; −0.07 beyond 30 mm or with enlarged margins); Dutch full cohort DONE (2026-10-13): baseline segmenter AUROC −0.013, tax n.s.; TotalSegmentator as published 118 empty masks (6 %, PDAC- and Siemens-heavy) → deployed AUROC 0.787 → 0.700, tax +0.031 → +0.046; cause = roi_subset cropping pass; sensitivity arms (robust_crop, neighbouring organs) running | **high / novel** |
+| Deployment-ROI experiment (segmenter vs oracle, §6) | **DONE 2026-10-19.** External: no gap. Dose-response: flat <= 20 mm. Dutch 1964, four stage-1 arms (failures called negative): official baseline segmenter AUROC 0.774 (oracle 0.787), tax +0.036; TotalSegmentator `roi_subset pancreas` 118 empty masks, 0.700, +0.046; + `robust_crop` 66 empty, 0.719, +0.046; + neighbouring organs 0 empty, 0.782, +0.034. Cost and confound increase come from segmenter failures (PDAC- and Siemens-heavy) caused by the pancreas-only cropping pass. Jitter fine-tune not triggered. Details: `deployment_and_mitigation_design.md` | **high / novel** |
 | External validation (held-out MSD + NIH; §5) | DONE: tight MSD AUROC 0.82, Dice 0.555; loose 0.71, Dice 0.35; p_max operating points transfer per fold, cc_psz thresholds shift | **high** |
 | Tight-crop ablation (loose vs tight) | DONE (tight better on Dice + detection); loose tax CI done (+0.021 [−0.002, +0.045]) | medium |
 | Biomarker + fusion ("clean" arm) | exists, needs rigour | medium (multimodal lifts Q1) |
@@ -66,7 +67,7 @@ This answers clinical validity AND is the novelty differentiator. Run for BOTH t
 | LOMO Dice + per-scanner detection | done | done |
 | Confound tax with CI | done (+0.021 [−0.002,+0.045]) | done (+0.031 [+0.010,+0.053]) |
 | External MSD/NIH (oracle ROI) | done (MSD p_max 0.713, Dice 0.349) | done (MSD p_max 0.823, Dice 0.555; per-fold thresholds checked) |
-| Deployment segmenter ROI (vs oracle) | — | external done (no gap); Dutch done (see §2 table); sensitivity arms running |
+| Deployment segmenter ROI (vs oracle) | — | done: external no gap; Dutch four arms (best: TotalSegmentator + neighbours 0.782 vs oracle 0.787) |
 | Feature-space scanner probe | done (0.59–0.61) | done (0.62–0.64) |
 | Mitigation panel (2.5D, local) | — | — (separate arm) |
 All external/segmenter/probe tests are **inference-only (cheap)** — run for both once a pod is free.
@@ -79,8 +80,8 @@ All external/segmenter/probe tests are **inference-only (cheap)** — run for bo
 ## 8. Sequence
 1. Finish tight-crop CV (running) -> loose-vs-tight ablation.
 2. External MSD/NIH validation (oracle ROI) for both models.
-3. Deployment segmenter-ROI experiment (both models) — the high-novelty, clinical-validity piece.
-4. Mitigation panel (local 2.5D): tuned ERM / DFR / GRL / SSL under one pre-registered model-selection rule; scanner as domain label.
+3. ~~Deployment segmenter-ROI experiment~~ DONE 2026-10-19 (tight model; four stage-1 arms).
+4. **NEXT:** Mitigation panel (local 2.5D): tuned ERM / DFR / GRL / SSL under one pre-registered model-selection rule; scanner as domain label.
 5. Biomarker + fusion arm; DeLong CIs + calibration + subgroup tables.
 6. Thesis-cohort confound control.
 7. Reframe write-up around "present != exploited" + deployment-ROI; target MedIA/npj-DM.

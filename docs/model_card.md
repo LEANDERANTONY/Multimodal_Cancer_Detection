@@ -33,9 +33,9 @@ Confound tax (in-distribution): +0.031 AUROC [+0.010, +0.053]. Loose crop: CV Di
 
 ### Limitations
 
-- trained and tested on crops from **provided** masks, unavailable clinically — deployment with a predicted pancreas mask is not yet measured (ADR-005)
+- trained on crops from **provided** masks; deployment with a predicted mask was measured (Dutch, 1964): AUROC 0.774-0.782 vs 0.787 with a segmenter that never fails, but 0.700 with TotalSegmentator `roi_subset pancreas` (6 % empty masks), so the stage-1 segmenter and its settings must be validated per site
 - a small, measurable share of performance comes from the scanner/case-mix confound (bounded ≈0.05 AUROC)
-- decision thresholds set on the Dutch CV scores transfer poorly to the external ensemble scores (operating-point check pending)
+- decision thresholds: p_max operating points set on Dutch CV transfer to MSD/NIH; cc_psz thresholds shift (score-scale effect), so the operating score must be fixed from Dutch CV
 - a single-stage reference model, below the PANORAMA challenge winner (PanDx, AUROC 0.926)
 - one LOMO training run collapsed to all-background and was re-run (reported)
 
@@ -110,7 +110,6 @@ Confound tax (in-distribution): +0.031 AUROC [+0.010, +0.053]. Loose crop: CV Di
 
 ## Future Model Directions
 
-- deployment-ROI evaluation with predicted pancreas masks (ADR-005)
 - mitigation panel on the 2.5D backbone: tuned ERM, group-balanced, DFR, GRL, MAE pretraining
 - calibration (ECE/Brier) and uncertainty
 - true paired multimodal evaluation if paired cohorts become available

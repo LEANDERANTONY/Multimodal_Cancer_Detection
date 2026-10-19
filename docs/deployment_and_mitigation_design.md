@@ -14,7 +14,7 @@ grandmasters we study (`D:/Documents/Projects/Kaggle/Grandmasters/`: ren4yu, ser
    it. [sersasj, samson8]
 5. **Keep a "didn't work" list** in this doc, filled as we go. [all three]
 
-## Status and next steps (updated 2026-10-13, all local; Zenodo still throttled to ~0.2 MB/s per connection, so no pods)
+## Status and next steps (updated 2026-10-19: deployment-ROI COMPLETE; next = mitigation panel. All local; Zenodo throttled, no pods)
 
 **Deployment-ROI — done:** external (no gap), dose-response, Dutch full cohort for both pre-registered arms
 (baseline segmenter: AUROC −0.013, tax n.s.; TotalSegmentator as published: 118 empty masks, deployed
@@ -26,8 +26,7 @@ but the developers' documented fix `robust_crop` (3 mm cropping model) on only *
 29 / 67 (43 %) of the PDAC failures (non-PDAC 34 / 51). So the cause is the pancreas-only cropping pass, the
 documented remedy recovers about half, and adding neighbouring organs (or running the full task) recovers all.
 
-**Running / queued locally (one chain, resumable; log `data/processed/ct/probe.log`, then
-`data/processed/ct/totalseg_sensitivity.log`; queue script `data/processed/ct/queue_totalseg_nb.ps1`):**
+**Sensitivity arms and probes (all done; logs `data/processed/ct/probe.log`, `data/processed/ct/totalseg_sensitivity.log`):**
 1. ~~Organ probe `full`~~ done: 117 / 118.
 2. ~~Organ probe `robust`~~ done: 63 / 118.
 3. ~~Sensitivity arm `totalseg_rc`~~ done 2026-10-16: **66 empty masks (3.4 %) vs 118** — recovers 63 of the 118 but creates 11 new failures; Siemens 43 / 938 (30 of 170 PDAC). Deployed (ITT) mixed cc_psz 0.787 → 0.719 (−0.068 [−0.091, −0.044]; as published −0.087), within-Siemens 0.807 → 0.634, tax +0.031 → +0.046 (+0.015 [−0.001, +0.031]); when it works (paired, n = 1898) accuracy matches the oracle (−0.001). So the documented fix recovers about a fifth of the AUROC loss and leaves the confound increase unchanged.
@@ -51,9 +50,8 @@ PDAC and Siemens scans; when every scan gets a crop, a deployed two-stage pipeli
 stays ≈ +0.03. The developers' `robust_crop` recovers half the failures but none of the confound increase; requesting
 the neighbouring organs (or the full task) removes the failures at the cost of ~50 % more segmentation time.
 
-**After the chain (analysis, CPU, ~1 h):**
-5. Summarise the probe (pancreas found per mode) → `docs` + `DEAD_ENDS.md` (pancreas-only roi_subset is a
-   usage trap; say whether robust_crop fixes it).
+**Analysis:**
+5. ~~Probe summary~~ done (above, and `DEAD_ENDS.md`).
 6. ~~`tools/deploy_gap_dutch.py` all four arms~~ done (table above).
 7. ~~Stage-1 quality, all arms, full 1964~~ done 2026-10-19 (`stage1_quality_<arm>_dutch.csv`; failures count as tumour not in crop):
 
@@ -67,16 +65,29 @@ the neighbouring organs (or the full task) removes the failures at the cost of ~
    TotalSegmentator draws a far more accurate pancreas than the baseline segmenter, yet the baseline keeps more tumours
    inside the crop (its coarse mask includes the lesion); with neighbours requested, 23 tumours are only partly inside
    and detection still matches the oracle, so partial containment costs little.
-   quality CSV covers 1702); refresh `totalseg_failure_*` with the 21 large-scan failures.
-8. Write the deployment-ROI results paragraph + figure (AUROC and tax per arm, failures per scanner × class).
+8. ~~Results table + figure~~ done (four-arm table above, `figures/panorama/deployment_arms.png`).
+9. Optional, small (CPU, minutes): rerun `tools/totalseg_failure_analysis.py` + `totalseg_failure_model.py` on all
+   118 failures (the committed run used the 97 non-large ones; the 21 large-scan failures are not yet in it).
 
 **Jitter fine-tune (pre-registered "fix the gap, if there is one"): not triggered.** The baseline segmenter's
 gap is −0.013 AUROC with an unchanged tax, and both segmenters' centroid errors sit in the flat region of
 the dose-response; TotalSegmentator's loss comes from empty masks, which no crop-jitter training can fix.
 
-**Then, in order:** B. mitigation panel (2.5D *classifier* panel below — tuned ERM / group-balanced / DFR /
-GRL / MAE-SSL + planted-shortcut control; local 8 GB GPU) → C. biomarker / fusion arm → statistics (DeLong,
-calibration, subgroups) → thesis-cohort control → figures and write-up.
+**NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
+1. Dataset: 2.5D slice triplets from the tight oracle crops (Dataset701 under `data/processed/ct/nnunet_raw/`),
+   nnU-Net-style intensity (0.5/99.5 percentile clip + z-score); per scan all lesion slices + evenly spaced negative
+   slices; reuse the tight CV 5-fold splits so results line up with the 3D model.
+2. Backbone: pretrained 2D CNN (ImageNet, fits 8 GB), attention pooling over depth + auxiliary per-slice loss.
+3. Tuned ERM first (the bar); then group-balanced sampling, DFR, GRL/DANN, MAE pretraining. One pre-registered
+   selection rule (mean validation AUROC across scanners, model soup), 3 seeds per arm.
+4. Planted-shortcut control (faint scanner-correlated intensity marker) to validate each method.
+5. Evaluate with the same trio: CV confound tax (`tools/confound_tax_ci.py` on per-case scores), LOMO, external MSD/NIH.
+6. Local-PC rules: below-normal priority, <= 8 threads, one GPU job, RAM watchdog, per-case / per-epoch checkpoints
+   (power cuts are frequent), smoke-test small first and report RAM/VRAM before scaling.
+
+**Then:** C. biomarker / fusion arm -> statistics (DeLong, calibration ECE/Brier, subgroups by scanner and mask
+provenance) -> thesis-cohort confound control -> figures and write-up (MedIA / npj-DM; framing "present is not
+exploited" + deployment-ROI: segmenter failures, not crop error, carry the deployment cost and the confound increase).
 
 ## A. Deployment-ROI experiment (the novel piece)
 **Question.** Our models were trained and tested on crops cut from the provided (oracle) pancreas masks,
