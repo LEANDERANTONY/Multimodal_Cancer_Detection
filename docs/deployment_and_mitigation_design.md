@@ -14,7 +14,7 @@ grandmasters we study (`D:/Documents/Projects/Kaggle/Grandmasters/`: ren4yu, ser
    it. [sersasj, samson8]
 5. **Keep a "didn't work" list** in this doc, filled as we go. [all three]
 
-## Status and next steps (updated 2026-10-19: deployment-ROI COMPLETE; next = mitigation panel. All local; Zenodo throttled, no pods)
+## Status and next steps (updated 2026-10-21: deployment-ROI COMPLETE; mitigation panel steps 1-2 done. All local; Zenodo throttled, no pods)
 
 **Deployment-ROI — done:** external (no gap), dose-response, Dutch full cohort for both pre-registered arms
 (baseline segmenter: AUROC −0.013, tax n.s.; TotalSegmentator as published: 118 empty masks, deployed
@@ -76,7 +76,32 @@ the neighbouring organs (or the full task) removes the failures at the cost of ~
 gap is −0.013 AUROC with an unchanged tax, and both segmenters' centroid errors sit in the flat region of
 the dose-response; TotalSegmentator's loss comes from empty masks, which no crop-jitter training can fix.
 
-**NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
+**B. Mitigation panel, steps 1-2 DONE (2026-10-21).** 2.5D ResNet18 on slice triplets (20 depths, attention
+pooling, per-slice auxiliary loss), slices from the tight crops at 1 x 1 x 2 mm, every scan reoriented to LPS
+(`tools/panel_build_slices.py`). Step 1: ERM tuned on CV fold 0 inner validation only (lr 3e-4, 8 epochs;
+`reports/panel/step1_erm_tuning.csv`). Step 2: ERM / group-balanced sampling (GBS) / GRL x 5 CV folds + 3 LOMO
+folds x 3 seeds, same settings for every arm, last-3-epoch soup (`tools/panel_train.py`, `tools/panel_eval.py`,
+`reports/panel/panel_summary.csv`). Mean +- SD over 3 seeds:
+
+| | ERM | GBS | GRL |
+|---|---|---|---|
+| CV AUROC (mixed) | **0.918 +- 0.003** | 0.893 +- 0.004 | 0.899 +- 0.011 |
+| confound tax | +0.057 +- 0.002 (CI ~[+0.040, +0.077]) | +0.052 +- 0.003 | **+0.046 +- 0.005** |
+| external MSD+NIH / MSD | **0.884 / 0.824** | 0.869 / 0.797 | 0.875 / 0.815 |
+| LOMO Siemens / Toshiba / Philips | **0.882 / 0.836** / 0.675 | 0.820 / 0.785 / 0.688 | 0.742 / 0.779 / 0.678 (SD up to 0.095) |
+
+Reading: the 2.5D classifier detects far better in-distribution than the 3D nnU-Net (0.918 vs 0.787) and exploits
+the scanner confound more (tax +0.057 vs +0.031), with a penalty on unseen manufacturers that the 3D model did not
+show. The debiasers shave the tax by 0.005 (GBS) and 0.011 (GRL), CIs overlapping ERM's, at a cost of 2-2.5 points
+CV AUROC, 1-1.5 points external and up to 14 points on an unseen manufacturer (GRL also unstable across seeds).
+Tuned ERM is not beaten. Holding out Philips (75 % PDAC vs ~20 % elsewhere) costs every arm (~0.68): case-mix
+shift, not something a debiaser removes.
+
+**NEXT (step 3, confirm with the user):** DFR (last layer retrained on a scanner-balanced split from the ERM
+soups; minutes), planted-shortcut control (does each method remove a shortcut we plant?), MAE pretraining on all CT
+incl. external, then statistics (DeLong between arms, calibration) and the panel figure.
+
+_Original step list (kept for reference):_ **NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
 1. Dataset: 2.5D slice triplets from the tight oracle crops (Dataset701 under `data/processed/ct/nnunet_raw/`),
    nnU-Net-style intensity (0.5/99.5 percentile clip + z-score); per scan all lesion slices + evenly spaced negative
    slices; reuse the tight CV 5-fold splits so results line up with the 3D model.
