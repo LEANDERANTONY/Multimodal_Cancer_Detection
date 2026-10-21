@@ -97,9 +97,26 @@ CV AUROC, 1-1.5 points external and up to 14 points on an unseen manufacturer (G
 Tuned ERM is not beaten. Holding out Philips (75 % PDAC vs ~20 % elsewhere) costs every arm (~0.68): case-mix
 shift, not something a debiaser removes.
 
-**NEXT (step 3, confirm with the user):** DFR (last layer retrained on a scanner-balanced split from the ERM
-soups; minutes), planted-shortcut control (does each method remove a shortcut we plant?), MAE pretraining on all CT
-incl. external, then statistics (DeLong between arms, calibration) and the panel figure.
+**Step 3a-b DONE (2026-10-22).** DFR (last layer of each ERM soup retrained on scanner x label balanced inner
+validation, `tools/panel_dfr.py`, 3 seeds): CV 0.913, tax +0.055, external 0.882, LOMO 0.858 / 0.808 / 0.672: no
+gain over ERM. Planted-shortcut control (`--planted 0.8`: a faint marker on 80 % of PDAC / 20 % of non-PDAC
+training scans, marker = domain label; seed 0, 5 CV folds; `tools/panel_planted_eval.py`,
+`reports/panel/planted_results.csv`). AUROC on clean test scans vs with the marker on exactly the non-PDAC scans:
+
+| | clean | flipped | drop [95% CI] |
+|---|---|---|---|
+| ERM | 0.904 | 0.755 | 0.149 [0.138, 0.161] |
+| GBS | 0.903 | 0.849 | 0.054 [0.048, 0.059] |
+| DFR | 0.906 | 0.880 | 0.026 [0.022, 0.029] |
+| GRL | 0.913 | 0.898 | 0.014 [0.012, 0.017] |
+
+Reading: ERM learns a planted shortcut, and every debiaser removes most of it (GRL 91 %, DFR 83 %, GBS 64 %) with
+no loss of clean accuracy. The same methods remove only 0.002-0.011 of the real scanner tax while costing
+accuracy, so the methods work; the real confound is weakly exploited and largely not separable from disease
+signal (Philips scans are 75 % PDAC), which is why debiasing buys little on it.
+
+**NEXT (step 3c, confirm with the user; heaviest):** MAE pretraining on all CT incl. external, then
+ statistics (DeLong between arms, calibration) and the panel figure.
 
 _Original step list (kept for reference):_ **NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
 1. Dataset: 2.5D slice triplets from the tight oracle crops (Dataset701 under `data/processed/ct/nnunet_raw/`),
