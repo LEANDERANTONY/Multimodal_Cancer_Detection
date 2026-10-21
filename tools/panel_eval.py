@@ -42,7 +42,7 @@ def main():
     rows = []
     for rdir in sorted(glob.glob(f"{REPORTS}/*_s[0-9]")):
         run = os.path.basename(rdir)
-        if "tune" in run or "timing" in run:
+        if "tune" in run or "timing" in run or "plant" in run:
             continue
         arm, seed = run.split("_")[0], int(run.rsplit("_s", 1)[1])
         r = {"run": run, "arm": arm, "seed": seed}

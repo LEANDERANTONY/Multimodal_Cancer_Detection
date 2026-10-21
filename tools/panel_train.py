@@ -10,6 +10,10 @@ Splits: cv (the tight 5-fold CV folds; test fold k) or lomo (test = scanner k of
 Of the training cases, 15 % (stratified by scanner x label) are an inner validation set for the
 pre-registered selection rule (mean over scanners of the inner-validation AUROC). The reported model is a
 uniform soup of the last SOUP epochs. Test-fold and external (MSD/NIH) scores are written per case.
+Planted-shortcut control (--planted p): a faint marker is added to training and inner-validation scans with
+P(marker | PDAC) = p and P(marker | no PDAC) = 1 - p, and the marker (not the scanner) is the domain label of
+gbs / grl. Test scans are scored clean (test_*.csv) and with the marker on exactly the non-PDAC scans
+(test_flip_*.csv): a model that uses the marker collapses on the flipped set.
 
     python tools/panel_train.py --arm erm --fold 0 [--split cv] [--seed 0] [--smoke]
 Checkpoints every epoch under data/panel_runs/<run>/ and resumes from the last one (power cuts).
@@ -36,6 +40,8 @@ REPORTS = "reports/panel"
 SCANNERS = ["Siemens", "Toshiba", "Philips"]
 DOMAINS = ["Siemens", "Toshiba", "Philips", "Other"]
 SOUP = 3
+# planted-shortcut control: a faint square (+1 SD of the normalised intensity, 16 x 16 mm) in the top-left corner
+MARK_BOX, MARK_VALUE = slice(4, 20), 1.0
 
 
 def get_args():
@@ -54,6 +60,7 @@ def get_args():
     p.add_argument("--grl", type=float, default=1.0, help="max weight of the reversed scanner loss")
     p.add_argument("--workers", type=int, default=3)
     p.add_argument("--tag", default="")
+    p.add_argument("--planted", type=float, default=0.0, help="planted-shortcut control: P(marker | PDAC), 0 = off")
     p.add_argument("--smoke", action="store_true", help="40 train / 20 val / 20 test cases, 2 epochs")
     p.add_argument("--rescore-ext", action="store_true", help="finished run: rewrite the external scores from soup.pt")
     return p.parse_args()
@@ -76,8 +83,12 @@ class Scans(torch.utils.data.Dataset):
         off = np.random.uniform(0, step) if self.train else step / 2
         c = np.clip(np.round(1 + off + step * np.arange(self.depth)).astype(int), 1, z - 2)
         x = np.stack([img[c - 1], img[c], img[c + 1]], 1).astype(np.float32)  # (D, 3, H, W)
+        planted = "marker" in self.m.columns
+        if planted and r.marker:
+            x[:, :, MARK_BOX, MARK_BOX] += MARK_VALUE
+        dom = int(r.marker) if planted else (DOMAINS.index(r.group) if r.group in DOMAINS else 0)
         return (torch.from_numpy(x), torch.tensor(float(r.y)), torch.from_numpy((les[c] > 0).astype(np.float32)),
-                torch.tensor(DOMAINS.index(r.group) if r.group in DOMAINS else 0))
+                torch.tensor(dom))
 
 
 def worker_init(_):
@@ -152,6 +163,10 @@ def splits(args):
     if args.smoke:
         tr, va, test, ext = (pd.concat([x[x.y == 0].head(n // 2), x[x.y == 1].head(n // 2)])
                              for x, n in ((tr, 40), (va, 20), (test, 20), (ext, 20)))
+    if args.planted:
+        rng = np.random.default_rng(1000 + args.seed)
+        tr, va = (x.assign(marker=rng.random(len(x)) < np.where(x.y == 1, args.planted, 1 - args.planted))
+                  for x in (tr, va))
     return tr, va, test, ext
 
 
@@ -179,7 +194,8 @@ def main():
     torch.set_num_threads(2)
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
-    run = f"{args.arm}_{args.backbone}_d{args.depth}{args.tag}_s{args.seed}" + ("_smoke" if args.smoke else "")
+    plant = f"_plant{args.planted:g}" if args.planted else ""
+    run = f"{args.arm}_{args.backbone}_d{args.depth}{plant}{args.tag}_s{args.seed}" + ("_smoke" if args.smoke else "")
     rdir = f"{RUNS}/{run}/{args.split}{args.fold}"
     if args.rescore_ext:
         ext = splits(args)[3]
@@ -223,7 +239,7 @@ def train(args, run, rdir):
         start, hist = s["epoch"] + 1, s["hist"]
         print(f"resumed after epoch {s['epoch']}", flush=True)
     if args.arm == "gbs":
-        cell = tr.scanner + tr.y.astype(str)
+        cell = (tr.marker.astype(str) if args.planted else tr.scanner) + tr.y.astype(str)
         w = torch.tensor((1.0 / cell.map(cell.value_counts())).values, dtype=torch.double)
     pos_w = torch.tensor((1 - tr.y.mean()) / tr.y.mean(), device=dev)
     ds = Scans(tr, args.depth, True)
@@ -273,7 +289,10 @@ def train(args, run, rdir):
     pv = predict(model, va, args, dev)
     out = f"{REPORTS}/{run}"
     os.makedirs(out, exist_ok=True)
-    for name, m in (("test", test), ("ext", ext)):
+    evals = [("test", test), ("ext", ext)]
+    if args.planted:
+        evals.append(("test_flip", test.assign(marker=test.y == 0)))
+    for name, m in evals:
         p = predict(model, m, args, dev)
         m.assign(p=p, split=f"{args.split}{args.fold}")[["split", "fold", "case", "scanner", "y", "p"]].to_csv(
             f"{out}/{name}_{args.split}{args.fold}.csv", index=False)

@@ -1,0 +1,17 @@
+# Step 3b: planted-shortcut control. Marker on 80 % of PDAC / 20 % of non-PDAC training scans; marker = domain label
+# for gbs / grl (DFR afterwards: tools/panel_dfr.py --planted 0.8 0). Seed 0, 5 CV folds, fixed ERM settings.
+--arm erm --planted 0.8 --split cv --fold 0 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm erm --planted 0.8 --split cv --fold 1 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm erm --planted 0.8 --split cv --fold 2 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm erm --planted 0.8 --split cv --fold 3 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm erm --planted 0.8 --split cv --fold 4 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm gbs --planted 0.8 --split cv --fold 0 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm gbs --planted 0.8 --split cv --fold 1 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm gbs --planted 0.8 --split cv --fold 2 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm gbs --planted 0.8 --split cv --fold 3 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm gbs --planted 0.8 --split cv --fold 4 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm grl --planted 0.8 --split cv --fold 0 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm grl --planted 0.8 --split cv --fold 1 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm grl --planted 0.8 --split cv --fold 2 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm grl --planted 0.8 --split cv --fold 3 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm grl --planted 0.8 --split cv --fold 4 --seed 0 --lr 3e-4 --epochs 8 --batch 8
