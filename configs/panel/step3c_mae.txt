@@ -1,0 +1,26 @@
+# Step 3c: MAE arm. Run after tools/panel_mae.py has written data/panel_runs/mae_pretrain/encoder.pt. Same ERM settings,
+# 5 CV + 3 LOMO folds x 3 seeds.
+--arm mae --split cv --fold 0 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 1 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 2 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 3 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 4 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 0 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 1 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 2 --seed 0 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 0 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 1 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 2 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 3 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 4 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 0 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 1 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 2 --seed 1 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 0 --seed 2 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 1 --seed 2 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 2 --seed 2 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 3 --seed 2 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split cv --fold 4 --seed 2 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 0 --seed 2 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 1 --seed 2 --lr 3e-4 --epochs 8 --batch 8
+--arm mae --split lomo --fold 2 --seed 2 --lr 3e-4 --epochs 8 --batch 8

@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from confound_tax_ci import SCANNERS, tax  # noqa: E402
 
 REPORTS = "reports/panel"
-ARMS = ["erm", "dfr", "gbs", "grl"]
+ARMS = ["erm", "dfr", "gbs", "grl", "mae"]  # arms without results yet are skipped
 RUN = "{arm}_resnet18_d20_s{seed}"
 
 
@@ -91,7 +91,10 @@ def main():
         ref = scores("erm", kind)
         label = kind if not kind.startswith("lomo") else f"lomo_{SCANNERS[int(kind[-1])]}"
         for arm in ARMS:
-            d = scores(arm, kind)
+            try:
+                d = scores(arm, kind)
+            except FileNotFoundError:
+                continue
             assert (d.case.values == ref.case.values).all()
             y = d.y.values
             r = {"setting": label, "arm": arm, "n": len(d), "auroc": roc_auc_score(y, d.p)}

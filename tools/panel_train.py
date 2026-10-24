@@ -6,6 +6,7 @@ Arms (scanner manufacturer = domain):
     erm   standard training (the bar)
     gbs   group-balanced sampling: every scanner x label cell drawn equally often
     grl   DANN: scanner head on the pooled feature behind a gradient-reversal layer
+    mae   ERM from the CT masked-image-pretrained backbone (tools/panel_mae.py) instead of ImageNet
 Splits: cv (the tight 5-fold CV folds; test fold k) or lomo (test = scanner k of Siemens/Toshiba/Philips).
 Of the training cases, 15 % (stratified by scanner x label) are an inner validation set for the
 pre-registered selection rule (mean over scanners of the inner-validation AUROC). The reported model is a
@@ -46,7 +47,7 @@ MARK_BOX, MARK_VALUE = slice(4, 20), 1.0
 
 def get_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--arm", choices=["erm", "gbs", "grl"], default="erm")
+    p.add_argument("--arm", choices=["erm", "gbs", "grl", "mae"], default="erm")
     p.add_argument("--split", choices=["cv", "lomo"], default="cv")
     p.add_argument("--fold", type=int, default=0)
     p.add_argument("--seed", type=int, default=0)
@@ -224,7 +225,10 @@ def train(args, run, rdir):
     dev = "cuda"
     tr, va, test, ext = splits(args)
     print(f"{run} {args.split}{args.fold}: train {len(tr)} val {len(va)} test {len(test)} ext {len(ext)}", flush=True)
-    model = Net(args.backbone).to(dev).to(memory_format=torch.channels_last)
+    model = Net(args.backbone)
+    if args.arm == "mae":
+        model.backbone.load_state_dict(torch.load(f"{RUNS}/mae_pretrain/encoder.pt", map_location="cpu"))
+    model = model.to(dev).to(memory_format=torch.channels_last)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
     epochs = 2 if args.smoke else args.epochs
     steps = epochs * (len(tr) // args.batch)

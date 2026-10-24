@@ -19,7 +19,7 @@ RunPod volume `panaroma_roi` is only a cloud mirror. Pipeline that produced it: 
 | `data/processed/ct/deploy_crops/<arm>_dutch/` | Dutch out-of-fold stage-2 crops per arm (`tools/deploy_infer_oof.py`); `skipped.txt` = cases without a usable mask; softmax files deleted after scoring |
 | `data/processed/ct/deploy_crops/<arm>/` | Tight crops cut from each arm's predicted masks (`imagesTs`, `labelsTs` = reference lesion) and the tight-ensemble predictions (`pred/`); `tools/deploy_infer.py` |
 | `data/processed/ct/panel_slices/` | Mitigation-panel 2.5D inputs (`tools/panel_build_slices.py`): `<case>_img.npy` float16 (z, 192, 352) at 1 x 1 x 2 mm with tight nnU-Net normalisation, `<case>_les.npy` lesion voxels per slice, `meta.csv` (cohort, scanner/source, label, fold, lesion voxels lost by the frame: 0 for all cases); ~17 GB |
-| `data/panel_runs/<run>/<split><k>/` | Panel training checkpoints (`last.pt` for resume, last-epoch weights, `soup.pt`); `tools/panel_train.py` |
+| `data/panel_runs/<run>/<split><k>/` | Panel training checkpoints (`last.pt` for resume, last-epoch weights, `soup.pt`; `feats.npz` = DFR features); `tools/panel_train.py`, `tools/panel_dfr.py`. `mae_pretrain/` = masked-image-pretrained backbone (`encoder.pt`, `last.pt`); `tools/panel_mae.py` |
 | `data/envs/totalseg/` | TotalSegmentator 2.18 weights (`TOTALSEG_HOME_DIR`); the package itself is installed in `data/envs/nnunet` |
 | `data/envs/nnunet/` | Separate Python env for nnU-Net (torch 2.8.0+cu128 + nnunetv2). nnU-Net excludes torch 2.9, which the project `.venv` pins — run nnU-Net code with `data/envs/nnunet/Scripts/python.exe` |
 
