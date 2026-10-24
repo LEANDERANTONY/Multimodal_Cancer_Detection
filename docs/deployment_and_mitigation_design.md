@@ -115,8 +115,17 @@ no loss of clean accuracy. The same methods remove only 0.002-0.011 of the real 
 accuracy, so the methods work; the real confound is weakly exploited and largely not separable from disease
 signal (Philips scans are 75 % PDAC), which is why debiasing buys little on it.
 
-**NEXT (step 3c, confirm with the user; heaviest):** MAE pretraining on all CT incl. external, then
- statistics (DeLong between arms, calibration) and the panel figure.
+**Statistics DONE (2026-10-25)** (`tools/panel_stats.py` -> `reports/panel/panel_stats.csv`; figure
+`figures/panorama/mitigation_panel.png`, `tools/plot_panel.py`). Scores averaged over 3 seeds, each arm vs ERM on
+the same cases. Dutch CV: ERM AUROC 0.926, every debiaser significantly lower (DeLong: DFR -0.009 p=0.002, GBS
+-0.015 p<0.001, GRL -0.011 p<0.001); tax difference vs ERM DFR +0.000 [-0.008, +0.009], GBS -0.002 [-0.016, +0.011],
+GRL -0.004 [-0.016, +0.008]: no arm reduces the tax significantly. External: no significant difference (p 0.40-0.53).
+Unseen manufacturer: GBS and GRL significantly worse on Siemens (-0.043, -0.112) and Toshiba (-0.045, -0.025); no arm
+better on Philips. Calibration (CV): Brier ERM 0.100, GBS 0.113, GRL 0.110, DFR 0.153; ECE ERM 0.039, DFR 0.213
+(balanced last-layer refit shifts the base rate).
+
+**NEXT (step 3c, approved 2026-10-25 to run overnight):** MAE-style masked-image pretraining on all CT incl.
+external (images only), then the ERM recipe on top, 5 CV + 3 LOMO folds x 3 seeds.
 
 _Original step list (kept for reference):_ **NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
 1. Dataset: 2.5D slice triplets from the tight oracle crops (Dataset701 under `data/processed/ct/nnunet_raw/`),
