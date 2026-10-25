@@ -46,6 +46,7 @@ Extracts the trained encoder bottleneck (320-d, GAP of centre patch), patient-gr
 
 ## 6b. Beyond the 3D models (2026-10-19/26; full numbers in the status section of `docs/deployment_and_mitigation_design.md`)
 - **2.5D classifier / mitigation panel:** `tools/panel_build_slices.py` (LPS-reoriented slices from the tight crops) -> `tools/panel_train.py` via `tools/panel_queue.py` (queues in `configs/panel/`) -> `tools/panel_eval.py`, `panel_dfr.py`, `panel_mae.py`, `panel_planted_eval.py`, `panel_stats.py`, `plot_panel.py`. Results `reports/panel/`.
+- **Training environment:** nnunetv2 2.8.1 (pods ran an unpinned `pip install nnunetv2`; 2.8.1 was the latest release, 2026-07-01, throughout training 2026-09-30 to 10-04), torch 2.8.0+cu128; GPUs from each fold's `debug.json`: loose CV / LOMO RTX 6000 Ada, tight CV RTX 3090, tight LOMO RTX PRO 4500 Blackwell.
 - **CV split note:** nnU-Net splits by scan; 11 patients have more than one scan (25 scans; 9 patients span two folds). Excluding them changes AUROC and tax by < 0.003 for both models (checked 2026-10-26).
 - **Paper statistics:** `tools/final_stats.py` -> `reports/final_stats/` (3D vs 2.5D DeLong, calibration, subgroups, mask provenance).
 - **Biomarker audit and fusion:** `tools/biomarker_confound.py`, `tools/fusion_sim.py`, `tools/plot_fusion.py` -> `reports/biomarker_confound.csv`, `reports/fusion/`.
