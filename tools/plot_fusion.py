@@ -3,7 +3,7 @@ between the two tests, next to the pseudo-paired fusion number the thesis would 
 
     python tools/plot_fusion.py
 Reads reports/fusion/fusion_triage.csv and fusion_pseudo_pairs.csv (tools/fusion_sim.py);
-writes figures/fusion_triage.png.
+writes figures/panorama/fusion_triage.png.
 """
 import matplotlib
 
@@ -13,7 +13,7 @@ import pandas as pd  # noqa: E402
 
 TRIAGE = "reports/fusion/fusion_triage.csv"
 PAIRS = "reports/fusion/fusion_pseudo_pairs.csv"
-OUT = "figures/fusion_triage.png"
+OUT = "figures/panorama/fusion_triage.png"
 INK, MUTED, GRID = "#2b2b29", "#8a8984", "#e6e5e0"
 BLUE, ORANGE, GRAY = "#2a78d6", "#eb6834", "#7a7974"
 

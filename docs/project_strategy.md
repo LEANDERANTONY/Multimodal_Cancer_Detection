@@ -140,6 +140,10 @@ The project should keep treating fusion as:
 
 not as a final clinical performance claim.
 
+Resolved for the Q1 paper (2026-10-25): no patient-level fusion result. Fusion appears as a sequential-triage
+simulation from each test's real scores with the inter-test error correlation as an explicit parameter, plus a
+demonstration that pseudo-paired fusion reports the conditional-independence case (`reports/fusion/`).
+
 ## What We Should Keep Doing
 
 - keep extracting reusable notebook logic into `src/`

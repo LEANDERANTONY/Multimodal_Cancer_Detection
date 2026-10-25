@@ -44,5 +44,11 @@ Extracts the trained encoder bottleneck (320-d, GAP of centre patch), patient-gr
 - **Deployment-ROI** (predicted instead of provided pancreas masks; full results in `docs/deployment_and_mitigation_design.md`): external MSD no gap with either segmenter; Dutch 1964, failures called negative: official baseline segmenter AUROC 0.774 (oracle 0.787), tax +0.036; TotalSegmentator `roi_subset pancreas` 0.700 / +0.046 (118 empty masks); + `robust_crop` 0.719 / +0.046 (66); + neighbouring organs 0.782 / +0.034 (0).
 - Tight-LOMO fold 2 first run collapsed to all-background at epoch 1 (per-sample Dice rewards empty predictions; fold 2 has the lowest positive rate, ~21%); re-run with the same config trained normally. Collapsed run archived as `fold_2_collapsed/`.
 
+## 6b. Beyond the 3D models (2026-10-19/26; full numbers in the status section of `docs/deployment_and_mitigation_design.md`)
+- **2.5D classifier / mitigation panel:** `tools/panel_build_slices.py` (LPS-reoriented slices from the tight crops) -> `tools/panel_train.py` via `tools/panel_queue.py` (queues in `configs/panel/`) -> `tools/panel_eval.py`, `panel_dfr.py`, `panel_mae.py`, `panel_planted_eval.py`, `panel_stats.py`, `plot_panel.py`. Results `reports/panel/`.
+- **Paper statistics:** `tools/final_stats.py` -> `reports/final_stats/` (3D vs 2.5D DeLong, calibration, subgroups, mask provenance).
+- **Biomarker audit and fusion:** `tools/biomarker_confound.py`, `tools/fusion_sim.py`, `tools/plot_fusion.py` -> `reports/biomarker_confound.csv`, `reports/fusion/`.
+- **Thesis-cohort control:** `tools/thesis_control.py` (nnU-Net env), `tools/thesis_control_eval.py`, `tools/thesis_retrain.py` -> `reports/thesis_control/`.
+
 ## 7. Volume cleanup policy
 Keep on volume: **dataset tar(s)**, checkpoints, `summary.json`s. **Delete the big `--npz` softmax after extracting detection numbers** (regenerable from checkpoints). Pull `summary.json`s + feature npz to `reports/nnunet_summaries/` before deleting. Volume went 343 GB → ~6.5 GB this way (+ 22 GB tar kept = ~29 GB).

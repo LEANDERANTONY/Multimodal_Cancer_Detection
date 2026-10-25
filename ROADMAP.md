@@ -2,11 +2,18 @@
 
 This roadmap reflects the current project state and the next major build priorities for the multimodal pancreatic cancer detection repository.
 
-## Status 2026-10-05 (read this first)
+## Status 2026-10-26 (read this first)
 
-- **Milestone A has reported** (see below): the 3D nnU-Net shows no leave-one-manufacturer-out gap and only weak scanner encoding; the confound tax is small but non-zero (+0.031 [+0.010, +0.053], tight crop). The paper framing is now "present in the data, only weakly exploited (bounded ≈0.05 AUROC)". Decisions: ADR-004.
-- **The living Q1 plan, gap list and experiment matrix now live in [`docs/q1_readiness_and_gaps.md`](docs/q1_readiness_and_gaps.md)**; the pre-registered next experiments in [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md) (ADR-005). Results: [`docs/modeling_pipeline.md`](docs/modeling_pipeline.md).
-- Order of remaining work (loose tax CI and external operating points done 2026-10-06; deployment-ROI COMPLETE 2026-10-19 incl. the TotalSegmentator sensitivity arms — live checklist in `docs/deployment_and_mitigation_design.md` "Status and next steps"): ~~deployment-ROI experiment (main novelty)~~ → **mitigation panel (next)** → biomarker/fusion arm → statistics (DeLong, calibration, subgroups) → thesis-cohort control → figures and write-up.
+- **All pre-registered Q1 experiments are complete; the write-up is next.** Milestone A (2026-10-05, ADR-004): the
+  3D nnU-Net exploits the measured scanner confound only weakly (tax +0.031 [+0.010, +0.053], no LOMO gap).
+  Deployment-ROI (2026-10-19): segmenter failures, not crop error, carry the deployment cost. Mitigation panel
+  (2026-10-25): tuned ERM not beaten; the planted-shortcut control shows the methods work; MAE raises the tax.
+  Biomarker audit, fusion simulation, statistics and the thesis-cohort control (2026-10-25/26) are done too.
+- Results: status section of [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md);
+  plan: [`docs/q1_readiness_and_gaps.md`](docs/q1_readiness_and_gaps.md); prior work and positioning:
+  [`docs/literature_novelty_check.md`](docs/literature_novelty_check.md).
+- Remaining before submission: write-up, reporting checklists (TRIPOD-AI / CLAIM), re-run the risky literature
+  searches. Optional: ShortKit-ML comparison, nnDetection arm.
 - The repo-hardening items below ("Now / Next / Later") are still valid but are secondary to the Q1 work.
 
 ## Now: Stabilize The Hybrid Research Repo
@@ -89,9 +96,9 @@ This section records the path from the current thesis to a peer-reviewed paper. 
 
 A reframed methods / reproducibility paper is publishable today in a decent Q2 venue without collecting anything new. The negative result *is* the contribution.
 
-- **Reframe the narrative** away from "multimodal PDAC detection" toward: *"Near-perfect cross-dataset pancreatic CT classification is a domain-confounding artifact â€” a diagnostic protocol for detecting it, and evidence that pixel-level mitigation is insufficient."*
+- **Reframe the narrative** away from "multimodal PDAC detection" toward: *"Near-perfect cross-dataset pancreatic CT classification is a domain-confounding artifact — a diagnostic protocol for detecting it, and evidence that pixel-level mitigation is insufficient."*
 - **Lead contributions:** (1) a stepwise bias detection + mitigation pipeline (pixel-mean logistic probe AUC 0.866 -> 0.569 after extreme standardization); (2) the demonstration that the shortcut survives in deep features (K-means-by-source at k=2, silhouette peak, cross-cluster non-identifiability with two institutions); (3) independent reproduction of the Debernardi et al. (2020) urinary panel (AUC 0.944 vs 0.936); (4) a negative-control-based fusion-evaluation framework showing modality dominance under synthetic pairing.
-- **Reuse existing figures:** dataset bias check, K-selection (elbow/silhouette), Grad-CAM, final model comparison, biomarker calibration â€” they already support this framing.
+- **Reuse existing figures:** dataset bias check, K-selection (elbow/silhouette), Grad-CAM, final model comparison, biomarker calibration — they already support this framing.
 - **Target venues (Q2):** *Diagnostics*, *Journal of Imaging*, *BMC Medical Imaging*, *Computers in Biology and Medicine*, or a reproducibility / negative-results venue.
 - **Effort:** weeks of rewriting, no new experiments. **Superseded 2026-07:** this was the recommended first submission while data acquisition was the Q1 blocker. PANORAMA is now staged, so the plan is Q1-direct and this reframe is retained only as a fallback (see Status below).
 
@@ -100,9 +107,9 @@ A reframed methods / reproducibility paper is publishable today in a decent Q2 v
 A Q1 venue (npj Digital Medicine, Medical Image Analysis, IEEE TMI, Radiology: AI) requires new substance, because the field already has 2025 tooling for this problem. Do these in order of leverage:
 
 1. **External multi-centre CT validation — DONE (data acquired 2026-07-04).** PANORAMA is staged locally: 2,238 studies / 2,224 patients, MD5-verified, masks and labels reconciled. Two findings change the plan: there is **no institution column**, so leave-one-*site*-out is impossible and the domain axis becomes **scanner (manufacturer)**; and scanner is itself a **measured confound** (Cramér's V = 0.44). Details in the local CT preprocessing audit and `reports/panorama_confound_audit.md`.
-2. **Comparative evaluation of mitigation methods — NOT a proposed method.** Do *not* lead with gradient reversal: DANN is a 2015-16 method, and the DomainBed literature (Gulrajani & Lopez-Paz; *Failure Modes of DG Algorithms*, CVPR 2022) shows a well-tuned **ERM** matches or beats the whole family. Run a panel under one pre-registered model-selection rule — tuned ERM, **DFR** (last-layer retraining on a scanner-balanced subset), GRL, and an **SSL / foundation-model backbone** — and report honestly whether *any* of them removes a real, measured clinical confound. A rigorous negative result here is the contribution.
-3. **Benchmark against ShortKit-ML** (medRxiv 2026; 20+ detection methods, 6 mitigation strategies) rather than presenting the protocol standalone. Also position against intermediate-layer knowledge distillation (arXiv 2511.17421) and feature-disentanglement benchmarks (arXiv 2602.18502).
-4. **Genuine paired CT + biomarker cohort for fusion — OFF the critical path.** Collaboration-dependent and open-ended; it must not gate the Q1 paper. Defer to paper #2. Fusion stays a limitation paragraph, not a results section.
+2. **Comparative evaluation of mitigation methods — DONE 2026-10-25** (tuned ERM not beaten; planted-shortcut control; `reports/panel/`). **NOT a proposed method.** Do *not* lead with gradient reversal: DANN is a 2015-16 method, and the DomainBed literature (Gulrajani & Lopez-Paz; *Failure Modes of DG Algorithms*, CVPR 2022) shows a well-tuned **ERM** matches or beats the whole family. Run a panel under one pre-registered model-selection rule — tuned ERM, **DFR** (last-layer retraining on a scanner-balanced subset), GRL, and an **SSL / foundation-model backbone** — and report honestly whether *any* of them removes a real, measured clinical confound. A rigorous negative result here is the contribution.
+3. **Benchmark against ShortKit-ML** (not done; optional — the planted-shortcut control already validates the methods) (medRxiv 2026; 20+ detection methods, 6 mitigation strategies) rather than presenting the protocol standalone. Also position against intermediate-layer knowledge distillation (arXiv 2511.17421) and feature-disentanglement benchmarks (arXiv 2602.18502).
+4. **Genuine paired CT + biomarker cohort for fusion — OFF the critical path.** Collaboration-dependent and open-ended; it must not gate the Q1 paper. Defer to paper #2. In the Q1 paper fusion appears only as a dependence-sensitivity simulation and a pseudo-pairing caution (`reports/fusion/`), never as a performance claim.
 
 **Novelty guard:** Ong Ly et al. (*npj Digital Medicine* 2024, 72 citations) already published a shortcut-diagnosis protocol showing up to 20% performance overestimation from acquisition bias. "We propose a shortcut diagnostic protocol" is therefore **not** novel on its own. Differentiate on: two independent confounds in one protocol, a measured confound in the flagship public PDAC cohort, the `level` label-leakage finding, and whether mitigation actually works.
 
@@ -118,7 +125,7 @@ Status:
 - Q1 programme: step 1 complete (data); steps 2-3 are the work; step 4 deferred off the critical path.
 - Realistic venues: **Medical Image Analysis** or **Radiology: AI**. npj Digital Medicine is a stretch without clinical impact, and IEEE TMI wants methodological novelty that an off-the-shelf GRL will not supply.
 - Q2 reframe: retained as a fallback if the Milestone-A checkpoint (below) shows no image-level confound.
-- Biomarker screening paper: optional parallel track; in the Q1 paper the biomarker branch serves as a **clean positive control**, not a results section.
+- Biomarker screening paper: optional parallel track. In the Q1 paper the biomarker branch is **not** a clean control: its cohort has a site confound (all healthy controls from one site, site tax +0.062; `reports/biomarker_confound.csv`).
 
 ### Milestone A — the go/no-go checkpoint (4-6 weeks)
 
@@ -142,8 +149,8 @@ The confound to break: in the thesis, cancer came from one source (Pancreas-CT-C
 1. **PANORAMA** (recommended primary). First public PDAC-detection grand challenge; to-date largest public PDAC CT dataset. Portal-venous contrast-enhanced CT, clinical metadata, segmentation masks for six PDAC-related structures, patient-level likelihood labels, **multi-centre with PDAC and non-PDAC from the same pipeline**, public leaderboard for honest benchmarking. This is the dataset that lets us decouple cancer from dataset-of-origin and also provides masks needed for pancreas-ROI localization. (arXiv 2503.10068)
 2. **Medical Segmentation Decathlon (MSD) Task07 Pancreas**. 420 contrast-enhanced CTs with pancreatic lesions (PDAC, PNET, IPMN) from MSKCC, with tumour segmentation masks. Good independent single-source test and provides masks for ROI cropping.
 3. **TCIA Pancreas-CT / NIH** (use with care). NIH Pancreas-CT is the *healthy/normal* set that formed the confounding control arm in the thesis; do NOT reuse it as controls against a different-source cancer set or the bias reappears. Useful only as a normal-pancreas reference within a same-source design.
-4. **Benchmark comparator (cite, don't validate on):** PANDA, Nature Medicine 2023 â€” non-contrast CT, multi-centre validation on 6,239 patients, AUC 0.986â€“0.996. Sets the performance bar reviewers expect; reinforces that our contribution should be methodology/honesty, not raw performance.
-5. **Published external-validation precedent to benchmark against:** 2025 radiomics PDAC study, internal 95% â†’ external 86.5% accuracy on TCIA/MSD â€” the kind of honest generalization-gap result to reproduce and report.
+4. **Benchmark comparator (cite, don't validate on):** PANDA, Nature Medicine 2023 — non-contrast CT, multi-centre validation on 6,239 patients, AUC 0.986–0.996. Sets the performance bar reviewers expect; reinforces that our contribution should be methodology/honesty, not raw performance.
+5. **Published external-validation precedent to benchmark against:** 2025 radiomics PDAC study, internal 95% → external 86.5% accuracy on TCIA/MSD — the kind of honest generalization-gap result to reproduce and report.
 
 ## Notebook Audit Findings (from 01_multimodal_cancer_detection.ipynb)
 
@@ -151,22 +158,22 @@ Concrete strengths and gaps found by reading the actual cells, to guide the rewr
 
 **What was done well (keep):**
 
-- Transparent bias *diagnosis*: pixel-mean logistic probe (Cell 1.7), ResNet embedding + K-means/elbow/silhouette domain audit (Cells 1.15â€“1.23, 1.41â€“1.45), per-cluster k=2 evaluation, cross-cluster generalization test.
-- Patient-level stratified splits (Cell 2.0) â€” leakage control is correct.
-- Biomarker branch is genuinely solid and under-sold: single clean source, plus calibration, permutation importance, decision-curve and gain/lift analysis (Cells 3.6â€“3.7). This is the most paper-ready component.
+- Transparent bias *diagnosis*: pixel-mean logistic probe (Cell 1.7), ResNet embedding + K-means/elbow/silhouette domain audit (Cells 1.15–1.23, 1.41–1.45), per-cluster k=2 evaluation, cross-cluster generalization test.
+- Patient-level stratified splits (Cell 2.0) — leakage control is correct.
+- Biomarker branch is genuinely solid and under-sold: single clean source, plus calibration, permutation importance, decision-curve and gain/lift analysis (Cells 3.6–3.7). This is the most paper-ready component.
 - Fusion done responsibly: multi-seed + label-mismatch negative controls for both decision- and feature-level fusion (Cells 4.1b, 4.2b).
 
-**The central methodological gap â€” the bias check is partly circular:**
+**The central methodological gap — the bias check is partly circular:**
 
 - Mitigation (`extreme_standardize`, Cell 1.10) forces body-pixel **mean=128, std=40**. The bias check (Cell 1.11) then tests whether a logistic model on **pixel mean/std** can separate classes. Because mitigation forces exactly those statistics equal, the probe necessarily drops to ~random (0.569). The detector and the fix target the *same low-order statistic*, so the "bias removed" conclusion is self-fulfilling.
 - It does nothing about the higher-order cues a CNN actually exploits: noise/reconstruction-kernel texture, edge/frequency content, field-of-view and body-shape geometry, contrast-phase and slice-thickness signatures. That is exactly why K-means on ResNet embeddings still recovers the source split after standardization.
 - Fix: the bias detector must probe the **learned feature space**, not raw pixel moments (e.g. a domain classifier on embeddings, or a dependence measure such as HSIC between representation and source), and mitigation must act in that space.
 
-**CT modeling gap â€” receptive field too global:**
+**CT modeling gap — receptive field too global:**
 
-- The "cropped" dataset (`ct_cropped`) is a **whole-body** crop via segmentation, not a pancreas ROI. The ResNet50 still sees global body outline, FOV, and tissue-wide noise texture â€” all scanner/source fingerprints. Rapid convergence to ceiling AUC (Cell 2.7 history) is itself a tell of trivially separable domain signal.
+- The "cropped" dataset (`ct_cropped`) is a **whole-body** crop via segmentation, not a pancreas ROI. The ResNet50 still sees global body outline, FOV, and tissue-wide noise texture — all scanner/source fingerprints. Rapid convergence to ceiling AUC (Cell 2.7 history) is itself a tell of trivially separable domain signal.
 
-**Upgrade for Q1 (feature-space debiasing â€” current 2025/26 standard):**
+**Upgrade for Q1 (feature-space debiasing — current 2025/26 standard):**
 
 - **Superseded 2026-07 (see "four steps to Q1" above).** GRL is no longer the proposed fix. Run a *panel* under one pre-registered model-selection rule: a properly tuned **ERM baseline** (per DomainBed, the real bar to clear), **DFR** (last-layer retraining on a scanner-balanced subset), **GRL**, and an **SSL / foundation-model backbone**. On PANORAMA the domain label is **scanner**, not institution.
 - Alternatives/complements from the 2025/26 literature: feature disentanglement (latent-space splitting), dependence-minimization (HSIC-style), knowledge distillation from a specialist teacher.
@@ -223,6 +230,6 @@ Q1 clinical-AI venues increasingly require a completed reporting checklist. Targ
 - ~~Which paper goes first~~ **RESOLVED 2026-07: go Q1-direct.** The data blocker is gone and the two papers share too much narrative for Q2-first to be safe. The Q2 reframe is retained only as a fallback if Milestone A shows no image-level confound.
 - ~~**Input geometry**~~ **RESOLVED 2026-07: 2.5D** (3-5 adjacent slices as channels) for the mitigation panel. **Updated 2026-10 (ADR-004):** the 3D nnU-Net became the main model of the paper; 2.5D stays for the local mitigation panel.
 - ~~**Mask policy**~~ **RESOLVED 2026-07, REVISED 2026-09 (ADR-003):** crop from PANORAMA's provided **pancreas (4) + duct (5)** masks, which are auto-generated for every case and label-blind; **never** from the lesion mask (label 1), whose manual/automatic provenance is a near-perfect PDAC proxy (479 of 482 manual masks are PDAC). The earlier plan to run an off-the-shelf segmenter instead was dropped because TotalSegmentator failed on ~5-14% of scans. Predicted-mask crops return as the **deployment-ROI experiment** (ADR-005).
-- Whether to pursue a real/quasi-paired CT+biomarker cohort for genuine fusion (collaboration-dependent) or keep fusion as an explicitly exploratory section.
+- ~~Fusion framing~~ **RESOLVED 2026-10-25:** no patient-level fusion result; a sequential-triage simulation over the unknown inter-test correlation plus a pseudo-pairing caution. A paired cohort is paper #2.
 - ~~Scope of feature-space debiasing~~ **RESOLVED 2026-07:** run the panel (tuned ERM + DFR + GRL + SSL backbone). GRL alone is not defensible as a contribution, and a tuned ERM baseline is mandatory.
 

@@ -14,7 +14,25 @@ grandmasters we study (`D:/Documents/Projects/Kaggle/Grandmasters/`: ren4yu, ser
    it. [sersasj, samson8]
 5. **Keep a "didn't work" list** in this doc, filled as we go. [all three]
 
-## Status and next steps (updated 2026-10-21: deployment-ROI COMPLETE; mitigation panel steps 1-2 done. All local; Zenodo throttled, no pods)
+## Status (updated 2026-10-26: ALL PRE-REGISTERED EXPERIMENTS COMPLETE; next = write-up)
+
+At a glance (details in the dated blocks below; prior work and positioning in `docs/literature_novelty_check.md`):
+- **A. Deployment-ROI:** a segmenter that never fails matches the oracle crop (0.774-0.782 vs 0.787, tax ~+0.03);
+  TotalSegmentator `roi_subset pancreas` fails on 6 % (PDAC-, Siemens- and chest-heavy scans), AUROC 0.700, tax
+  +0.046; `robust_crop` recovers half; neighbouring organs recover all.
+- **B. Mitigation panel (2.5D):** tuned ERM CV 0.918 / tax +0.057 / external 0.884; GBS, DFR, GRL lower no tax
+  significantly and all cost accuracy; MAE raises the tax (+0.026 [+0.012, +0.041]); the planted-shortcut control
+  shows the same methods remove 64-91 % of a planted shortcut.
+- **Statistics:** 2.5D beats 3D in-distribution (+0.138, p<0.001) but ties it on MSD; 2.5D calibrated (ECE 0.039);
+  Philips and age >= 70 weakest; no mask-provenance leakage.
+- **C. Biomarker audit:** site confound (all controls from one site), site tax +0.062 [+0.027, +0.098].
+- **C. Fusion (unpaired):** combined AUROC 0.917 at independence -> 0.884 (= urine alone) at rho 0.75; pseudo-pairing
+  reports the independence case; urine triage avoids ~49 % of CTs at 1 % prevalence (illustrative).
+- **Thesis-cohort control:** PANORAMA models score 0.68-0.98 on the thesis set (thesis model 0.9999); our recipe
+  retrained on it reaches 0.996 vs 0.745 on clinical data at matched training size; crop statistics separate its
+  collections at 0.872. The cross-test drop is mostly training-set size and is not claimed as shortcut evidence.
+
+Chronological record:
 
 **Deployment-ROI — done:** external (no gap), dose-response, Dutch full cohort for both pre-registered arms
 (baseline segmenter: AUROC −0.013, tax n.s.; TotalSegmentator as published: 118 empty masks, deployed
@@ -147,7 +165,7 @@ error correlation as an explicit sensitivity parameter; (2) pseudo-paired fusion
 next to a label-mismatch control; (3) true fusion deferred to paper 2 (needs a paired cohort).
 
 **C. Fusion DONE (2026-10-25; user chose options 1 + 2)** (`tools/fusion_sim.py` -> `reports/fusion/`, figure
-`figures/fusion_triage.png`). Real out-of-fold scores: biomarker panel+age AUROC 0.882; CT 3D cc_psz 0.787 (2.5D
+`figures/panorama/fusion_triage.png`). Real out-of-fold scores: biomarker panel+age AUROC 0.882; CT 3D cc_psz 0.787 (2.5D
 ERM 0.926 as sensitivity). (1) Copula simulation keeping each test's real class-conditional scores, within-class
 correlation rho: best combined AUROC with 3D CT 0.917 [0.901, 0.936] at rho 0, 0.897 at 0.25, 0.886 at 0.5, 0.884
 at 0.75 (biomarker alone 0.882), i.e. the gain over urine alone vanishes as the tests' errors correlate. Triage
@@ -198,8 +216,8 @@ evidence. What stands: at matched size the recipe reaches 0.745 on clinical data
 crop statistics alone separate its collections (0.872), so the thesis's near-perfect AUROC is source separation in
 the data, not cancer detection.
 
-**Panel complete.** Tuned ERM is not beaten on any axis. NEXT: then the remaining statistics
-(DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
+**All pre-registered experiments complete (2026-10-26). NEXT: the write-up**, framed as an end-to-end audit of
+measured confounding and deployment (`docs/literature_novelty_check.md`).
 
 _Original step list (kept for reference):_ **NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
 1. Dataset: 2.5D slice triplets from the tight oracle crops (Dataset701 under `data/processed/ct/nnunet_raw/`),
@@ -330,4 +348,7 @@ Synthetic samples may augment training only; they are always mixed with real dat
 comes from real patients only**.
 
 ## Didn't work
-_(fill as we go)_
+Kept in `DEAD_ENDS.md` (methods and process mistakes). For this design: the jitter fine-tune was not needed;
+TotalSegmentator as published and `robust_crop` both leave failures; no debiaser lowered the real tax; MAE
+pretraining raised it; pseudo-paired fusion measures an assumption; the thesis-retrain cross-test drop is mostly
+training-set size.

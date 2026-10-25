@@ -4,21 +4,25 @@
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Multimodal Pancreatic Cancer Detection is a bias-aware research repository for pancreatic cancer detection using CT imaging and urinary biomarkers. It started as an MSc dissertation (2D ResNet50 CT classifier, seven-feature biomarker MLP, exploratory fusion) and is now being taken to a Q1 paper on shortcut learning: whether a measured scanner confound in the largest public PDAC CT cohort (PANORAMA) is actually exploited by a strong 3D model.
+Multimodal Pancreatic Cancer Detection is a bias-aware research repository for pancreatic cancer detection using CT imaging and urinary biomarkers. It started as an MSc dissertation (2D ResNet50 CT classifier, seven-feature biomarker MLP, exploratory fusion) and is now a Q1 paper: an end-to-end audit of measured confounding and deployment in the largest public PDAC CT cohort (PANORAMA), with the same confound audit applied to the urinary biomarker cohort and an honest treatment of fusion between unpaired cohorts.
 
 **Documentation index: [`docs/README.md`](docs/README.md)** — every doc, what it answers, and where the data and models live.
 
-## Current Status (2026-10)
+## Current Status (2026-10-26): all pre-registered experiments complete, write-up next
 
-The Q1 work uses PANORAMA (2,238 contrast-enhanced CTs; 1,964 Dutch scans for training, 194 MSD + 80 NIH held out as external tests) and 3D nnU-Net models trained on pancreas-region crops.
+The Q1 work uses PANORAMA (2,238 contrast-enhanced CTs; 1,964 Dutch scans for training, 194 MSD + 80 NIH held out as external tests), 3D nnU-Net models on pancreas-region crops, and a 2.5D classifier for the mitigation panel.
 
 - **The confound is real in the data:** scanner manufacturer alone predicts PDAC with AUROC 0.70 (Philips scans are 75% PDAC, Siemens/Toshiba ~19%).
-- **The model exploits it only weakly:** the in-distribution confound tax is +0.031 AUROC (95% CI +0.010 to +0.053) for the tight-crop model and +0.021 (−0.002 to +0.045) for the loose one, there is no penalty when a whole manufacturer is held out, and the encoder carries little scanner information.
-- **It generalises to a new hospital:** on the external MSD cohort the tight model reaches detection AUROC 0.82 [0.76, 0.88] and lesion Dice 0.555, at or above its in-distribution performance.
-- **It survives real deployment:** cropping from a predicted pancreas mask instead of the provided one (1,964 Dutch scans, four segmenter settings) costs <= 0.013 AUROC and leaves the confound tax ~+0.03 when the segmenter never fails; TotalSegmentator used as documented (`roi_subset pancreas`) silently fails on 6 % of scans (mostly cancer and Siemens scans), costing 0.087 AUROC and raising the tax to +0.046. Requesting the neighbouring organs fixes every failure. Figure: `figures/panorama/deployment_arms.png`.
-- **Next:** the pre-registered mitigation panel (2.5D: tuned ERM vs group-balanced / DFR / GRL / MAE) — see [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md).
+- **The 3D model exploits it only weakly:** confound tax +0.031 AUROC [+0.010, +0.053], no penalty when a whole manufacturer is held out, external MSD AUROC 0.82 [0.76, 0.88].
+- **It survives real deployment:** cropping from a predicted pancreas mask costs <= 0.013 AUROC when the segmenter never fails; TotalSegmentator used as documented (`roi_subset pancreas`) silently fails on 6 % of scans (mostly cancer and Siemens scans), costing 0.087 AUROC and raising the tax to +0.046; requesting the neighbouring organs fixes every failure. Figure: `figures/panorama/deployment_arms.png`.
+- **A stronger 2.5D classifier uses the confound more:** Dutch AUROC 0.926 vs 0.787 (DeLong p<0.001) but tax +0.057 and a tie with the 3D model on external MSD (0.827 vs 0.823).
+- **Debiasing does not beat tuned ERM on the real confound:** group-balanced sampling, DFR, GRL and MAE pretraining lower no tax significantly and all cost accuracy (MAE raises the tax, +0.026 [+0.012, +0.041]); yet the same methods remove 64–91 % of a deliberately planted shortcut, so the methods work and the real confound is weakly exploitable. Figure: `figures/panorama/mitigation_panel.png`.
+- **The urinary biomarker cohort is confounded too:** all healthy controls come from one site; site alone predicts PDAC at AUROC 0.68, site tax +0.062 [+0.027, +0.098].
+- **Fusion of unpaired cohorts:** its gain depends entirely on the untestable error correlation between the tests (0.917 at independence -> 0.884 = urine alone); pseudo-paired fusion reports the independence case. Urine triage before CT would avoid ~49 % of CTs at 1 % prevalence. Figure: `figures/panorama/fusion_triage.png`.
+- **The thesis's 0.9999 is the data:** our own pipeline retrained on the thesis two-source set reaches 0.996 (vs 0.745 on clinical data at the same training size) and crop statistics alone separate its two collections (0.872).
+- **Next:** the write-up (MedIA / npj Digital Medicine); framing and prior work in [`docs/literature_novelty_check.md`](docs/literature_novelty_check.md).
 
-Full results: [`docs/modeling_pipeline.md`](docs/modeling_pipeline.md); plan and gaps: [`docs/q1_readiness_and_gaps.md`](docs/q1_readiness_and_gaps.md).
+Full results: [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md) (status section) and [`docs/modeling_pipeline.md`](docs/modeling_pipeline.md); plan: [`docs/q1_readiness_and_gaps.md`](docs/q1_readiness_and_gaps.md).
 
 ## Thesis-Era Workflow (2025)
 
@@ -64,9 +68,9 @@ The thesis summary in `reports/final_summary.json` reports:
 
 Those numbers should be read carefully:
 
-- the biomarker branch is the clearest reproducible positive result in the project
+- the biomarker branch reproduces the published panel, but its cohort has a site confound (all healthy controls from one site; site tax +0.062, see `reports/biomarker_confound.csv`)
 - the thesis CT result is confounded: cancer and control scans came from different source datasets, so the classifier could separate the datasets rather than the disease
-- fusion remains exploratory because CT and biomarker cohorts are not patient-paired
+- fusion cannot be evaluated at patient level because CT and biomarker cohorts are not patient-paired; the Q1 work treats it as a dependence-sensitivity simulation (`reports/fusion/`)
 
 ## Documentation
 
@@ -74,6 +78,7 @@ See **[`docs/README.md`](docs/README.md)** for the full index. Most-used:
 
 - [`docs/q1_readiness_and_gaps.md`](docs/q1_readiness_and_gaps.md) — living Q1 plan
 - [`docs/modeling_pipeline.md`](docs/modeling_pipeline.md) — 3D nnU-Net pipeline and results
-- [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md) — pre-registered experiments: deployment-ROI results and the next-step checklist (mitigation panel)
+- [`docs/deployment_and_mitigation_design.md`](docs/deployment_and_mitigation_design.md) — pre-registered design and every Q1 result (status section at the top)
+- [`docs/literature_novelty_check.md`](docs/literature_novelty_check.md) — what is new vs prior work, per contribution
 - [`docs/data_layout.md`](docs/data_layout.md) — where data, models and results live
 - [`ROADMAP.md`](ROADMAP.md), [`DEVLOG.md`](DEVLOG.md), [`DEAD_ENDS.md`](DEAD_ENDS.md), [`docs/architectural_decision_records/`](docs/architectural_decision_records/README.md)

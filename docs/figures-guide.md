@@ -12,7 +12,7 @@ It is not intended to hold every intermediate notebook plot generated during exp
 
 - `figures/*.png` (flat): thesis-era figures, written by the notebook — keep flat.
 - `figures/local_thesis_audit/` (git-ignored): thesis-era bulk audit images and screenshots — local only.
-- `figures/panorama/`: every Q1 / PANORAMA figure (confound audit, detection, LOMO, external, deployment-ROI, mitigation panel). Generate them from the tracked per-case CSVs in `reports/nnunet_summaries/` so they are reproducible without the models.
+- `figures/panorama/`: every Q1 / PANORAMA figure (confound audit, detection, LOMO, external, deployment-ROI, mitigation panel, fusion). Current: `deployment_arms.png`, `dose_response.png`, `mitigation_panel.png`, `fusion_triage.png`. Generate them from the tracked per-case CSVs in `reports/nnunet_summaries/` so they are reproducible without the models.
 
 ## What Should Be Tracked
 
