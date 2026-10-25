@@ -3,7 +3,7 @@
 Where everything lives on the workstation (`D:/Documents/Projects/Multimodal_Cancer_Detection`), and
 **where new things go** (last section). `data/` and `models/` are git-ignored (local only); `reports/`
 and `figures/` hold tracked lightweight outputs. Everything needed to work offline is local — the
-RunPod volume `panaroma_roi` is only a cloud mirror. Pipeline that produced it: `docs/modeling_pipeline.md`.
+RunPod volume `panaroma_roi` was only a cloud mirror and was **emptied on 2026-10-26** after every file was verified local (checkpoints MD5-identical); the table below maps its former contents to the local copies. Pipeline that produced it: `docs/modeling_pipeline.md`.
 
 ## Datasets — `data/` (local only)
 | Path | What |
@@ -26,7 +26,7 @@ RunPod volume `panaroma_roi` is only a cloud mirror. Pipeline that produced it: 
 
 **No local tars.** Tars are only made for uploads and deleted afterwards (all were deleted 2026-10-05).
 To upload a dataset again: `tar cf X.tar -C data/processed/ct/nnunet_raw <DatasetFolder>`. The volume
-keeps `Dataset701_tight.tar` and `Dataset700_Ts.tar` (the loose external test scans). The first loose
+held `Dataset701_tight.tar` and `Dataset700_Ts.tar` until it was emptied (2026-10-26); rebuild them from the local folders if pod work resumes (~8 h upload for the 22 GB tight tar). The first loose
 crop pass (`data/processed/ct/panorama_roi/`) was deleted: same voxels as Dataset700, image origin zeroed.
 
 ## Trained models — `models/` (local only)

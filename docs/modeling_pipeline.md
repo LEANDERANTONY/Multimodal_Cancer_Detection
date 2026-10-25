@@ -15,7 +15,7 @@ Run: `python tools/build_roi_dataset.py --margin-mm 100 50 15 --out data/process
 - **Local copies:** loose `data/processed/ct/nnunet_raw/Dataset700_PanoramaPDAC/` (1964 Tr + 274 Ts); tight `data/processed/ct/nnunet_raw/Dataset701_PanoramaPDAC_tight/` (2238). No local tars (re-create before any upload; the volume keeps `Dataset701_tight.tar`). Trained models: `models/nnunet/{loose_cv,loose_lomo,tight_cv,tight_lomo}/`. Full map: `docs/data_layout.md`.
 
 ## 2. Staging to RunPod (Global volume `panaroma_roi`, fuse.geesefs at /workspace)
-- **KEEP the dataset tar on the volume** (`/workspace/Dataset701_tight.tar`, 22.98 GB) — deleting it once cost an 8h re-upload. Storage is cheap (~$0.07/GB/mo).
+- **Volume emptied 2026-10-26** (all contents verified local; checkpoints MD5-identical). While pod work was active the rule was: keep the dataset tar on the volume (`Dataset701_tight.tar`, 22.98 GB), since deleting it once cost an 8 h re-upload.
 - Per-run workflow: stage tar from volume → pod local `/root` (fast), train from local NVMe, results → volume. Never train off the S3-FUSE volume.
 - **Large uploads (local→pod) must run in the USER's terminal**, not an agent background task (those are time-capped and get killed). Resumable uploader: `scripts/runpod/upload_resume.sh` (ssh-append loop, resumes from remote size). Invoke via `run_in_terminal` with the full git-bash path: `& "C:\Program Files\Git\bin\bash.exe" "/c/.../upload_resume.sh"` (plain `bash` is NOT on PowerShell PATH).
 
