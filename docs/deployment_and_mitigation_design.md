@@ -146,7 +146,19 @@ user: (1) sequential triage simulation (urine -> CT) from each test's real opera
 error correlation as an explicit sensitivity parameter; (2) pseudo-paired fusion only as a cautionary demonstration
 next to a label-mismatch control; (3) true fusion deferred to paper 2 (needs a paired cohort).
 
-**Panel complete.** Tuned ERM is not beaten on any axis. NEXT: C. fusion arm (option chosen by the user), then the remaining statistics
+**C. Fusion DONE (2026-10-25; user chose options 1 + 2)** (`tools/fusion_sim.py` -> `reports/fusion/`, figure
+`figures/fusion_triage.png`). Real out-of-fold scores: biomarker panel+age AUROC 0.882; CT 3D cc_psz 0.787 (2.5D
+ERM 0.926 as sensitivity). (1) Copula simulation keeping each test's real class-conditional scores, within-class
+correlation rho: best combined AUROC with 3D CT 0.917 [0.901, 0.936] at rho 0, 0.897 at 0.25, 0.886 at 0.5, 0.884
+at 0.75 (biomarker alone 0.882), i.e. the gain over urine alone vanishes as the tests' errors correlate. Triage
+(urine at 95 % sensitivity, then CT at 90 %): sensitivity 0.85-0.88, specificity 0.72 -> 0.58 as rho rises (CT
+for everyone 0.90 / 0.44), 49 % of CTs avoided at 1 % prevalence (34 % at the cohort's 34 %). (2) Pseudo-paired
+fusion (random label-matched pairing, the thesis construction): AUROC 0.909 +- 0.007 with 3D CT, 0.964 with 2.5D;
+label-mismatched control 0.877 = biomarker alone. The pseudo-paired number equals the rho = 0 simulation: its
+"gain" is the independence assumption, not evidence. Caveat: different populations (UK / Spanish urine cohort vs
+Dutch CT), so the triage numbers are illustrative.
+
+**Panel complete.** Tuned ERM is not beaten on any axis. NEXT: then the remaining statistics
 (DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
 
 _Original step list (kept for reference):_ **NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
