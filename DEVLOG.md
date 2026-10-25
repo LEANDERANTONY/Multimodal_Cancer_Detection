@@ -165,7 +165,8 @@ The main validation steps currently used are:
 - 2026-10-25: statistics: 2.5D beats 3D in-distribution (+0.138, DeLong p<0.001, every scanner) but ties it externally (MSD 0.827 vs 0.823); 2.5D well calibrated (ECE 0.039); Philips and age >= 70 weakest subgroups; no mask-provenance leakage (manual vs automatic-mask PDAC ranked alike)
 - 2026-10-25: thesis-cohort control: the thesis two-source set (40 CBCT-SEG cancers vs 80 NIH controls) through the PANORAMA deployment pipeline: 3D 0.682 (cc_psz) / 0.862 (p_max), 2.5D 0.975, vs the thesis's 0.9999; each model matches its MSD-vs-NIH score (0.730 / 0.858 / 0.959)
 - 2026-10-25: thesis-cohort retrain: our pipeline trained on the two-source set reaches out-of-fold AUROC 0.996-0.999, then scores 0.659 on PANORAMA Dutch and 0.598 on MSD (PANORAMA-trained: 0.926 / 0.827); crop statistics alone separate the collections at 0.872. The thesis inflation is in the data
-- open Q1 items: size-matched control for the retrain, write-up (3D vs 2.5D, subgroups), thesis-cohort control, write-up, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
+- 2026-10-26: size-matched control: 96-scan PANORAMA-trained models reach 0.745 (Dutch) / 0.625 (MSD) vs thesis-trained 0.628 / 0.577; the cross-test drop is mostly training size, so the inflation claim rests on 0.996 vs 0.745 at matched size plus the 0.872 source probe, not on the cross-test
+- open Q1 items: write-up (3D vs 2.5D, subgroups), thesis-cohort control, write-up, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
 
 ## Historical Caveats
 

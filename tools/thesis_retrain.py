@@ -8,6 +8,8 @@ same predicted-mask tight crops as tools/thesis_control_eval.py (40 cancers vs 8
                optimisation steps roughly match the PANORAMA runs; the per-slice lesion loss is off, no lesion masks)
     crosstest  the 15 thesis-trained models on PANORAMA (1,964 Dutch, PDAC vs non-PDAC) and MSD (PDAC vs other
                pancreatic tumours): if they learned the collection rather than cancer, they collapse here
+    sizematched  the same recipe on 96 random PANORAMA Dutch scans (3 repeats) vs single thesis-trained models, on the
+               same held-out Dutch scans and MSD: separates the shortcut from the small training set
     probe      can simple crop statistics alone (intensity percentiles, noise, z extent) tell the two collections
                apart? Same probe on PANORAMA for PDAC as a contrast
 Run train and probe with PANEL_SLICES=data/processed/ct/thesis_cohort/slices; crosstest with the default slices.
@@ -48,8 +50,8 @@ def thesis_cohort():
     return pd.concat([cb, nih], ignore_index=True).assign(group="x", scanner="x")
 
 
-def train_fold(tr, te, seed, k, dev):
-    rdir = f"{RUNS}/thesis_erm_s{seed}/cv{k}"
+def train_fold(tr, te, seed, k, dev, run="thesis_erm"):
+    rdir = f"{RUNS}/{run}_s{seed}/cv{k}"
     os.makedirs(rdir, exist_ok=True)
     args = argparse.Namespace(depth=20, batch=8, workers=3)
     model = pt.Net("resnet18")
@@ -131,6 +133,35 @@ def crosstest():
     print(res.round(3).to_string(index=False))
 
 
+def sizematched():
+    """Is 0.659 a shortcut or just 96 training scans? Train the same recipe on 96 random PANORAMA Dutch scans
+    (32 PDAC + 64 non-PDAC, the thesis folds' mix), 3 repeats, and compare single models with single thesis-trained
+    models (fold 0 of each seed, also 96 scans) on the same held-out Dutch scans and MSD."""
+    dev, args = "cuda", argparse.Namespace(depth=20, batch=8, workers=3)
+    cv = pd.read_csv("reports/nnunet_summaries/tight_battery/cv_scores.csv")[["case", "scanner", "y"]]
+    ext = pd.read_csv("reports/nnunet_summaries/external/external_cases.csv")
+    msd = ext[ext.source == "MSD"].rename(columns={"source": "scanner"})[["case", "scanner", "y"]]
+    rng, rows = np.random.default_rng(0), []
+    for rep in range(3):
+        r = np.random.default_rng(100 + rep)
+        tr = pd.concat([cv[cv.y == 1].sample(32, random_state=int(r.integers(10**9))),
+                        cv[cv.y == 0].sample(64, random_state=int(r.integers(10**9)))]).assign(group="x")
+        test = pd.concat([cv[~cv.case.isin(tr.case)].assign(set="dutch_heldout"), msd.assign(set="MSD")]).assign(group="x")
+        p_pan = train_fold(tr, test, rep, 0, dev, run="sizematched_panorama")
+        model = pt.Net("resnet18").to(dev)
+        model.load_state_dict(torch.load(f"{RUNS}/thesis_erm_s{rep}/cv0/soup.pt", map_location=dev))
+        p_th = pt.predict(model, test, args, dev)
+        for s in ("dutch_heldout", "MSD"):
+            m = (test.set == s).values
+            for name, p in (("panorama_96", p_pan), ("thesis_96", p_th)):
+                a, lo, hi = auc_ci(test.y.values[m], p[m], rng)
+                rows.append({"repeat": rep, "train": name, "test": s, "n": int(m.sum()), "auroc": a, "lo": lo, "hi": hi})
+        print(pd.DataFrame(rows[-4:]).round(3).to_string(index=False), flush=True)
+    res = pd.DataFrame(rows)
+    res.to_csv(f"{OUT}/retrain_sizematched.csv", index=False)
+    print(res.groupby(["train", "test"]).auroc.agg(["mean", "std"]).round(3))
+
+
 def crop_stats(case):
     x = np.load(f"{pt.SLICES}/{case}_img.npy").astype(np.float32)
     fill = x.min()
@@ -158,4 +189,4 @@ def probe():
 if __name__ == "__main__":
     psutil.Process().nice(getattr(psutil, "BELOW_NORMAL_PRIORITY_CLASS", 10))
     torch.set_num_threads(2)
-    {"train": train, "crosstest": crosstest, "probe": probe}[sys.argv[1]]()
+    {"train": train, "crosstest": crosstest, "probe": probe, "sizematched": sizematched}[sys.argv[1]]()

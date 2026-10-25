@@ -186,10 +186,17 @@ source-confounded (cancer and controls from different collections), which the 3D
 patient-level 5-fold CV x 3 seeds, 40 epochs, no slice loss): out-of-fold AUROC 0.996 / 0.998 / 0.999, so the
 near-perfect thesis number is a property of the data, not of the old full-slice model. The same 15 models on
 PANORAMA: Dutch PDAC vs non-PDAC 0.659 [0.635, 0.686] (Siemens 0.679, Toshiba 0.537, Philips 0.644), MSD 0.598
-[0.520, 0.679], against 0.926 / 0.827 for the recipe trained on PANORAMA. The asymmetry (PANORAMA -> thesis set 0.975,
-thesis set -> PANORAMA 0.659) is the shortcut. Crop statistics alone (intensity percentiles, noise, z extent)
-separate the two collections at AUROC 0.872, vs 0.651 for PDAC on PANORAMA: the acquisition signature survives
-pancreas cropping and resampling. Caveat: 96 training scans vs 1,335; a size-matched PANORAMA control is needed.
+[0.520, 0.679], against 0.926 / 0.827 for the recipe trained on PANORAMA. Crop statistics alone (intensity
+percentiles, noise, z extent) separate the two collections at AUROC 0.872, vs 0.651 for PDAC on PANORAMA: the
+acquisition signature survives pancreas cropping and resampling.
+Size-matched control (2026-10-26; `thesis_retrain.py sizematched`, `retrain_sizematched.csv`): single models on 96
+scans each. Trained on random PANORAMA Dutch subsets (32 PDAC + 64 non-PDAC, 3 repeats): held-out Dutch 0.745 +-
+0.053, MSD 0.625 +- 0.042. Thesis-trained (fold 0 of each seed): Dutch 0.628 +- 0.019, MSD 0.577 +- 0.048. So most of
+the cross-test drop (0.926 -> 0.659) is training-set size; the remaining Dutch gap mixes domain match with any
+shortcut, and on neutral MSD the gap is small (CIs overlap). Do NOT claim the cross-test collapse as shortcut
+evidence. What stands: at matched size the recipe reaches 0.745 on clinical data but 0.996 on the thesis set, and
+crop statistics alone separate its collections (0.872), so the thesis's near-perfect AUROC is source separation in
+the data, not cancer detection.
 
 **Panel complete.** Tuned ERM is not beaten on any axis. NEXT: then the remaining statistics
 (DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
