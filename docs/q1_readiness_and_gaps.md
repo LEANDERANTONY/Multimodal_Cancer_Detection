@@ -94,9 +94,9 @@ All external/segmenter/probe tests are **inference-only (cheap)** — run for bo
 
 ## 9. Submission checklist (manuscript draft v3 complete 2026-10-26; draft is local-only in `paper/`, git-ignored)
 Status of each step is updated here as it is done.
-1. **Choose the target journal** (Medical Image Analysis vs npj Digital Medicine; sets word limit and trimming). — open
-2. **References:** merge the Methods / Results citations into one numbered list; resolve every `[verify]` entry. — open
-3. **Figures:** draw Fig. 1 (study design) and the supplementary figures (TotalSegmentator failure geometry, subgroup AUROCs, calibration curves, thesis case study). — open
-4. **Reporting:** TRIPOD-AI and CLAIM checklists; data and code availability statement. — open
-5. **Literature re-check:** re-run the risky searches (PANORAMA vendor / shortcut analyses, BenchX follow-ups, unpaired-fusion critiques) just before submission. — open
-Tone: match the author's published paper (stepped cylindrical turbulence generator) and MSc dissertation so the manuscript reads as one author.
+1. **Choose the target journal** (Medical Image Analysis vs npj Digital Medicine; sets word limit, trimming and citation style: MedIA uses author–year). — open: recommendation MedIA, awaiting the author's decision
+2. **References:** merge the Methods / Results citations into one numbered list; resolve every `[verify]` entry. — DONE 2026-10-26 (34 references, all cited; PubMed / arXiv checked; convert style once the journal is chosen)
+3. **Figures:** draw Fig. 1 (study design) and the supplementary figures (TotalSegmentator failure geometry, subgroup AUROCs, calibration curves, thesis case study). — DONE 2026-10-26 (`tools/plot_paper_figures.py`, `figures/panorama/`); Fig. 1 may be redrawn as vector art for the journal
+4. **Reporting:** TRIPOD-AI and CLAIM checklists; data and code availability statement. — DONE as drafts 2026-10-26 (`paper/reporting_checklists.md`, local); open rows need the author: funding, conflicts, weight release, title wording; transfer to the journal's official forms
+5. **Literature re-check:** re-run the risky searches (PANORAMA vendor / shortcut analyses, BenchX follow-ups, unpaired-fusion critiques) just before submission. — DONE 2026-10-26, no overlap (`docs/literature_novelty_check.md`); repeat immediately before submission
+Tone: match the author's published paper (stepped cylindrical turbulence generator) and MSc dissertation so the manuscript reads as one author. — DONE in draft v4 (third person / passive, "the present study", British spelling, evidential results phrasing, numbered conclusions).

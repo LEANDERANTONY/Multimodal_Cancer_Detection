@@ -24,6 +24,22 @@ setting (but its headline finding is known and must be cited as such), 4–6 sup
 BenchX / Johns Hopkins group works on the same scans and protocol biases, so a PANORAMA vendor analysis could
 appear; re-search before submission.
 
+## Re-check 2026-10-26 (submission checklist step 5)
+
+Extended searches on the four riskiest claims found no overlap:
+- **PANORAMA scanner confound:** still no published analysis; the newest commentary (Hunsaker, Osta, Virostko, J Med
+  Artif Intell 2026;9:56) presents the vendor mix as a strength.
+- **Deployment / TotalSegmentator:** the developers' documentation notes that the coarse cropping model is sometimes
+  wrong, and a PACS validation study ("Multifaceted validation of TotalSegmentator performance in abdominal organ
+  segmentation on CT scans integrated in clinical-grade PACS") reports occasional empty outputs and pancreas
+  disagreements; nobody has measured the effect on cancer detection or the label correlation of the failures. This
+  supports our framing (cite the PACS study after verifying its bibliographic record).
+- **Unpaired fusion:** still no critique of pseudo-pairing; new related method preprint PANDA (prototype-anchored
+  alignment for partially unpaired data, arXiv 2608.25970), which does not test the independence assumption.
+- **Planted shortcut vs real confounder:** closest remains the 2026 disentanglement benchmark (arXiv 2602.18502;
+  synthetic OCT confound, no CT).
+Re-run once more immediately before submission.
+
 ## Sources
 
 - PanDx (PANORAMA winner): https://arxiv.org/abs/2503.10068
