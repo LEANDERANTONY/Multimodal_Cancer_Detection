@@ -1,0 +1,3 @@
+task,n,auroc
+thesis set: CBCT-SEG vs NIH from crop statistics only,120,0.871875
+PANORAMA Dutch: PDAC vs non-PDAC from crop statistics only,1964,0.6507986438782287

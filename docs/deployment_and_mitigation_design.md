@@ -181,6 +181,16 @@ collection, so the near-perfect thesis number is not reproduced; the residual (h
 healthy kidney-donor pancreas is an easier task than PANORAMA's PDAC vs clinical non-PDAC, and both pairings remain
 source-confounded (cancer and controls from different collections), which the 3D vs 2.5D gap may partly reflect.
 
+**Thesis-cohort retrain (2026-10-25)** (`tools/thesis_retrain.py` -> `reports/thesis_control/retrain_*.csv`). Our
+2.5D ERM recipe retrained ON the thesis set (same predicted-mask tight crops, 40 CBCT-SEG cancers vs 80 NIH,
+patient-level 5-fold CV x 3 seeds, 40 epochs, no slice loss): out-of-fold AUROC 0.996 / 0.998 / 0.999, so the
+near-perfect thesis number is a property of the data, not of the old full-slice model. The same 15 models on
+PANORAMA: Dutch PDAC vs non-PDAC 0.659 [0.635, 0.686] (Siemens 0.679, Toshiba 0.537, Philips 0.644), MSD 0.598
+[0.520, 0.679], against 0.926 / 0.827 for the recipe trained on PANORAMA. The asymmetry (PANORAMA -> thesis set 0.975,
+thesis set -> PANORAMA 0.659) is the shortcut. Crop statistics alone (intensity percentiles, noise, z extent)
+separate the two collections at AUROC 0.872, vs 0.651 for PDAC on PANORAMA: the acquisition signature survives
+pancreas cropping and resampling. Caveat: 96 training scans vs 1,335; a size-matched PANORAMA control is needed.
+
 **Panel complete.** Tuned ERM is not beaten on any axis. NEXT: then the remaining statistics
 (DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
 

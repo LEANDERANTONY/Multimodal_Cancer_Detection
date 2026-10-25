@@ -164,7 +164,8 @@ The main validation steps currently used are:
 - 2026-10-25: fusion arm (unpaired cohorts): copula simulation from each test's real scores; combined AUROC 0.917 at independence falls to 0.884 (= urine alone 0.882) at rho 0.75; urine triage then CT avoids 49 % of CTs at 1 % prevalence; pseudo-paired fusion 0.909 equals the independence case, so its gain is an assumption
 - 2026-10-25: statistics: 2.5D beats 3D in-distribution (+0.138, DeLong p<0.001, every scanner) but ties it externally (MSD 0.827 vs 0.823); 2.5D well calibrated (ECE 0.039); Philips and age >= 70 weakest subgroups; no mask-provenance leakage (manual vs automatic-mask PDAC ranked alike)
 - 2026-10-25: thesis-cohort control: the thesis two-source set (40 CBCT-SEG cancers vs 80 NIH controls) through the PANORAMA deployment pipeline: 3D 0.682 (cc_psz) / 0.862 (p_max), 2.5D 0.975, vs the thesis's 0.9999; each model matches its MSD-vs-NIH score (0.730 / 0.858 / 0.959)
-- open Q1 items: write-up (3D vs 2.5D, subgroups), thesis-cohort control, write-up, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
+- 2026-10-25: thesis-cohort retrain: our pipeline trained on the two-source set reaches out-of-fold AUROC 0.996-0.999, then scores 0.659 on PANORAMA Dutch and 0.598 on MSD (PANORAMA-trained: 0.926 / 0.827); crop statistics alone separate the collections at 0.872. The thesis inflation is in the data
+- open Q1 items: size-matched control for the retrain, write-up (3D vs 2.5D, subgroups), thesis-cohort control, write-up, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
 
 ## Historical Caveats
 

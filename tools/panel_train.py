@@ -35,7 +35,7 @@ import torchvision
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 
-SLICES = "data/processed/ct/panel_slices"
+SLICES = os.environ.get("PANEL_SLICES", "data/processed/ct/panel_slices")  # env, so DataLoader workers see it too
 RUNS = "data/panel_runs"
 REPORTS = "reports/panel"
 SCANNERS = ["Siemens", "Toshiba", "Philips"]
