@@ -132,7 +132,21 @@ Against ERM (seed-averaged): CV AUROC -0.018 (DeLong p<0.001), external -0.038 (
 Reading: self-supervised reconstruction on multi-scanner CT learns acquisition texture, which the classifier then
 uses; in-domain SSL is not a debiaser here (one budget, untuned).
 
-**Panel complete.** Tuned ERM is not beaten on any axis. NEXT: C. fusion arm, then the remaining statistics
+**C. Biomarker confound audit DONE (2026-10-25)** (`tools/biomarker_confound.py` -> `reports/biomarker_confound.csv`).
+The urinary cohort is NOT confound-free: all 183 healthy controls come from one site (BPTB), PDAC from BPTB / LIV /
+ESP; site ~ diagnosis Cramer's V 0.42 (PANORAMA scanner ~ PDAC: 0.44); PDAC median age 67 vs 57. PDAC vs rest,
+repeated 5-fold CV: site alone AUROC 0.681 (PANORAMA scanner alone 0.70), age alone 0.738, published panel (log
+LYVE1/REG1B/TFF1/creatinine) 0.867 with site tax +0.062 [+0.027, +0.098], within BPTB 0.847 / LIV 0.764,
+leave-one-site-out 0.78-0.84; panel+age 0.882, tax +0.048. Real signal plus a site tax at least as large as the
+CT confound tax, so the "clean arm" framing is dropped.
+
+**Fusion: CT and biomarker cohorts are different patients** (no patient has both). Patient-level fusion would
+rest on an untestable conditional-independence pairing, so it is not reported as a result. Options put to the
+user: (1) sequential triage simulation (urine -> CT) from each test's real operating points, with the inter-test
+error correlation as an explicit sensitivity parameter; (2) pseudo-paired fusion only as a cautionary demonstration
+next to a label-mismatch control; (3) true fusion deferred to paper 2 (needs a paired cohort).
+
+**Panel complete.** Tuned ERM is not beaten on any axis. NEXT: C. fusion arm (option chosen by the user), then the remaining statistics
 (DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
 
 _Original step list (kept for reference):_ **NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:

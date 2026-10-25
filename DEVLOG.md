@@ -160,7 +160,8 @@ The main validation steps currently used are:
 - 2026-10-21/22: panel step 3. DFR (3 seeds): tax +0.055, no gain over ERM. Planted-shortcut control: ERM loses 0.149 AUROC when a planted marker is flipped; GBS 0.054, DFR 0.026, GRL 0.014. The debiasers remove a planted shortcut but buy almost nothing on the real scanner confound
 - 2026-10-25: panel statistics (seed-averaged, vs ERM): every debiaser significantly lower CV AUROC (DeLong p <= 0.002), no significant tax reduction (all CIs span 0), no external difference, GBS / GRL worse on unseen Siemens and Toshiba; figure `figures/panorama/mitigation_panel.png`
 - 2026-10-25: MAE arm (masked-image pretraining on all CT images, then ERM): CV 0.900, tax +0.081, external 0.847; significantly worse than ERM on detection and the only arm that raises the tax (+0.026 [+0.012, +0.041]). Mitigation panel complete: tuned ERM not beaten
-- open Q1 items: fusion arm, statistics (3D vs 2.5D, subgroups), thesis-cohort control, write-up, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
+- 2026-10-25: biomarker confound audit: site ~ diagnosis Cramer's V 0.42 (all healthy controls from one site), site alone AUROC 0.68, panel 0.867 with site tax +0.062 [+0.027, +0.098]; the biomarker arm is not a clean control. CT and biomarker cohorts are unpaired, so patient-level fusion is not reported as a result
+- open Q1 items: fusion framing (user decision), statistics (3D vs 2.5D, subgroups), thesis-cohort control, write-up, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
 
 ## Historical Caveats
 
