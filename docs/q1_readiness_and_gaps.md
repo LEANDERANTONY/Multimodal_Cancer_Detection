@@ -37,7 +37,7 @@ Shortcut **diagnosis** itself is crowded — do NOT claim it as novel:
 | Tight-crop ablation (loose vs tight) | DONE (tight better on Dice + detection); loose tax CI done (+0.021 [−0.002, +0.045]) | medium |
 | Biomarker + fusion ("clean" arm) | exists, needs rigour | medium (multimodal lifts Q1) |
 | Nonlinear feature-probe | DONE | — |
-| DeLong CIs, calibration (ECE/Brier), subgroup-by-scanner/provenance | partial | needed |
+| DeLong CIs, calibration (ECE/Brier), subgroup-by-scanner/provenance | DONE 2026-10-25 (`reports/final_stats/`, `reports/panel/panel_stats.csv`) | needed |
 
 ## 5. External validation plan
 **Primary — the held-out MSD + NIH set (already carved out, never trained on; 274 cases = `imagesTs` in Dataset700).**

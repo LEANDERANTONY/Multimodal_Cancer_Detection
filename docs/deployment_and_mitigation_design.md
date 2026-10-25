@@ -158,6 +158,17 @@ label-mismatched control 0.877 = biomarker alone. The pseudo-paired number equal
 "gain" is the independence assumption, not evidence. Caveat: different populations (UK / Spanish urine cohort vs
 Dutch CT), so the triage numbers are illustrative.
 
+**Statistics DONE (2026-10-25)** (`tools/final_stats.py` -> `reports/final_stats/`). 2.5D ERM (seed-averaged) vs
+tight 3D nnU-Net on the same cases. Dutch out-of-fold: 0.926 vs 0.787 (cc_psz), +0.138 [+0.116, +0.160], DeLong
+p<0.001; also within every scanner and on automatic-mask cases only (+0.118). External MSD+NIH: +0.121 vs cc_psz
+(p<0.001) but +0.039 [-0.016, +0.093] vs 3D p_max (p=0.16); MSD only: 0.827 vs 0.823 (p=0.92). So the 2.5D gain is
+in-distribution; on external data it ties the 3D model, consistent with its larger confound tax. Calibration: 2.5D
+Brier 0.100 / ECE 0.039 (external 0.132 / 0.057); 3D p_max is a max-voxel score, not a probability (Brier 0.62).
+Subgroups (AUROC, DeLong CI): Philips weakest for both models (3D 0.665, 2.5D 0.773); age >= 70 lower (2.5D 0.898
+vs 0.953 under 60); no sex difference. Mask-provenance leakage check: PDAC with manual vs automatic masks ranked
+the same against all non-PDAC (2.5D +0.003 [-0.017, +0.025]; 3D cc_psz -0.027 [-0.067, +0.008]): crops built from
+manual masks do not give the label away.
+
 **Panel complete.** Tuned ERM is not beaten on any axis. NEXT: then the remaining statistics
 (DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
 
