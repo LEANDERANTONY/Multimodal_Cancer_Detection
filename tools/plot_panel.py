@@ -14,8 +14,8 @@ import pandas as pd  # noqa: E402
 STATS = "reports/panel/panel_stats.csv"
 PLANT = "reports/panel/planted_results.csv"
 OUT = "figures/panorama/mitigation_panel.png"
-ARMS = [("dfr", "DFR"), ("gbs", "Group-balanced"), ("grl", "GRL")]
-COLOR = {"erm": "#7a7974", "dfr": "#2a78d6", "gbs": "#eb6834", "grl": "#1baf7a"}
+ARMS = [("dfr", "DFR"), ("gbs", "Group-balanced"), ("grl", "GRL"), ("mae", "MAE")]
+COLOR = {"erm": "#7a7974", "dfr": "#2a78d6", "gbs": "#eb6834", "grl": "#1baf7a", "mae": "#eda100"}
 INK, MUTED = "#2b2b29", "#8a8984"
 
 
@@ -47,7 +47,7 @@ def style(ax):
 def main():
     s = pd.read_csv(STATS)
     p = pd.read_csv(PLANT)
-    fig, ax = plt.subplots(1, 4, figsize=(18, 4.6), gridspec_kw={"width_ratios": [1, 1, 1.25, 1]})
+    fig, ax = plt.subplots(1, 4, figsize=(18, 5.8), gridspec_kw={"width_ratios": [1, 1, 1.25, 1]})
     cv = s[s.setting == "cv"].set_index("arm")
     forest(ax[0], [(n, a, cv.auroc_diff_vs_erm[a], cv.diff_lo[a], cv.diff_hi[a]) for a, n in ARMS],
            "a  Detection, Dutch CV (DeLong)", "AUROC difference vs ERM")
@@ -59,7 +59,7 @@ def main():
         rows += [(f"{n}, {sc} unseen", a, d.auroc_diff_vs_erm[a], d.diff_lo[a], d.diff_hi[a]) for a, n in ARMS]
     forest(ax[2], rows, "c  Unseen manufacturer (LOMO, DeLong)", "AUROC difference vs ERM")
     pr = p.set_index("arm")
-    order = [("erm", "ERM")] + ARMS
+    order = [(a, n) for a, n in [("erm", "ERM")] + ARMS if a in pr.index]  # MAE has no planted run
     forest(ax[3], [(n, a, pr["drop"][a], pr.drop_lo[a], pr.drop_hi[a]) for a, n in order],
            "d  Planted shortcut, marker flipped", "AUROC lost, clean − flipped (0 = ignored)")
     fig.suptitle("Mitigation panel: 2.5D classifier, scores averaged over 3 seeds; 95% CIs (DeLong for AUROC, "

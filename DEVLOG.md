@@ -159,7 +159,8 @@ The main validation steps currently used are:
 - 2026-10-19/21: mitigation panel steps 1-2. 2.5D ResNet18 (slice triplets, attention pooling) on the tight crops; ERM tuned on CV fold 0 inner validation; ERM / group-balanced / GRL x 5 CV + 3 LOMO folds x 3 seeds. ERM: CV AUROC 0.918, tax +0.057, external 0.884, LOMO 0.88 / 0.84 / 0.68. Debiasers lower the tax by 0.005-0.011 (CIs overlap) at a cost in every accuracy measure; tuned ERM not beaten. A slice-orientation bug (external scans fed rotated) was caught and fixed before any result was used (DEAD_ENDS)
 - 2026-10-21/22: panel step 3. DFR (3 seeds): tax +0.055, no gain over ERM. Planted-shortcut control: ERM loses 0.149 AUROC when a planted marker is flipped; GBS 0.054, DFR 0.026, GRL 0.014. The debiasers remove a planted shortcut but buy almost nothing on the real scanner confound
 - 2026-10-25: panel statistics (seed-averaged, vs ERM): every debiaser significantly lower CV AUROC (DeLong p <= 0.002), no significant tax reduction (all CIs span 0), no external difference, GBS / GRL worse on unseen Siemens and Toshiba; figure `figures/panorama/mitigation_panel.png`
-- open Q1 items: mitigation panel step 3c (MAE, running), fusion arm, thesis-cohort control, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
+- 2026-10-25: MAE arm (masked-image pretraining on all CT images, then ERM): CV 0.900, tax +0.081, external 0.847; significantly worse than ERM on detection and the only arm that raises the tax (+0.026 [+0.012, +0.041]). Mitigation panel complete: tuned ERM not beaten
+- open Q1 items: fusion arm, statistics (3D vs 2.5D, subgroups), thesis-cohort control, write-up, fusion arm, statistics, thesis-cohort control (see `docs/q1_readiness_and_gaps.md`)
 
 ## Historical Caveats
 

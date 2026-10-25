@@ -124,8 +124,16 @@ Unseen manufacturer: GBS and GRL significantly worse on Siemens (-0.043, -0.112)
 better on Philips. Calibration (CV): Brier ERM 0.100, GBS 0.113, GRL 0.110, DFR 0.153; ECE ERM 0.039, DFR 0.213
 (balanced last-layer refit shifts the base rate).
 
-**NEXT (step 3c, approved 2026-10-25 to run overnight):** MAE-style masked-image pretraining on all CT incl.
-external (images only), then the ERM recipe on top, 5 CV + 3 LOMO folds x 3 seeds.
+**Step 3c DONE (2026-10-25): MAE.** SimMIM-style masked-image pretraining of the ImageNet ResNet18 on slice
+triplets from all 2,238 scans (images only; 20k steps, L1 1.13 -> 0.62; `tools/panel_mae.py`), then the ERM recipe,
+5 CV + 3 LOMO folds x 3 seeds. Mean over seeds: CV 0.900, tax +0.081, external 0.847, LOMO 0.847 / 0.803 / 0.657.
+Against ERM (seed-averaged): CV AUROC -0.018 (DeLong p<0.001), external -0.038 (p=0.024), unseen Siemens / Toshiba
+-0.037 / -0.038, and the tax goes UP by +0.026 [+0.012, +0.041], the only significant tax change in the panel.
+Reading: self-supervised reconstruction on multi-scanner CT learns acquisition texture, which the classifier then
+uses; in-domain SSL is not a debiaser here (one budget, untuned).
+
+**Panel complete.** Tuned ERM is not beaten on any axis. NEXT: C. fusion arm, then the remaining statistics
+(DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
 
 _Original step list (kept for reference):_ **NEXT: B. mitigation panel** (design below; confirm with the user before the first heavy run). Concrete first steps:
 1. Dataset: 2.5D slice triplets from the tight oracle crops (Dataset701 under `data/processed/ct/nnunet_raw/`),
