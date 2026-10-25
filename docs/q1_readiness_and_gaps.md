@@ -91,3 +91,12 @@ All external/segmenter/probe tests are **inference-only (cheap)** — run for bo
 5. ~~Biomarker + fusion arm; DeLong CIs + calibration + subgroup tables~~ DONE 2026-10-25.
 6. ~~Thesis-cohort confound control~~ DONE 2026-10-25/26 (`reports/thesis_control/`): PANORAMA models 0.68-0.98 vs the thesis's 0.9999; retrain 0.996 vs 0.745 at matched size; source probe 0.872.
 7. **NEXT:** write-up as an end-to-end audit (lead: measured PANORAMA confound + deployment-ROI; panel recast around the planted-shortcut control); target MedIA / npj-DM; re-run the risky literature searches before submission.
+
+## 9. Submission checklist (manuscript draft v3 complete 2026-10-26; draft is local-only in `paper/`, git-ignored)
+Status of each step is updated here as it is done.
+1. **Choose the target journal** (Medical Image Analysis vs npj Digital Medicine; sets word limit and trimming). — open
+2. **References:** merge the Methods / Results citations into one numbered list; resolve every `[verify]` entry. — open
+3. **Figures:** draw Fig. 1 (study design) and the supplementary figures (TotalSegmentator failure geometry, subgroup AUROCs, calibration curves, thesis case study). — open
+4. **Reporting:** TRIPOD-AI and CLAIM checklists; data and code availability statement. — open
+5. **Literature re-check:** re-run the risky searches (PANORAMA vendor / shortcut analyses, BenchX follow-ups, unpaired-fusion critiques) just before submission. — open
+Tone: match the author's published paper (stepped cylindrical turbulence generator) and MSc dissertation so the manuscript reads as one author.
