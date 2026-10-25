@@ -80,3 +80,6 @@ docs/preprocessing_audit.md
 # Run lock files from long local jobs
 *.running.pid
 .running.pid
+
+# Manuscript drafts stay local until submission (public repo)
+paper/
