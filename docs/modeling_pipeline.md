@@ -24,7 +24,7 @@ Env: `nnUNet_raw=/root/nnunet_raw  nnUNet_preprocessed=/root/nnunet_prep  nnUNet
 Steps (both drivers): extract tar → **strip to 1964 Dutch** (keep only cases in `/root/dutch_cases.txt`, so the fingerprint matches across CV/LOMO) → **count-gate (abort if != 1964)** → `nnUNetv2_plan_and_preprocess -d 701 -c 3d_fullres --verify_dataset_integrity -np 8` → train → pod-side auto-stop.
 - **CV:** nnU-Net auto-generates 5-fold splits (deterministic on sorted Dutch cases → matches Dataset700). Train: `nnUNetv2_train 701 3d_fullres {0..4} -tr nnUNetTrainer_250epochs --npz`.
 - **LOMO:** after preprocess, overwrite `splits_final.json` with the manufacturer-holdout splits (`/workspace/splits_final_lomo.json`, filtered to present Dutch cases): **fold 0=Siemens, 1=Toshiba, 2=Philips** holdout. Train folds 0,1,2 same command.
-- nnU-Net config: PlainConvUNet 3d_fullres, patch [48,160,256], CTNormalization (clip+z-score), ~3.3 h/fold on a 3090, ~5.5 GB VRAM (dataloader/CPU/RAM-bound → pick GPU by vCPU+RAM, not VRAM).
+- nnU-Net config: PlainConvUNet 3d_fullres (6 stages, 32-320 features, batch 2), patch [48,160,256] loose / [48,128,288] tight at 1.5 x 0.74 x 0.74 mm, CTNormalization (clip+z-score), ~3.3 h/fold on a 3090, ~5.5 GB VRAM (dataloader/CPU/RAM-bound → pick GPU by vCPU+RAM, not VRAM).
 
 ## 4. Detection metrics — `scripts/runpod/detection_candidate.py` (reads the `--npz` softmax)
 Per-case score from the foreground softmax, 4 ways: `p_max`, `p_sum`, `cc_peak`, **`cc_psz`** (PanDx-style peak x size^(1/15)). Per-fold + pooled AUROC. Run: `python scripts/runpod/detection_candidate.py <results_base>`.
@@ -46,6 +46,7 @@ Extracts the trained encoder bottleneck (320-d, GAP of centre patch), patient-gr
 
 ## 6b. Beyond the 3D models (2026-10-19/26; full numbers in the status section of `docs/deployment_and_mitigation_design.md`)
 - **2.5D classifier / mitigation panel:** `tools/panel_build_slices.py` (LPS-reoriented slices from the tight crops) -> `tools/panel_train.py` via `tools/panel_queue.py` (queues in `configs/panel/`) -> `tools/panel_eval.py`, `panel_dfr.py`, `panel_mae.py`, `panel_planted_eval.py`, `panel_stats.py`, `plot_panel.py`. Results `reports/panel/`.
+- **CV split note:** nnU-Net splits by scan; 11 patients have more than one scan (25 scans; 9 patients span two folds). Excluding them changes AUROC and tax by < 0.003 for both models (checked 2026-10-26).
 - **Paper statistics:** `tools/final_stats.py` -> `reports/final_stats/` (3D vs 2.5D DeLong, calibration, subgroups, mask provenance).
 - **Biomarker audit and fusion:** `tools/biomarker_confound.py`, `tools/fusion_sim.py`, `tools/plot_fusion.py` -> `reports/biomarker_confound.csv`, `reports/fusion/`.
 - **Thesis-cohort control:** `tools/thesis_control.py` (nnU-Net env), `tools/thesis_control_eval.py`, `tools/thesis_retrain.py` -> `reports/thesis_control/`.
