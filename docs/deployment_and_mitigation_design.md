@@ -169,6 +169,18 @@ vs 0.953 under 60); no sex difference. Mask-provenance leakage check: PDAC with 
 the same against all non-PDAC (2.5D +0.003 [-0.017, +0.025]; 3D cc_psz -0.027 [-0.067, +0.008]): crops built from
 manual masks do not give the label away.
 
+**Thesis-cohort control DONE (2026-10-25)** (`tools/thesis_control.py`, `tools/thesis_control_eval.py` ->
+`reports/thesis_control/`). The thesis's two-source set rebuilt with the PANORAMA-trained models through the full
+deployment pipeline (baseline segmenter -> tight crop): cancer = the 40 Pancreatic-CT-CBCT-SEG patients (native
+Philips / GE CT per patient; the CBCT and MIM-aligned copies the thesis's "largest series" rule picked are skipped),
+control = NIH Pancreas-CT = PANORAMA's 80 NIH external cases. 0 stage-1 failures. AUROC: tight 3D cc_psz 0.682
+[0.581, 0.775], p_max 0.862 [0.779, 0.930], 2.5D ERM 0.975 [0.943, 0.997]; the thesis model, trained on this split,
+scored 0.9999. Context, same pipeline: MSD PDAC vs the same NIH controls 0.730 / 0.858 / 0.959, so on this
+comparison each model scores what it scores on an independent cancer-vs-healthy pairing. Neither model saw either
+collection, so the near-perfect thesis number is not reproduced; the residual (high for 2.5D) reflects that PDAC vs
+healthy kidney-donor pancreas is an easier task than PANORAMA's PDAC vs clinical non-PDAC, and both pairings remain
+source-confounded (cancer and controls from different collections), which the 3D vs 2.5D gap may partly reflect.
+
 **Panel complete.** Tuned ERM is not beaten on any axis. NEXT: then the remaining statistics
 (DeLong 3D vs 2.5D, subgroups), thesis-cohort control, write-up.
 

@@ -83,5 +83,5 @@ All external/segmenter/probe tests are **inference-only (cheap)** — run for bo
 3. ~~Deployment segmenter-ROI experiment~~ DONE 2026-10-19 (tight model; four stage-1 arms).
 4. **NEXT:** Mitigation panel (local 2.5D): tuned ERM / DFR / GRL / SSL under one pre-registered model-selection rule; scanner as domain label.
 5. Biomarker + fusion arm; DeLong CIs + calibration + subgroup tables.
-6. Thesis-cohort confound control.
+6. Thesis-cohort confound control. DONE 2026-10-25 (`reports/thesis_control/`): 3D 0.68-0.86, 2.5D 0.975 vs the thesis's 0.9999.
 7. Reframe write-up around "present != exploited" + deployment-ROI; target MedIA/npj-DM.
