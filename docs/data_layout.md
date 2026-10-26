@@ -85,7 +85,7 @@ Flat `figures/*.png` are thesis-era (written by the notebook). Q1 / PANORAMA fig
 | Per-run summaries, per-case scores, run logs | `reports/nnunet_summaries/<experiment>/` (or `reports/<experiment>/` for non-nnU-Net work) | this doc, `reports/README.md` |
 | A paper figure | `figures/panorama/` | `docs/figures-guide.md` if it's a new kind |
 | A pod-side driver | `scripts/runpod/` | `docs/architecture.md` table |
-| A manuscript draft | `paper/` (local only, git-ignored until submission) | — |
+| A manuscript draft | `data/release/` (git-ignored): staged model-weight release from `tools/build_release.py`. `paper/` (local only, git-ignored until submission) | — |
 | A local analysis script | `tools/` (thesis-writing utilities: `tools/thesis/`) | `docs/README.md` code entry points |
 | A new method / experiment doc | `docs/` | `docs/README.md` index (and an ADR if it is a decision) |
 | A result | the experiment's doc (`docs/modeling_pipeline.md` or its own doc) | `docs/q1_readiness_and_gaps.md` status, `DEVLOG.md` |
