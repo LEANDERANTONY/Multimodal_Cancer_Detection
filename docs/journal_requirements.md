@@ -11,6 +11,17 @@ Author decisions (2026-10-27): sole author, no co-authors for now (revisit after
 interests. Data licence: the PANORAMA release is CC BY-NC 4.0 (Zenodo record 10999754), so any released model weights
 must also be non-commercial.
 
+## 0. Packages (built 2026-10-27, local only, git-ignored)
+- `paper/medIA/`: title page, manuscript (245-word abstract, keywords, author–year references, declarations),
+  highlights, Statement of Significance (all 18 answers), vitae template, CLAIM table, figures incl. graphical abstract;
+  `README.md` lists every requirement and what is left for the author.
+- `paper/radiology_ai/`: full title page, cover letter, anonymised 2,254-word manuscript (structured abstract, summary
+  statement, key points, 25 numbered references, 3 tables), Appendix E1, CLAIM table, figures; own `README.md`.
+- Master draft for both: `paper/manuscript_draft_v7.md` (includes the orientation finding,
+  `docs/orientation_investigation.md`). Model weights staged by `tools/build_release.py` for the author's Zenodo upload.
+- Left for the author in both: affiliation and contact details, ORCID, AI-use wording, Zenodo DOI, .docx conversion,
+  official CLAIM form; MedIA also the vitae and a check of the PANORAMA collective-author name.
+
 ## 1. Medical Image Analysis (Elsevier; IF 14.0, CiteScore 25.8 as shown on the guide page)
 
 ### Review and submission
