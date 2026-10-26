@@ -29,4 +29,6 @@ Tracked, lightweight results (CSV / JSON / Markdown / small npz). No images or s
 Folder names follow the RunPod volume run names; the matching local checkpoints are in
 `models/nnunet/{loose_cv, loose_lomo, tight_cv, tight_lomo}` (map: `docs/data_layout.md`).
 Per-case CSV columns: `fold, case, scanner, y, p_max, p_sum, cc_psz` (external files add `source, n_ref, n_pred, dice`).
+`deployment_roi/orientation_check.csv` / `orientation_check_external.csv` (cranio-caudal orientation vs anatomy per scan), `orientation_summary.csv`, `orientation_flip_test.csv`: see `docs/orientation_investigation.md`.
+
 Analysis from these files: `tools/confound_tax_ci.py` (confound tax + bootstrap CI), `tools/external_threshold_check.py` (operating points).

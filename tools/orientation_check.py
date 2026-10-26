@@ -8,8 +8,9 @@ the first and the last 10 % of slices:
     unclear     no lung at either end (e.g. scan starts below the lung bases), or both ends similar
 Joined with the TotalSegmentator `roi_subset pancreas` failures to test whether inverted headers explain them.
 
-    python tools/orientation_check.py [workers]
-Writes reports/deployment_roi/orientation_check.csv (resumable: cases already in the file are skipped).
+    python tools/orientation_check.py [workers] [external]
+Writes reports/deployment_roi/orientation_check.csv, or orientation_check_external.csv for the MSD / NIH scans
+(resumable: cases already in the file are skipped).
 """
 import os
 import sys
@@ -20,6 +21,7 @@ import pandas as pd
 
 OUT = "reports/deployment_roi/orientation_check.csv"
 CASES = "reports/nnunet_summaries/tight_battery/cv_scores.csv"
+EXT_CASES = "reports/nnunet_summaries/external/external_cases.csv"
 IMG = "data/raw/ct/panorama/images/{}_0000.nii.gz"
 MIN_LUNG, RATIO = 0.03, 3.0
 
@@ -51,14 +53,16 @@ def main():
         psutil.Process().nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
     except Exception:
         pass
-    cases = pd.read_csv(CASES).case.tolist()
-    done = set(pd.read_csv(OUT).case) if os.path.exists(OUT) else set()
+    ext = len(sys.argv) > 2 and sys.argv[2] == "external"
+    out = OUT.replace(".csv", "_external.csv") if ext else OUT
+    cases = pd.read_csv(EXT_CASES if ext else CASES).case.tolist()
+    done = set(pd.read_csv(out).case) if os.path.exists(out) else set()
     todo = [c for c in cases if c not in done]
     print(f"{len(done)} done, {len(todo)} to go", flush=True)
-    header = not os.path.exists(OUT)
+    header = not os.path.exists(out)
     with ProcessPoolExecutor(workers) as ex:
         for i, r in enumerate(ex.map(one, todo, chunksize=4), 1):
-            pd.DataFrame([r]).to_csv(OUT, mode="a", header=header, index=False)
+            pd.DataFrame([r]).to_csv(out, mode="a", header=header, index=False)
             header = False
             if i % 50 == 0:
                 print(f"{len(done) + i} / {len(cases)}", flush=True)

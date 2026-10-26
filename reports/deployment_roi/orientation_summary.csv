@@ -1,27 +1,34 @@
-block,arm,orientation,n,failed,failed_pct,scanner,y,inverted,inverted_pct,pdac_pct_inverted,pdac_pct_other,odds_ratio,fisher_p,auroc_inverted_only,model,subset,pos,auroc,lo,hi
-segmenter_failures,roi_subset pancreas,header_ok,1669,5.0,0.2995805871779509,,,,,,,,,,,,,,,
-segmenter_failures,roi_subset pancreas,inverted,155,108.0,69.6774193548387,,,,,,,,,,,,,,,
-segmenter_failures,roi_subset pancreas,unclear,140,5.0,3.571428571428571,,,,,,,,,,,,,,,
-segmenter_failures,+ robust_crop,header_ok,1669,2.0,0.11983223487118035,,,,,,,,,,,,,,,
-segmenter_failures,+ robust_crop,inverted,155,59.0,38.064516129032256,,,,,,,,,,,,,,,
-segmenter_failures,+ robust_crop,unclear,140,5.0,3.571428571428571,,,,,,,,,,,,,,,
-segmenter_failures,+ neighbouring organs,header_ok,1669,0.0,0.0,,,,,,,,,,,,,,,
-segmenter_failures,+ neighbouring organs,inverted,155,0.0,0.0,,,,,,,,,,,,,,,
-segmenter_failures,+ neighbouring organs,unclear,140,0.0,0.0,,,,,,,,,,,,,,,
-inverted_share,,,23,,,Other,0.0,1.0,4.3478260869565215,,,,,,,,,,,
-inverted_share,,,33,,,Other,1.0,0.0,0.0,,,,,,,,,,,
-inverted_share,,,78,,,Philips,0.0,7.0,8.974358974358974,,,,,,,,,,,
-inverted_share,,,241,,,Philips,1.0,10.0,4.149377593360995,,,,,,,,,,,
-inverted_share,,,768,,,Siemens,0.0,38.0,4.947916666666666,,,,,,,,,,,
-inverted_share,,,170,,,Siemens,1.0,58.0,34.11764705882353,,,,,,,,,,,
-inverted_share,,,517,,,Toshiba,0.0,16.0,3.0947775628626695,,,,,,,,,,,
-inverted_share,,,134,,,Toshiba,1.0,25.0,18.65671641791045,,,,,,,,,,,
-inverted_vs_pdac,,,1964,,,,,155.0,,60.0,26.810392482034274,4.094845360824742,1.8888890072279504e-16,0.558083304623097,,,,,,
-detector_auroc,,,1939,,,,,,,,,,,,3D nnU-Net (cc_psz),all,572.0,0.7878770826832275,0.7660018817794906,0.8097522835869645
-detector_auroc,,,1647,,,,,,,,,,,,3D nnU-Net (cc_psz),header_ok,456.0,0.7887924050259991,0.7645608630342948,0.8130239470177034
-detector_auroc,,,1784,,,,,,,,,,,,3D nnU-Net (cc_psz),not_inverted,479.0,0.7918764347819132,0.7685510958392412,0.8152017737245851
-detector_auroc,,,155,,,,,,,,,,,,3D nnU-Net (cc_psz),inverted,93.0,0.6968435657301422,0.61270303767377,0.7809840937865145
-detector_auroc,,,1939,,,,,,,,,,,,2.5D ERM,all,572.0,0.9281093814744144,0.916207402529396,0.9400113604194327
-detector_auroc,,,1647,,,,,,,,,,,,2.5D ERM,header_ok,456.0,0.9373711093434678,0.9249558321343965,0.9497863865525391
-detector_auroc,,,1784,,,,,,,,,,,,2.5D ERM,not_inverted,479.0,0.9373367248178277,0.9252870701987563,0.9493863794368991
-detector_auroc,,,155,,,,,,,,,,,,2.5D ERM,inverted,93.0,0.6966701352757543,0.6116580832070081,0.7816821873445006
+block,arm,orientation,n,failed,failed_pct,scanner,y,inverted,inverted_pct,pdac_pct_inverted,pdac_pct_other,odds_ratio,fisher_p,auroc_inverted_only,sform_code,n_header_ok,n_inverted,n_unclear,level,model,subset,pos,auroc,lo,hi
+segmenter_failures,roi_subset pancreas,header_ok,1669,5.0,0.2995805871779509,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,roi_subset pancreas,inverted,155,108.0,69.6774193548387,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,roi_subset pancreas,unclear,140,5.0,3.571428571428571,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,+ robust_crop,header_ok,1669,2.0,0.11983223487118035,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,+ robust_crop,inverted,155,59.0,38.064516129032256,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,+ robust_crop,unclear,140,5.0,3.571428571428571,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,+ neighbouring organs,header_ok,1669,0.0,0.0,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,+ neighbouring organs,inverted,155,0.0,0.0,,,,,,,,,,,,,,,,,,,,
+segmenter_failures,+ neighbouring organs,unclear,140,0.0,0.0,,,,,,,,,,,,,,,,,,,,
+inverted_share,,,23,,,Other,0.0,1.0,4.3478260869565215,,,,,,,,,,,,,,,,
+inverted_share,,,33,,,Other,1.0,0.0,0.0,,,,,,,,,,,,,,,,
+inverted_share,,,78,,,Philips,0.0,7.0,8.974358974358974,,,,,,,,,,,,,,,,
+inverted_share,,,241,,,Philips,1.0,10.0,4.149377593360995,,,,,,,,,,,,,,,,
+inverted_share,,,768,,,Siemens,0.0,38.0,4.947916666666666,,,,,,,,,,,,,,,,
+inverted_share,,,170,,,Siemens,1.0,58.0,34.11764705882353,,,,,,,,,,,,,,,,
+inverted_share,,,517,,,Toshiba,0.0,16.0,3.0947775628626695,,,,,,,,,,,,,,,,
+inverted_share,,,134,,,Toshiba,1.0,25.0,18.65671641791045,,,,,,,,,,,,,,,,
+inverted_vs_pdac,,,1964,,,,,155.0,,60.0,26.810392482034274,4.094845360824742,1.8888890072279504e-16,0.558083304623097,,,,,,,,,,,
+by_sform_code,,,245,,,,,,,,,,,,0.0,79.0,152.0,14.0,,,,,,,
+by_sform_code,,,1719,,,,,,,,,,,,1.0,1590.0,3.0,126.0,,,,,,,
+by_level,,,183,,,,,,,,,,,,,123.0,51.0,9.0,cytology,,,,,,
+by_level,,,353,,,,,,,,,,,,,339.0,0.0,14.0,histopathology,,,,,,
+by_level,,,210,,,,,,,,,,,,,103.0,97.0,10.0,pathology,,,,,,
+by_level,,,1212,,,,,,,,,,,,,1104.0,2.0,106.0,radiology,,,,,,
+by_level,,,6,,,,,,,,,,,,,0.0,5.0,1.0,radiology / 3yFU,,,,,,
+detector_auroc,,,1939,,,,,,,,,,,,,,,,,3D nnU-Net (cc_psz),all,572.0,0.7878770826832275,0.7660018817794906,0.8097522835869645
+detector_auroc,,,1647,,,,,,,,,,,,,,,,,3D nnU-Net (cc_psz),header_ok,456.0,0.7887924050259991,0.7645608630342948,0.8130239470177034
+detector_auroc,,,1784,,,,,,,,,,,,,,,,,3D nnU-Net (cc_psz),not_inverted,479.0,0.7918764347819132,0.7685510958392412,0.8152017737245851
+detector_auroc,,,155,,,,,,,,,,,,,,,,,3D nnU-Net (cc_psz),inverted,93.0,0.6968435657301422,0.61270303767377,0.7809840937865145
+detector_auroc,,,1939,,,,,,,,,,,,,,,,,2.5D ERM,all,572.0,0.9281093814744144,0.916207402529396,0.9400113604194327
+detector_auroc,,,1647,,,,,,,,,,,,,,,,,2.5D ERM,header_ok,456.0,0.9373711093434678,0.9249558321343965,0.9497863865525391
+detector_auroc,,,1784,,,,,,,,,,,,,,,,,2.5D ERM,not_inverted,479.0,0.9373367248178277,0.9252870701987563,0.9493863794368991
+detector_auroc,,,155,,,,,,,,,,,,,,,,,2.5D ERM,inverted,93.0,0.6966701352757543,0.6116580832070081,0.7816821873445006

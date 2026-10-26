@@ -3,6 +3,8 @@
 1. Segmenter failures: empty pancreas masks per TotalSegmentator setting (as published, robust_crop, + neighbouring
    organs) by orientation, over all 1,964 Dutch scans.
 2. Is inversion itself a confound? Inverted share by scanner and label; Fisher test and odds ratio PDAC vs inverted.
+2b. Where does it come from? NIfTI sform_code of the released files, and PANORAMA's `level` column (how the diagnosis
+   was confirmed; a data-collection stream marker, excluded from all models as near-label leakage).
 3. Do the detectors use it? On the patient-disjoint evaluation set: AUROC on correctly oriented scans only vs all, and
    AUROC among the inverted scans, for the 3D model (cc_psz) and the 2.5D ERM classifier (seed-averaged).
 
@@ -12,6 +14,7 @@ Writes reports/deployment_roi/orientation_summary.csv and prints the tables.
 import os
 import sys
 
+import nibabel as nib
 import numpy as np
 import pandas as pd
 from scipy.stats import fisher_exact
@@ -59,6 +62,15 @@ def main():
         if gi.sum() and g.y.nunique() == 2:
             print(f"  {s}: inverted {int(gi.sum())}/{len(g)}, PDAC among inverted {100 * g.y[gi].mean():.0f} % "
                   f"vs {100 * g.y[~gi].mean():.0f} %")
+
+    d["sform_code"] = [int(nib.load(f"data/raw/ct/panorama/images/{c}_0000.nii.gz").header["sform_code"]) for c in d.case]
+    lvl = pd.read_excel("data/raw/ct/panorama_labels/clinical_information.xlsx")
+    d = d.merge(lvl.rename(columns={"PANORAMA_study_id": "case"})[["case", "level"]], on="case", how="left")
+    for var in ("sform_code", "level"):
+        tab = pd.crosstab(d[var], d.orientation)
+        print(f"\norientation by {var}\n", tab)
+        for v, r in tab.iterrows():
+            rows.append({"block": f"by_{var}", var: v, "n": int(r.sum()), **{f"n_{k}": int(r[k]) for k in tab.columns}})
 
     p25 = pd.concat(pd.read_csv(f"reports/panel/erm_resnet18_d20_s{s}/test_cv{k}.csv") for s in range(3) for k in range(5))
     p25 = p25.groupby("case", as_index=False).p.mean().rename(columns={"p": "p_2p5d"})
