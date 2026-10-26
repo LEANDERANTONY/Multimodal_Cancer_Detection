@@ -8,6 +8,7 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 |---|---|
 | [`../README.md`](../README.md) | What the project is, current status in one screen |
 | [`q1_readiness_and_gaps.md`](q1_readiness_and_gaps.md) | **The living Q1 plan:** findings so far, novelty positioning, gap list, experiment matrix, sequence |
+| [`journal_requirements.md`](journal_requirements.md) | Paper 1 submission requirements: MedIA (target; incl. the 18-question Statement of Significance with planned answers) and Radiology: AI (fallback), each against draft v6 |
 | [`literature_novelty_check.md`](literature_novelty_check.md) | Pre-write-up literature search (2026-10-25): verdict per contribution (novel / partly known / supporting), closest prior work, positioning, sources |
 | [`data_layout.md`](data_layout.md) | Where every dataset, model checkpoint and result lives locally, the RunPod volume ↔ local map, and **where new files go** |
 | [`../reports/README.md`](../reports/README.md) | What each results folder holds |
