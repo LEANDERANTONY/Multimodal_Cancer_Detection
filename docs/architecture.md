@@ -134,7 +134,7 @@ The Q1 work runs alongside the thesis code and does not use `src/` yet. It is sc
 | Detection scoring, feature probe | `scripts/runpod/detection_candidate.py`, `feature_diag.py` | read the pod volume; `detection_candidate.py` also works on any local results folder |
 | Mitigation panel (2.5D, local) | `tools/panel_build_slices.py`, `panel_train.py`, `panel_queue.py` (+ `configs/panel/`), `panel_eval.py`, `panel_dfr.py`, `panel_mae.py`, `panel_planted_eval.py`, `panel_stats.py`, `plot_panel.py` | slice dataset, ERM / GBS / GRL / DFR / MAE arms over CV + LOMO, planted-shortcut control, statistics and figure; resumable queue, one GPU job |
 | Biomarker, fusion, statistics, thesis control (local) | `tools/biomarker_confound.py`, `fusion_sim.py`, `plot_fusion.py`, `final_stats.py`, `thesis_control.py`, `thesis_control_eval.py`, `thesis_retrain.py` | biomarker confound audit; fusion of unpaired cohorts as a simulation; 3D vs 2.5D statistics; thesis two-source set through the pipeline and retrained on |
-| Local analysis | `tools/` (`scanner_only_shortcut.py`, `loose_cv_reinfer.py`, `confound_tax_ci.py`); thesis-writing utilities in `tools/thesis/` | nnU-Net code runs in `data/envs/nnunet` (torch 2.8); analysis in the project `.venv` |
+| Local analysis | `tools/` (`scanner_only_shortcut.py`, `loose_cv_reinfer.py`, `confound_tax_ci.py`, `eval_cohort.py` = patient-disjoint evaluation set); thesis-writing utilities in `tools/thesis/` | nnU-Net code runs in `data/envs/nnunet` (torch 2.8); analysis in the project `.venv` |
 | Data movement | `scripts/runpod/upload_file.sh`, `download_volume.sh` | resumable; run from a user terminal |
 
 Data, models and results locations: `docs/data_layout.md`. Step-by-step method and results:

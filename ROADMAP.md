@@ -5,7 +5,7 @@ This roadmap reflects the current project state and the next major build priorit
 ## Status 2026-10-26 (read this first)
 
 - **All pre-registered Q1 experiments are complete; the write-up is next.** Milestone A (2026-10-05, ADR-004): the
-  3D nnU-Net exploits the measured scanner confound only weakly (tax +0.031 [+0.010, +0.053], no LOMO gap).
+  3D nnU-Net exploits the measured scanner confound only weakly (tax +0.028 [+0.007, +0.051] on the patient-disjoint evaluation set, no LOMO gap).
   Deployment-ROI (2026-10-19): segmenter failures, not crop error, carry the deployment cost. Mitigation panel
   (2026-10-25): tuned ERM not beaten; the planted-shortcut control shows the methods work; MAE raises the tax.
   Biomarker audit, fusion simulation, statistics and the thesis-cohort control (2026-10-25/26) are done too.

@@ -5,6 +5,7 @@
     ext:      MSD + NIH, mean over the 5 CV fold models    -> DeLong, Brier, ECE
     lomo_<s>: held-out manufacturer s                       -> DeLong
 DeLong: fast paired implementation (Sun & Xu 2014). ECE: 10 equal-width bins.
+Dutch scores use the patient-disjoint evaluation set (tools/eval_cohort.py).
 
     python tools/panel_stats.py [n_boot]
 Writes reports/panel/panel_stats.csv.
@@ -19,6 +20,7 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from confound_tax_ci import SCANNERS, tax  # noqa: E402
+from eval_cohort import eval_set  # noqa: E402
 
 REPORTS = "reports/panel"
 ARMS = ["erm", "dfr", "gbs", "grl", "mae"]  # arms without results yet are skipped
@@ -78,7 +80,7 @@ def scores(arm, kind):
             f = f.groupby(["case", "scanner", "y"], as_index=False).p.mean()
         else:
             f = pd.read_csv(f"{d}/test_{kind}.csv")
-        frames.append(f.assign(seed=seed))
+        frames.append((f if kind == "ext" else eval_set(f)).assign(seed=seed))
     f = pd.concat(frames)
     keys = ["case", "scanner", "y"] + (["fold"] if kind == "cv" else [])
     return f.groupby(keys, as_index=False).p.mean().sort_values("case").reset_index(drop=True)

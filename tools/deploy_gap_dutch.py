@@ -7,7 +7,8 @@ patient-level bootstrap CI. Two populations:
   paired - cases with a usable predicted mask (complete case);
   itt    - every case the arm was run on; a segmenter failure (empty / missing mask) gets the lowest
            observed score, i.e. it is called negative, as a deployed pipeline would.
-A failure = a case stage 2 skipped for lack of a usable mask (deploy_crops/<arm>_dutch/skipped.txt).
+A failure = a case stage 2 skipped for lack of a usable mask (deploy_crops/<arm>_dutch/skipped.txt). Failure counts
+are over all 1,964 scans; detection metrics over the patient-disjoint evaluation set (tools/eval_cohort.py).
 
     python tools/deploy_gap_dutch.py [arm ...]      # default: baseline_oof totalseg
 Writes reports/deployment_roi/deploy_gap_dutch.csv and deploy_fail_dutch.csv
@@ -20,6 +21,7 @@ import pandas as pd
 
 sys.path.insert(0, "tools")
 from confound_tax_ci import SCANNERS, tax  # noqa: E402
+from eval_cohort import eval_set  # noqa: E402
 
 ORACLE = "reports/nnunet_summaries/tight_battery/cv_scores.csv"
 SCORES = ["p_max", "p_sum", "cc_psz"]
@@ -48,6 +50,8 @@ def main():
             bad = ~ok[d.index]
             fails.append({"arm": arm, "scanner": g, "n": len(d), "pos": int(d.y.sum()), "failed": int(bad.sum()),
                           "failed_pos": int((bad & (d.y == 1)).sum())})
+        m = eval_set(m)  # failure counts above use every scan; detection metrics the patient-disjoint set
+        ok = m[f"{SCORES[0]}_p"].notna()
         for pop in ("paired", "itt"):
             d = m[ok].copy() if pop == "paired" else m.copy()
             for s in SCORES:

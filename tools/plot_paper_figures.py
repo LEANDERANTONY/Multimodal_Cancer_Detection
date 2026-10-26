@@ -8,8 +8,12 @@
     supp_thesis_case_study.png          thesis two-collection set (not in paper 1; kept for a possible second paper)
 
     python tools/plot_paper_figures.py
-Writes figures/panorama/. Reads only committed result tables in reports/.
+Writes figures/panorama/. Reads only committed result tables in reports/. Dutch scores use the patient-disjoint
+evaluation set (tools/eval_cohort.py).
 """
+import os
+import sys
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -17,6 +21,10 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch  # noqa: E402
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from eval_cohort import eval_set  # noqa: E402
+from panel_stats import ece  # noqa: E402
 
 OUT = "figures/panorama"
 INK, MUTED, GRID = "#2b2b29", "#8a8984", "#e6e5e0"
@@ -54,7 +62,7 @@ def fig1():
         "Provided (oracle) masks for training", "Predicted masks at deployment:", "PANORAMA baseline; TotalSegmentator", "(as documented, robust_crop, + organs)"], "roi")
     box(ax, 0.61, 0.27, 0.25, 0.21, "Detection models", ["3D nnU-Net (lesion segmentation)", "score: cc_psz / p_max",
         "2.5D ResNet18 classifier", "(slice triplets, attention pooling)", "tuned ERM, 3 seeds"], "model")
-    box(ax, 0.91, 0.27, 0.27, 0.21, "Evaluation", ["5-fold cross-validation", "Leave-one-manufacturer-out (LOMO)",
+    box(ax, 0.91, 0.27, 0.27, 0.21, "Evaluation", ["5-fold cross-validation; LOMO", "scored on 1,939 single-exam patients",
         "External MSD / NIH", "Confound tax = pooled - within-scanner AUROC", "DeLong / patient bootstrap CIs; ECE, Brier"], "eval")
     box(ax, 1.22, 0.27, 0.27, 0.21, "Mitigation panel (2.5D)", ["ERM vs group-balanced, DFR,", "GRL (DANN), MAE pretraining",
         "One selection rule, CV + LOMO + external", "Planted-shortcut positive control", "(marker on 80 % PDAC / 20 % non-PDAC)"], "model")
@@ -130,14 +138,14 @@ def reliability(y, p, bins=10):
 
 def calibration():
     cv = pd.concat(pd.read_csv(f"reports/panel/erm_resnet18_d20_s{s}/test_cv{k}.csv") for s in range(3) for k in range(5))
-    cv = cv.groupby(["case", "y"], as_index=False).p.mean()
+    cv = eval_set(cv.groupby(["case", "y"], as_index=False).p.mean())
     ex = pd.concat(pd.read_csv(f"reports/panel/erm_resnet18_d20_s{s}/ext_cv{k}.csv") for s in range(3) for k in range(5))
     ex = ex.groupby(["case", "y"], as_index=False).p.mean()
-    d3 = pd.read_csv("reports/nnunet_summaries/tight_battery/cv_scores.csv")
+    d3 = eval_set(pd.read_csv("reports/nnunet_summaries/tight_battery/cv_scores.csv"))
     fig, ax = plt.subplots(figsize=(5.6, 5.2))
     ax.plot([0, 1], [0, 1], color=MUTED, ls="--", lw=1)
-    for (y, p, lab, c) in ((cv.y.values, cv.p.values, "2.5D ERM, Dutch CV (ECE 0.039)", ORANGE),
-                           (ex.y.values, ex.p.values, "2.5D ERM, external MSD+NIH (ECE 0.057)", BLUE),
+    for (y, p, lab, c) in ((cv.y.values, cv.p.values, f"2.5D ERM, Dutch CV (ECE {ece(cv.y.values, cv.p.values):.3f})", ORANGE),
+                           (ex.y.values, ex.p.values, f"2.5D ERM, external MSD+NIH (ECE {ece(ex.y.values, ex.p.values):.3f})", BLUE),
                            (d3.y.values, d3.p_max.values, "3D p_max, Dutch CV (not a probability)", GRAY)):
         xs, ys, _ = reliability(y, p)
         ax.plot(xs, ys, "-o", color=c, lw=2, ms=6, mec="white", mew=1.5, label=lab)

@@ -3,12 +3,17 @@
 
 tax = mean per-fold MIXED-scanner AUROC - mean over scanners of the per-fold-averaged WITHIN-scanner
 AUROC (cells need >=8 pos and >=8 neg). Same definition as cv_detection.py / tight_battery.py.
+Scored on the patient-disjoint evaluation set (tools/eval_cohort.py).
 Usage: python tools/confound_tax_ci.py <cv_scores.csv> [n_boot]
 """
+import os
 import sys
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from eval_cohort import eval_set  # noqa: E402
 
 SCANNERS = ["Siemens", "Toshiba", "Philips"]
 
@@ -24,7 +29,7 @@ def tax(d, s):
 
 
 def main():
-    d = pd.read_csv(sys.argv[1]); n_boot = int(sys.argv[2]) if len(sys.argv) > 2 else 1000
+    d = eval_set(pd.read_csv(sys.argv[1])); n_boot = int(sys.argv[2]) if len(sys.argv) > 2 else 1000
     d["pat"] = d.case.str.split("_").str[0]
     pats = d.pat.unique(); idx = d.groupby("pat").indices; rng = np.random.default_rng(0)
     print(f"{sys.argv[1]}: n={len(d)} pos={int(d.y.sum())} folds={sorted(d.fold.unique())}")

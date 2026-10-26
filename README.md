@@ -8,15 +8,15 @@ Multimodal Pancreatic Cancer Detection is a bias-aware research repository for p
 
 **Documentation index: [`docs/README.md`](docs/README.md)** — every doc, what it answers, and where the data and models live.
 
-## Current Status (2026-10-26): all pre-registered experiments complete, write-up next
+## Current Status (2026-10-27): all pre-registered experiments complete, write-up next
 
-The Q1 work uses PANORAMA (2,238 contrast-enhanced CTs; 1,964 Dutch scans for training, 194 MSD + 80 NIH held out as external tests), 3D nnU-Net models on pancreas-region crops, and a 2.5D classifier for the mitigation panel.
+The Q1 work uses PANORAMA (2,238 contrast-enhanced CTs; 1,964 Dutch scans for training, 194 MSD + 80 NIH held out as external tests), 3D nnU-Net models on pancreas-region crops, and a 2.5D classifier for the mitigation panel. Dutch detection metrics are scored on the patient-disjoint evaluation set: the 1,939 patients with a single examination (`tools/eval_cohort.py`); the 25 scans of the 11 repeat-examination patients stay in training only.
 
 - **The confound is real in the data:** scanner manufacturer alone predicts PDAC with AUROC 0.70 (Philips scans are 75% PDAC, Siemens/Toshiba ~19%).
-- **The 3D model exploits it only weakly:** confound tax +0.031 AUROC [+0.010, +0.053], no penalty when a whole manufacturer is held out, external MSD AUROC 0.82 [0.76, 0.88].
-- **It survives real deployment:** cropping from a predicted pancreas mask costs <= 0.013 AUROC when the segmenter never fails; TotalSegmentator used as documented (`roi_subset pancreas`) silently fails on 6 % of scans (mostly cancer and Siemens scans), costing 0.087 AUROC and raising the tax to +0.046; requesting the neighbouring organs fixes every failure. Figure: `figures/panorama/deployment_arms.png`.
-- **A stronger 2.5D classifier uses the confound more:** Dutch AUROC 0.926 vs 0.787 (DeLong p<0.001) but tax +0.057 and a tie with the 3D model on external MSD (0.827 vs 0.823).
-- **Debiasing does not beat tuned ERM on the real confound:** group-balanced sampling, DFR, GRL and MAE pretraining lower no tax significantly and all cost accuracy (MAE raises the tax, +0.026 [+0.012, +0.041]); yet the same methods remove 64–91 % of a deliberately planted shortcut, so the methods work and the real confound is weakly exploitable. Figure: `figures/panorama/mitigation_panel.png`.
+- **The 3D model exploits it only weakly:** confound tax +0.028 AUROC [+0.007, +0.051], no penalty when a whole manufacturer is held out, external MSD AUROC 0.82 [0.76, 0.88].
+- **It survives real deployment:** cropping from a predicted pancreas mask costs <= 0.012 AUROC when the segmenter never fails; TotalSegmentator used as documented (`roi_subset pancreas`) silently fails on 6 % of scans (mostly cancer and Siemens scans), costing 0.087 AUROC and raising the tax to +0.044; requesting the neighbouring organs fixes every failure. Figure: `figures/panorama/deployment_arms.png`.
+- **A stronger 2.5D classifier uses the confound more:** Dutch AUROC 0.928 vs 0.788 (DeLong p<0.001) but tax +0.056 and a tie with the 3D model on external MSD (0.827 vs 0.823).
+- **Debiasing does not beat tuned ERM on the real confound:** group-balanced sampling, DFR, GRL and MAE pretraining lower no tax significantly and all cost accuracy (MAE raises the tax, +0.027 [+0.013, +0.043]); yet the same methods remove 64–90 % of a deliberately planted shortcut, so the methods work and the real confound is weakly exploitable. Figure: `figures/panorama/mitigation_panel.png`.
 - **The urinary biomarker cohort is confounded too:** all healthy controls come from one site; site alone predicts PDAC at AUROC 0.68, site tax +0.062 [+0.027, +0.098].
 - **Fusion of unpaired cohorts:** its gain depends entirely on the untestable error correlation between the tests (0.917 at independence -> 0.884 = urine alone); pseudo-paired fusion reports the independence case. Urine triage before CT would avoid ~49 % of CTs at 1 % prevalence. Figure: `figures/panorama/fusion_triage.png`.
 - **The thesis's 0.9999 is the data:** our own pipeline retrained on the thesis two-source set reaches 0.996 (vs 0.745 on clinical data at the same training size) and crop statistics alone separate its two collections (0.872).

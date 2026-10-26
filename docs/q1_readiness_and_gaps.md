@@ -3,15 +3,16 @@
 _Living strategy note. Target: Q1 (MedIA / npj Digital Medicine / Radiology:AI), Q2 fallback (MIDL / specialised imaging journal). Written 2026-10-02; updated 2026-10-26: every experiment below is done, the write-up is next._
 
 ## 1. Findings so far (assets)
+_2026-10-27: Dutch detection metrics are scored on the patient-disjoint evaluation set: the 1,939 patients with a single examination (`tools/eval_cohort.py`); the 25 scans of the 11 repeat-examination patients stay in training only. Numbers below that changed are given as patient-disjoint where they feed the paper._
 - **Measured scanner confound in PANORAMA** (flagship public PDAC cohort): scanner↔label Cramer's V 0.44, chi2 432, p 3e-91; **scanner-alone AUROC 0.70** (manufacturer-only, patient-grouped) — reproducible (`tools/scanner_only_shortcut.py`).
 - **`level` near-label-leakage** in a public challenge dataset (full-metadata AUC 0.90 dominated by `level`) — a concrete community gotcha.
 - **3D nnU-Net reference** (loose ROI, CV 5-fold + LOMO): pos-case Dice ~0.33; detection AUROC ~0.6–0.68 within-scanner; in-distribution confound tax +0.021 [−0.002, +0.045] (CI includes 0); generalises across manufacturers (CV ≈ LOMO within-scanner).
 - **Feature-space probe**: the trained model's bottleneck features encode scanner only weakly (0.586 linear / 0.602 RF / 0.614 MLP; shuffle 0.513) but encode cancer more (0.650/0.615/0.691) → **pipeline resists the confound at the representation level**.
 - **Thesis 2D model** (positive control): rode a dataset-of-origin confound (cancer=Pancreatic-CT-CBCT-SEG vs control=NIH Pancreas-CT) to **0.9999** — confound *was* exploited.
-- **Tight-crop (100x50x15mm), 2026-10-05:** CV pos-Dice 0.505, detection cc_psz 0.787. **Tight LOMO** pos-Dice 0.547/0.450/0.471 (Siemens/Toshiba/Philips held out), detection 0.811/0.773/0.706 ≈ in-distribution within-scanner → no manufacturer-shift penalty. **Tight confound tax +0.031 [+0.010,+0.053]** (patient bootstrap) — small but CI excludes 0; mixed never exceeds best within-scanner. Feature probe: scanner 0.62–0.64 vs cancer 0.75–0.77.
-- **Deployment-ROI (2026-10-19):** with a segmenter that never fails, a deployed two-stage pipeline matches the oracle crop (0.782 vs 0.787) and the tax stays ~+0.03; TotalSegmentator used as documented (`roi_subset pancreas`) fails on 6 % of scans (PDAC- and Siemens-heavy), costing 0.087 AUROC and raising the tax to +0.046; the documented `robust_crop` fix recovers only half; requesting neighbouring organs removes every failure.
-- **Mitigation panel (2026-10-19/25):** 2.5D ERM CV 0.918, tax +0.057, external 0.884; GBS / DFR / GRL lower no tax significantly and all cost CV AUROC (DeLong p <= 0.002); MAE raises the tax (+0.026 [+0.012, +0.041]); planted-shortcut control: the same methods remove 64-91 % of a planted shortcut (ERM drop 0.149, GRL 0.014).
-- **Statistics (2026-10-25):** 2.5D vs 3D +0.138 in-distribution (p<0.001), tie on MSD (0.827 vs 0.823); 2.5D ECE 0.039; Philips and age >= 70 weakest; no mask-provenance leakage.
+- **Tight-crop (100x50x15mm), 2026-10-05:** CV pos-Dice 0.507, detection cc_psz 0.787. **Tight LOMO** pos-Dice 0.551/0.457/0.472 (Siemens/Toshiba/Philips held out), detection 0.812/0.779/0.702 ≈ in-distribution within-scanner (0.810/0.791/0.676) → no manufacturer-shift penalty. **Tight confound tax +0.028 [+0.007,+0.051]** (patient bootstrap) — small but CI excludes 0; mixed never exceeds best within-scanner. Feature probe: scanner 0.62–0.64 vs cancer 0.75–0.77.
+- **Deployment-ROI (2026-10-19):** with a segmenter that never fails, a deployed two-stage pipeline matches the oracle crop (0.783 vs 0.787) and the tax stays ~+0.03; TotalSegmentator used as documented (`roi_subset pancreas`) fails on 6 % of scans (PDAC- and Siemens-heavy), costing 0.087 AUROC and raising the tax to +0.044; the documented `robust_crop` fix recovers only half; requesting neighbouring organs removes every failure.
+- **Mitigation panel (2026-10-19/25):** 2.5D ERM CV 0.920, tax +0.056, external 0.884; GBS / DFR / GRL lower no tax significantly and all cost CV AUROC (DeLong p <= 0.001); MAE raises the tax (+0.027 [+0.013, +0.043]); planted-shortcut control: the same methods remove 64-90 % of a planted shortcut (ERM drop 0.149, GRL 0.015).
+- **Statistics (2026-10-25):** 2.5D vs 3D +0.140 in-distribution (p<0.001), tie on MSD (0.827 vs 0.823); 2.5D ECE 0.037; Philips and age >= 70 weakest; no mask-provenance leakage.
 - **Biomarker cohort (2026-10-25):** site ~ diagnosis V 0.42, site-only AUROC 0.68, panel 0.867 with site tax +0.062 [+0.027, +0.098]: not a clean control.
 - **Fusion (2026-10-25):** unpaired cohorts; combined AUROC 0.917 at independence -> 0.884 at rho 0.75; pseudo-paired 0.909 = independence case; triage avoids ~49 % CTs at 1 % prevalence.
 - **Thesis-cohort control (2026-10-25/26):** PANORAMA models 0.68-0.98 on the thesis set; our recipe retrained on it 0.996 vs 0.745 on clinical data at matched size; crop statistics separate the collections (0.872).
@@ -71,9 +72,9 @@ This answers clinical validity AND is the novelty differentiator. Run for BOTH t
 |---|---|---|
 | CV Dice + detection AUROC | done | done |
 | LOMO Dice + per-scanner detection | done | done |
-| Confound tax with CI | done (+0.021 [−0.002,+0.045]) | done (+0.031 [+0.010,+0.053]) |
+| Confound tax with CI | done (+0.019 [−0.004,+0.043]) | done (+0.028 [+0.007,+0.051]) |
 | External MSD/NIH (oracle ROI) | done (MSD p_max 0.713, Dice 0.349) | done (MSD p_max 0.823, Dice 0.555; per-fold thresholds checked) |
-| Deployment segmenter ROI (vs oracle) | — | done: external no gap; Dutch four arms (best: TotalSegmentator + neighbours 0.782 vs oracle 0.787) |
+| Deployment segmenter ROI (vs oracle) | — | done: external no gap; Dutch four arms (best: TotalSegmentator + neighbours 0.783 vs oracle 0.787) |
 | Feature-space scanner probe | done (0.59–0.61) | done (0.62–0.64) |
 | Mitigation panel (2.5D, local) | — | done (separate 2.5D arm; `reports/panel/`) |
 All external/segmenter/probe tests are **inference-only (cheap)** — run for both once a pod is free.
@@ -95,6 +96,8 @@ All external/segmenter/probe tests are **inference-only (cheap)** — run for bo
 ## 9. Submission checklist (manuscript draft v3 complete 2026-10-26; draft is local-only in `paper/`, git-ignored)
 Status of each step is updated here as it is done.
 **Scope decision (2026-10-26, author):** paper 1 covers the scanner confound, deployment-ROI and the mitigation panel only. The biomarker audit, fusion simulation and thesis-cohort control are kept in the repo (`reports/biomarker_confound.csv`, `reports/fusion/`, `reports/thesis_control/`) as material for a possible second paper. Focused draft: `paper/manuscript_draft_v5.md` (local).
+
+**Patient-disjoint evaluation (2026-10-27):** the CV folds (nnU-Net default) were drawn by scan, so 9 of the 11 repeat-examination patients had scans in two folds. Rather than retrain, every Dutch detection metric was re-scored on the 1,939 single-examination patients (`tools/eval_cohort.py`), which removes any test patient seen in training; all changes <= 0.006 and AUROCs rose or held, so the split did not inflate the results. Draft `paper/manuscript_draft_v6.md` reports this as the evaluation design, not as a limitation. Reporting checklists: answer the partition item as "folds by scan; evaluation restricted to patients with a single examination, so test patients are disjoint from training".
 1. **Choose the target journal** (Medical Image Analysis vs npj Digital Medicine; sets word limit, trimming and citation style: MedIA uses author–year). — open: recommendation MedIA, awaiting the author's decision
 2. **References:** merge the Methods / Results citations into one numbered list; resolve every `[verify]` entry. — DONE 2026-10-26 (34 references, all cited; PubMed / arXiv checked; convert style once the journal is chosen)
 3. **Figures:** draw Fig. 1 (study design) and the supplementary figures (TotalSegmentator failure geometry, subgroup AUROCs, calibration curves, thesis case study). — DONE 2026-10-26 (`tools/plot_paper_figures.py`, `figures/panorama/`); Fig. 1 may be redrawn as vector art for the journal

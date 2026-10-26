@@ -5,7 +5,7 @@ Per run (arm x seed), when its folds are complete:
           (same definition as tools/confound_tax_ci.py, on the out-of-fold test scores)
     lomo: AUROC on each held-out manufacturer (model never saw that scanner)
     ext:  MSD/NIH AUROC of the mean score over the 5 CV fold models
-Then mean +- SD over the seeds per arm.
+Then mean +- SD over the seeds per arm. Dutch scores use the patient-disjoint evaluation set (tools/eval_cohort.py).
 
     python tools/panel_eval.py [n_boot]
 Writes reports/panel/panel_results.csv (per arm x seed) and panel_summary.csv (per arm).
@@ -20,6 +20,7 @@ from sklearn.metrics import roc_auc_score
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from confound_tax_ci import SCANNERS, tax  # noqa: E402
+from eval_cohort import eval_set  # noqa: E402
 
 REPORTS = "reports/panel"
 
@@ -48,7 +49,7 @@ def main():
         r = {"run": run, "arm": arm, "seed": seed}
         cv = [f"{rdir}/test_cv{k}.csv" for k in range(5)]
         if all(map(os.path.exists, cv)):
-            d = pd.concat(map(pd.read_csv, cv))
+            d = eval_set(pd.concat(map(pd.read_csv, cv)))
             t, mixed, within = tax(d, "p")
             lo, hi = boot_ci(d, n_boot)
             r.update(cv_auc_pooled=roc_auc_score(d.y, d.p), cv_mixed=mixed, cv_tax=t, cv_tax_lo=lo, cv_tax_hi=hi,
@@ -62,7 +63,7 @@ def main():
         for k, s in enumerate(SCANNERS):
             f = f"{rdir}/test_lomo{k}.csv"
             if os.path.exists(f):
-                d = pd.read_csv(f)
+                d = eval_set(pd.read_csv(f))
                 r[f"lomo_{s}"] = roc_auc_score(d.y, d.p)
         rows.append(r)
     res = pd.DataFrame(rows)

@@ -50,7 +50,8 @@ def main():
     ax[2].set_ylabel("% scans with empty pancreas mask")
     ax[2].set_title("Segmenter failures per scanner", fontsize=10)
     ax[2].legend(fontsize=8)
-    fig.suptitle("Deployment-ROI, Dutch cohort (1964 scans, out-of-fold, failures called negative); "
+    fig.suptitle("Deployment-ROI, Dutch cohort (AUROC on 1,939 single-exam patients, failures on all 1,964 scans; "
+                 "out-of-fold, failures called negative); "
                  "error bars = 95% patient bootstrap CI of the paired difference", fontsize=10)
     fig.tight_layout()
     fig.savefig(OUT, dpi=150)

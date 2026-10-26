@@ -7,10 +7,14 @@
     provenance.csv mask-provenance leakage check: AUROC of PDAC with manual masks vs all non-PDAC against PDAC with
                    automatic masks vs the same non-PDAC, difference with a patient bootstrap CI (if manual-mask
                    crops gave the label away, manual-mask PDAC would be ranked higher)
+    dice.csv       3D lesion Dice on PDAC scans (nnU-Net validation summaries): mean of the fold means +- SD, CV and LOMO
+    lomo_3d.csv    3D AUROC (cc_psz, p_max) with a DeLong 95% CI on each held-out manufacturer
+Dutch metrics use the patient-disjoint evaluation set (tools/eval_cohort.py); external sets are untouched.
 
     python tools/final_stats.py [n_boot]
 Writes reports/final_stats/.
 """
+import json
 import os
 import sys
 
@@ -20,9 +24,13 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from panel_stats import delong, ece  # noqa: E402
+from eval_cohort import eval_set  # noqa: E402
 
 OUT = "reports/final_stats"
 MODELS = [("3d_cc_psz", "cc_psz"), ("3d_p_max", "p_max"), ("2p5d_erm", "p_2p5d")]
+NNU = ("reports/nnunet_summaries/nnunet_results_tight{}/Dataset701_PanoramaPDAC_tight/"
+       "nnUNetTrainer_250epochs__nnUNetPlans__3d_fullres/fold_{}/validation/summary.json")
+LOMO = ["Siemens", "Toshiba", "Philips"]
 
 
 def single_ci(y, p):
@@ -43,7 +51,38 @@ def load_dutch():
     d = cv.merge(p, on="case").merge(q, on="case").merge(c[["case", "sex", "age"]], on="case", how="left")
     d["age_band"] = pd.cut(d.age, [0, 60, 70, 200], labels=["<60", "60-69", ">=70"], right=False).astype(str)
     assert len(d) == len(cv) == 1964, len(d)
-    return d
+    return eval_set(d)
+
+
+def dice_table():
+    rows = []
+    for setting, tag, folds in (("cv", "", range(5)), ("lomo", "_lomo", range(3))):
+        means = []
+        for k in folds:
+            per_case = json.load(open(NNU.format(tag, k)))["metric_per_case"]
+            cases = pd.DataFrame({"case": [os.path.basename(c["reference_file"]).split(".")[0] for c in per_case],
+                                  "n_ref": [c["metrics"]["1"]["n_ref"] for c in per_case],
+                                  "dice": [c["metrics"]["1"]["Dice"] for c in per_case]})
+            pos = eval_set(cases[cases.n_ref > 0])
+            means.append(pos.dice.mean())
+            rows.append({"setting": setting, "fold": k if setting == "cv" else LOMO[k], "n_pdac": len(pos),
+                         "dice": pos.dice.mean()})
+        rows.append({"setting": setting, "fold": "mean", "n_pdac": np.nan, "dice": np.mean(means),
+                     "dice_sd": np.std(means, ddof=1)})
+    return pd.DataFrame(rows)
+
+
+def lomo_3d():
+    lo = eval_set(pd.read_csv("reports/nnunet_summaries/tight_battery/lomo_scores.csv"))
+    rows = []
+    for s, g in lo.groupby("scanner"):
+        if s not in LOMO:
+            continue
+        r = {"held_out": s, "n": len(g), "pos": int(g.y.sum())}
+        for col in ("cc_psz", "p_max"):
+            r[f"auroc_{col}"], r[f"lo_{col}"], r[f"hi_{col}"] = single_ci(g.y.values, g[col].values)
+        rows.append(r)
+    return pd.DataFrame(rows)
 
 
 def load_ext():
@@ -108,8 +147,10 @@ def main():
                      "auroc_auto_pdac": a_auto, "diff": a_man - a_auto, "diff_lo": np.percentile(bs, 2.5),
                      "diff_hi": np.percentile(bs, 97.5)})
     pd.DataFrame(prov).to_csv(f"{OUT}/provenance.csv", index=False)
+    dice_table().to_csv(f"{OUT}/dice.csv", index=False)
+    lomo_3d().to_csv(f"{OUT}/lomo_3d.csv", index=False)
     with pd.option_context("display.width", 250, "display.max_columns", 40):
-        for f in ("compare", "subgroups", "provenance"):
+        for f in ("compare", "subgroups", "provenance", "dice", "lomo_3d"):
             print(f"--- {f}")
             print(pd.read_csv(f"{OUT}/{f}.csv").round(3).to_string(index=False))
 

@@ -25,15 +25,16 @@ It also includes exploratory multimodal fusion, but the fusion branch should not
 
 | Setting | Lesion Dice (PDAC cases) | Detection AUROC |
 |---|---|---|
-| 5-fold CV | 0.505 | 0.787 (cc_psz) |
-| LOMO (Siemens / Toshiba / Philips held out) | 0.547 / 0.450 / 0.471 | 0.811 / 0.773 / 0.706 |
+| 5-fold CV | 0.507 | 0.787 (cc_psz) |
+| LOMO (Siemens / Toshiba / Philips held out) | 0.551 / 0.457 / 0.472 | 0.812 / 0.779 / 0.702 |
 | External MSD (new hospital, 5-fold ensemble) | 0.555 | 0.823 [0.764, 0.884] (p_max) |
 
-Confound tax (in-distribution): +0.031 AUROC [+0.010, +0.053]. Loose crop: CV Dice ~0.33, detection ~0.70.
+Confound tax (in-distribution): +0.028 AUROC [+0.007, +0.051]. Loose crop: CV Dice ~0.33, detection ~0.70.
+Dutch metrics on the 1,939 single-examination patients (patient-disjoint; `tools/eval_cohort.py`).
 
 ### Limitations
 
-- trained on crops from **provided** masks; deployment with a predicted mask was measured (Dutch, 1964): AUROC 0.774-0.782 vs 0.787 with a segmenter that never fails, but 0.700 with TotalSegmentator `roi_subset pancreas` (6 % empty masks), so the stage-1 segmenter and its settings must be validated per site
+- trained on crops from **provided** masks; deployment with a predicted mask was measured (Dutch, out-of-fold): AUROC 0.775-0.783 vs 0.787 with a segmenter that never fails, but 0.700 with TotalSegmentator `roi_subset pancreas` (6 % empty masks), so the stage-1 segmenter and its settings must be validated per site
 - a small, measurable share of performance comes from the scanner/case-mix confound (bounded ≈0.05 AUROC)
 - decision thresholds: p_max operating points set on Dutch CV transfer to MSD/NIH; cc_psz thresholds shift (score-scale effect), so the operating score must be fixed from Dutch CV
 - a single-stage reference model, below the PANORAMA challenge winner (PanDx, AUROC 0.926)
@@ -52,12 +53,12 @@ Confound tax (in-distribution): +0.031 AUROC [+0.010, +0.053]. Loose crop: CV Di
 
 | Setting | Detection AUROC |
 |---|---|
-| Dutch CV (seed-averaged scores) | 0.926 (per-seed mean 0.918) |
-| LOMO Siemens / Toshiba / Philips held out | 0.882 / 0.836 / 0.675 |
+| Dutch CV (seed-averaged scores) | 0.928 (per-seed mean 0.920) |
+| LOMO Siemens / Toshiba / Philips held out | 0.885 / 0.837 / 0.670 |
 | External MSD+NIH / MSD | 0.884 / 0.824 |
-| Calibration (CV) | Brier 0.100, ECE 0.039 |
+| Calibration (CV) | Brier 0.098, ECE 0.037 |
 
-Confound tax +0.057 (about twice the 3D model's); the gain over the 3D model is in-distribution only (ties it on MSD).
+Confound tax +0.056 (twice the 3D model's; Dutch metrics patient-disjoint); the gain over the 3D model is in-distribution only (ties it on MSD).
 
 ### Limitations
 

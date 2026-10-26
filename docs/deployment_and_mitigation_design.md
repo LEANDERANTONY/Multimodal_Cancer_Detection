@@ -16,14 +16,15 @@ grandmasters we study (`D:/Documents/Projects/Kaggle/Grandmasters/`: ren4yu, ser
 
 ## Status (updated 2026-10-26: ALL PRE-REGISTERED EXPERIMENTS COMPLETE; next = write-up)
 
-At a glance (details in the dated blocks below; prior work and positioning in `docs/literature_novelty_check.md`):
-- **A. Deployment-ROI:** a segmenter that never fails matches the oracle crop (0.774-0.782 vs 0.787, tax ~+0.03);
+At a glance (details in the dated blocks below; prior work and positioning in `docs/literature_novelty_check.md`).
+**2026-10-27: Dutch detection metrics are scored on the patient-disjoint evaluation set: the 1,939 patients with a single examination (`tools/eval_cohort.py`); the 25 scans of the 11 repeat-examination patients stay in training only. The committed result tables and the numbers in this summary and the four-arm table are the patient-disjoint ones; the dated blocks below record the all-scan values as first computed (every change <= 0.006, no conclusion changed; old vs new in DEVLOG 2026-10-27).**
+- **A. Deployment-ROI:** a segmenter that never fails matches the oracle crop (0.775-0.783 vs 0.787, tax ~+0.03);
   TotalSegmentator `roi_subset pancreas` fails on 6 % (PDAC-, Siemens- and chest-heavy scans), AUROC 0.700, tax
-  +0.046; `robust_crop` recovers half; neighbouring organs recover all.
-- **B. Mitigation panel (2.5D):** tuned ERM CV 0.918 / tax +0.057 / external 0.884; GBS, DFR, GRL lower no tax
-  significantly and all cost accuracy; MAE raises the tax (+0.026 [+0.012, +0.041]); the planted-shortcut control
-  shows the same methods remove 64-91 % of a planted shortcut.
-- **Statistics:** 2.5D beats 3D in-distribution (+0.138, p<0.001) but ties it on MSD; 2.5D calibrated (ECE 0.039);
+  +0.044; `robust_crop` recovers half; neighbouring organs recover all.
+- **B. Mitigation panel (2.5D):** tuned ERM CV 0.920 / tax +0.056 / external 0.884; GBS, DFR, GRL lower no tax
+  significantly and all cost accuracy; MAE raises the tax (+0.027 [+0.013, +0.043]); the planted-shortcut control
+  shows the same methods remove 64-90 % of a planted shortcut.
+- **Statistics:** 2.5D beats 3D in-distribution (+0.140, p<0.001) but ties it on MSD; 2.5D calibrated (ECE 0.037);
   Philips and age >= 70 weakest; no mask-provenance leakage.
 - **C. Biomarker audit:** site confound (all controls from one site), site tax +0.062 [+0.027, +0.098].
 - **C. Fusion (unpaired):** combined AUROC 0.917 at independence -> 0.884 (= urine alone) at rho 0.75; pseudo-pairing
@@ -53,15 +54,16 @@ documented remedy recovers about half, and adding neighbouring organs (or runnin
    within-scanner Siemens 0.811 / Toshiba 0.765 / Philips 0.668 — matches the oracle crop and is slightly better
    than the official baseline segmenter (0.774, tax +0.036).
 
-**Four-arm summary (Dutch, 1964, out-of-fold, failures called negative; `deploy_gap_dutch.csv`, `deploy_fail_dutch.csv`,
+**Four-arm summary (Dutch, out-of-fold, failures called negative; empty masks over all 1,964 scans, detection over the
+1,939 patient-disjoint evaluation scans; `deploy_gap_dutch.csv`, `deploy_fail_dutch.csv`,
 figure `figures/panorama/deployment_arms.png` via `tools/plot_deployment_arms.py`):**
 
-| Stage-1 segmenter | Empty masks | Deployed AUROC (cc_psz) | Δ vs oracle 0.787 | Tax (oracle +0.031) | Within Siemens (oracle 0.807) |
+| Stage-1 segmenter | Empty masks | Deployed AUROC (cc_psz) | Δ vs oracle 0.787 | Tax (oracle +0.028) | Within Siemens (oracle 0.810) |
 |---|---|---|---|---|---|
-| Official PANORAMA baseline (trained on this cohort) | 0 | 0.774 | −0.013 [−0.025, +0.000] | +0.036 | 0.783 |
-| TotalSegmentator, `roi_subset pancreas` (as published) | 118 (6.0 %) | 0.700 | −0.087 [−0.111, −0.063] | +0.046 | 0.587 |
-| TotalSegmentator + `robust_crop` (documented fix) | 66 (3.4 %) | 0.719 | −0.068 [−0.092, −0.045] | +0.046 | 0.634 |
-| TotalSegmentator + neighbouring organs | 0 | 0.782 | −0.004 [−0.015, +0.007] | +0.034 | 0.811 |
+| Official PANORAMA baseline (trained on this cohort) | 0 | 0.775 | −0.012 [−0.025, +0.001] | +0.034 | 0.787 |
+| TotalSegmentator, `roi_subset pancreas` (as published) | 118 (6.0 %) | 0.700 | −0.087 [−0.111, −0.061] | +0.044 | 0.590 |
+| TotalSegmentator + `robust_crop` (documented fix) | 66 (3.4 %) | 0.720 | −0.068 [−0.091, −0.043] | +0.044 | 0.638 |
+| TotalSegmentator + neighbouring organs | 0 | 0.783 | −0.004 [−0.016, +0.007] | +0.032 | 0.814 |
 
 Reading: the deployment cost and the confound increase come entirely from segmenter *failures*, which fall on
 PDAC and Siemens scans; when every scan gets a crop, a deployed two-stage pipeline matches the oracle and the tax
