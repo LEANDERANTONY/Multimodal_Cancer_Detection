@@ -51,5 +51,7 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 | `tools/final_stats.py` | Paper statistics: 3D vs 2.5D DeLong, calibration, subgroups, mask-provenance leakage check, 3D Dice and LOMO |
 | `tools/eval_cohort.py` | Patient-disjoint evaluation set (1,939 single-examination Dutch patients), imported by every Dutch metric script |
 | `tools/biomarker_confound.py`, `tools/fusion_sim.py`, `tools/plot_fusion.py` | The confound audit on the urinary biomarker cohort; fusion of the unpaired cohorts as a dependence-sensitivity simulation plus the pseudo-pairing demonstration, and its figure |
+| `tools/plot_failure_case.py` | Fig. 3: a failure case stored head-to-foot, coronal (as stored and anatomical) and axial with the crops |
+| `tools/orientation_check.py`, `tools/orientation_analysis.py`, `tools/orientation_flip_test.py` | Orientation vs anatomy per scan; what the inversion explains; flip test on the 2.5D classifier |
 | `tools/plot_paper_figures.py` | Manuscript figures: Fig. 1 study design and the supplementary figures (TotalSegmentator failure geometry, subgroup AUROCs, calibration, thesis case study) |
 | `tools/thesis_control.py`, `tools/thesis_control_eval.py`, `tools/thesis_retrain.py` | Thesis two-source set through the PANORAMA deployment pipeline; our recipe retrained on it, cross-tested on PANORAMA, size-matched control, crop-statistics source probe |
