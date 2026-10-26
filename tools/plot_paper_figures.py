@@ -1,12 +1,11 @@
 """Manuscript figures not covered by the per-experiment plotting tools.
 
-    fig1_study_design.png               cohorts -> region of interest -> models -> evaluation, panel and side analyses
+    fig1_study_design.png               cohort -> region of interest -> models -> evaluation -> mitigation panel
     supp_totalseg_failure_geometry.png  TotalSegmentator (roi_subset pancreas) empty-mask rate vs scan coverage below
                                         the pancreas, PDAC vs non-PDAC
     supp_subgroups.png                  AUROC with DeLong CI by scanner, sex and age band for the three detectors
     supp_calibration.png                reliability curves: 2.5D ERM (Dutch CV, external) and 3D p_max (Dutch CV)
-    supp_thesis_case_study.png          thesis two-collection set: thesis model, PANORAMA models, retrained recipe, and
-                                        the size-matched control
+    supp_thesis_case_study.png          thesis two-collection set (not in paper 1; kept for a possible second paper)
 
     python tools/plot_paper_figures.py
 Writes figures/panorama/. Reads only committed result tables in reports/.
@@ -47,9 +46,9 @@ def arrow(ax, x0, y0, x1, y1):
 
 
 def fig1():
-    fig, ax = plt.subplots(figsize=(15, 5.0))
-    ax.set_xlim(-0.01, 1.51); ax.set_ylim(0, 0.50); ax.axis("off")
-    box(ax, 0.01, 0.27, 0.25, 0.21, "Cohorts", ["PANORAMA: 1,964 Dutch CTs (578 PDAC)", "Siemens / Toshiba / Philips / other",
+    fig, ax = plt.subplots(figsize=(15, 2.6))
+    ax.set_xlim(-0.01, 1.51); ax.set_ylim(0.255, 0.495); ax.axis("off")
+    box(ax, 0.01, 0.27, 0.25, 0.21, "Cohort", ["PANORAMA: 1,964 Dutch CTs (578 PDAC)", "Siemens / Toshiba / Philips / other",
         "External: 194 MSD, 80 NIH (held out)", "Scanner-only AUROC 0.70 (confound present)"], "data")
     box(ax, 0.31, 0.27, 0.25, 0.21, "Region of interest", ["Tight crop: pancreas + duct mask", "+ 100 x 50 x 15 mm per side",
         "Provided (oracle) masks for training", "Predicted masks at deployment:", "PANORAMA baseline; TotalSegmentator", "(as documented, robust_crop, + organs)"], "roi")
@@ -61,15 +60,6 @@ def fig1():
         "One selection rule, CV + LOMO + external", "Planted-shortcut positive control", "(marker on 80 % PDAC / 20 % non-PDAC)"], "model")
     for x in (0.26, 0.56, 0.86, 1.18):
         arrow(ax, x + 0.004, 0.375, x + 0.046, 0.375)
-    box(ax, 0.16, 0.02, 0.36, 0.16, "Biomarker audit", ["Debernardi urine cohort, 590 samples, 4 sites",
-        "site-only / age-only / panel models", "within-site AUROC, site tax, leave-one-site-out"], "side")
-    box(ax, 0.57, 0.02, 0.36, 0.16, "Fusion of unpaired cohorts", ["Gaussian copula from real out-of-fold scores",
-        "inter-test correlation rho = 0 ... 0.75", "urine -> CT triage; pseudo-pairing caution"], "side")
-    box(ax, 0.98, 0.02, 0.36, 0.16, "Thesis case study", ["40 CBCT-SEG cancers vs 80 NIH controls",
-        "PANORAMA models; recipe retrained on the set", "size-matched control; crop-statistics probe"], "side")
-    arrow(ax, 0.30, 0.27, 0.34, 0.18)
-    arrow(ax, 0.74, 0.27, 0.75, 0.18)
-    arrow(ax, 1.06, 0.27, 1.12, 0.18)
     fig.tight_layout()
     fig.savefig(f"{OUT}/fig1_study_design.png", dpi=200, facecolor="white")
 

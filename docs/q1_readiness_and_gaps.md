@@ -94,6 +94,7 @@ All external/segmenter/probe tests are **inference-only (cheap)** — run for bo
 
 ## 9. Submission checklist (manuscript draft v3 complete 2026-10-26; draft is local-only in `paper/`, git-ignored)
 Status of each step is updated here as it is done.
+**Scope decision (2026-10-26, author):** paper 1 covers the scanner confound, deployment-ROI and the mitigation panel only. The biomarker audit, fusion simulation and thesis-cohort control are kept in the repo (`reports/biomarker_confound.csv`, `reports/fusion/`, `reports/thesis_control/`) as material for a possible second paper. Focused draft: `paper/manuscript_draft_v5.md` (local).
 1. **Choose the target journal** (Medical Image Analysis vs npj Digital Medicine; sets word limit, trimming and citation style: MedIA uses author–year). — open: recommendation MedIA, awaiting the author's decision
 2. **References:** merge the Methods / Results citations into one numbered list; resolve every `[verify]` entry. — DONE 2026-10-26 (34 references, all cited; PubMed / arXiv checked; convert style once the journal is chosen)
 3. **Figures:** draw Fig. 1 (study design) and the supplementary figures (TotalSegmentator failure geometry, subgroup AUROCs, calibration curves, thesis case study). — DONE 2026-10-26 (`tools/plot_paper_figures.py`, `figures/panorama/`); Fig. 1 may be redrawn as vector art for the journal
