@@ -17,7 +17,7 @@ must also be non-commercial.
   `README.md` lists every requirement and what is left for the author.
 - `paper/radiology_ai/`: full title page, cover letter, anonymised 2,254-word manuscript (structured abstract, summary
   statement, key points, 25 numbered references, 3 tables), Appendix E1, CLAIM table, figures; own `README.md`.
-- Master draft for both: `paper/manuscript_draft_v7.md` (includes the orientation finding,
+- Master draft for both: `paper/manuscript_draft_v8.md` (rebuilt 2026-11-02 with the corrected orientation finding,
   `docs/orientation_investigation.md`). Model weights staged by `tools/build_release.py` for the author's Zenodo upload.
 - Left for the author in both: affiliation and contact details, ORCID, AI-use wording, Zenodo DOI, .docx conversion,
   official CLAIM form; MedIA also the vitae and a check of the PANORAMA collective-author name.

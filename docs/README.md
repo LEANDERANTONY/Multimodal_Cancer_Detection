@@ -8,7 +8,7 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 |---|---|
 | [`../README.md`](../README.md) | What the project is, current status in one screen |
 | [`q1_readiness_and_gaps.md`](q1_readiness_and_gaps.md) | **The living Q1 plan:** findings so far, novelty positioning, gap list, experiment matrix, sequence |
-| [`orientation_investigation.md`](orientation_investigation.md) | 155 Dutch PANORAMA scans stored head-to-foot relative to their header: evidence chain (provenance, anatomy, header fields, data-collection stream), effect on TotalSegmentator and the 2.5D classifier |
+| [`orientation_investigation.md`](orientation_investigation.md) | 160 Dutch PANORAMA scans whose slice order contradicts their header: reviewed labels, where they sit, the header experiments on TotalSegmentator, the flip test on the 2.5D classifier, the link with cancer, and what the first version got wrong |
 | [`journal_requirements.md`](journal_requirements.md) | Paper 1 submission requirements: MedIA (target; incl. the 18-question Statement of Significance with planned answers) and Radiology: AI (fallback), each against draft v6 |
 | [`literature_novelty_check.md`](literature_novelty_check.md) | Pre-write-up literature search (2026-10-25): verdict per contribution (novel / partly known / supporting), closest prior work, positioning, sources |
 | [`data_layout.md`](data_layout.md) | Where every dataset, model checkpoint and result lives locally, the RunPod volume ↔ local map, and **where new files go** |
@@ -54,6 +54,6 @@ current work; the **thesis-era** block documents the original 2D pipeline.
 | `tools/plot_graphical_abstract.py` | Graphical abstract (MedIA): scanner confound, header artefact, debiasing on a planted vs the real shortcut |
 | `tools/build_release.py` | Stages the model-weight release (5 tight 3D CV models, 15 ERM 2.5D soups, README, SHA256SUMS) in `data/release/` for the author to upload to Zenodo |
 | `tools/plot_failure_case.py` | Fig. 3: a failure case stored head-to-foot, coronal (as stored and anatomical) and axial with the crops |
-| `tools/orientation_check.py`, `tools/orientation_analysis.py`, `tools/orientation_flip_test.py` | Orientation vs anatomy per scan; what the inversion explains; flip test on the 2.5D classifier |
+| `tools/orientation_check.py`, `tools/orientation_adjudicate.py`, `tools/orientation_totalseg_test.py`, `tools/orientation_flip_all.py`, `tools/orientation_tests_summary.py` | Lung rule; reviewed labels and link with cancer; header experiments on TotalSegmentator; flip test on all scans; results of both. `tools/orientation_analysis.py` and `tools/orientation_flip_test.py` are superseded |
 | `tools/plot_paper_figures.py` | Manuscript figures: Fig. 1 study design and the supplementary figures (TotalSegmentator failure geometry, subgroup AUROCs, calibration, thesis case study) |
 | `tools/thesis_control.py`, `tools/thesis_control_eval.py`, `tools/thesis_retrain.py` | Thesis two-source set through the PANORAMA deployment pipeline; our recipe retrained on it, cross-tested on PANORAMA, size-matched control, crop-statistics source probe |

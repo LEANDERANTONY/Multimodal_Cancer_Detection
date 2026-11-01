@@ -19,7 +19,7 @@ grandmasters we study (`D:/Documents/Projects/Kaggle/Grandmasters/`: ren4yu, ser
 At a glance (details in the dated blocks below; prior work and positioning in `docs/literature_novelty_check.md`).
 **2026-10-27: Dutch detection metrics are scored on the patient-disjoint evaluation set: the 1,939 patients with a single examination (`tools/eval_cohort.py`); the 25 scans of the 11 repeat-examination patients stay in training only. The committed result tables and the numbers in this summary and the four-arm table are the patient-disjoint ones; the dated blocks below record the all-scan values as first computed (every change <= 0.006, no conclusion changed; old vs new in DEVLOG 2026-10-27).**
 - **A. Deployment-ROI:** a segmenter that never fails matches the oracle crop (0.775-0.783 vs 0.787, tax ~+0.03);
-  TotalSegmentator `roi_subset pancreas` fails on 6 %, 108 of the 118 on the 155 scans (7.9 %) stored head-to-foot relative to their header, 4x more common in PDAC; see `docs/orientation_investigation.md`; AUROC 0.700, tax
+  TotalSegmentator `roi_subset pancreas` fails on 6 %, 112 of the 118 on the 160 scans (8.1 %) whose slice order contradicts their header, all in one PDAC-rich release batch; see `docs/orientation_investigation.md`; AUROC 0.700, tax
   +0.044; `robust_crop` recovers half; neighbouring organs recover all.
 - **B. Mitigation panel (2.5D):** tuned ERM CV 0.920 / tax +0.056 / external 0.884; GBS, DFR, GRL lower no tax
   significantly and all cost accuracy; MAE raises the tax (+0.027 [+0.013, +0.043]); the planted-shortcut control

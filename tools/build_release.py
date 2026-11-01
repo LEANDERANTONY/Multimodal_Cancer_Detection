@@ -5,7 +5,7 @@ Contents (licence CC BY-NC 4.0, following the PANORAMA data licence):
                      json), as used for every 3D result and the deployment experiment
   panel_erm_2p5d/    the 15 ERM 2.5D soups (3 seeds x 5 CV folds) of the mitigation panel
 plus README.md and SHA256SUMS. Code, per-case scores and result tables are released from the GitHub repository at a
-tagged commit; the list of scans stored head-to-foot is reports/deployment_roi/orientation_check.csv.
+tagged commit; the list of scans stored head-to-foot is reports/deployment_roi/orientation_adjudicated.csv.
 
     python tools/build_release.py [--zip]
 Writes data/release/panorama_confound_audit_weights/ (git-ignored) and, with --zip, one zip per part.

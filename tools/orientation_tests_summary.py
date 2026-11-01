@@ -74,6 +74,13 @@ def totalseg(rows):
         g = r[(r.arm == arm) & (r.status == "ok")]
         print(f"{arm}: the masks not empty: Dice median {g.dice.median():.3f}, n {len(g)}")
         rows.append({"block": "ts_broken_nonempty_dice", "group": arm, "n": len(g), "dice_median": g.dice.median()})
+    for tag, nm in (("totalseg_nb", "neighbouring organs"), ("baseline_oof", "PANORAMA baseline")):
+        q = pd.read_csv(f"reports/deployment_roi/stage1_quality_{tag}_dutch.csv").merge(r[["case", "final"]].drop_duplicates(), how="left", on="case")
+        q = q.drop(columns="final").merge(pd.read_csv(ADJ)[["case", "final"]], on="case")
+        for st in ("inverted", "correct"):
+            v = q[q.final == st].dice_panc.median()
+            print(f"{nm}, {st} as stored: Dice median {v:.3f}")
+            rows.append({"block": "ts_other_segmenters_dice", "group": f"{nm}, {st}", "n": int((q.final == st).sum()), "dice_median": v})
     o = r[(r.final != "inverted") & r.failed_stage1 & r.arm.isin(["other", "fix"])]
     print("failures not inverted, header flipped:\n", o[["case", "final", "batch", "arm", "status"]].to_string(index=False))
 
