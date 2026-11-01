@@ -1,0 +1,22 @@
+block,group,failed,n,pct,lo,hi,or,p,dice_median,dice_min,dice_stored,stored,flipped,change,pct_up,auc,dlo,dhi,tax
+ts_failure,"inverted, as stored",112.0,160.0,70.0,62.26163921496652,76.98063109500153,,,,,,,,,,,,,
+ts_failure,"inverted, header corrected",0.0,157.0,0.0,0.0,2.3222164603325144,,,,,,,,,,,,,
+ts_failure,"correct Windows batch, header inverted",51.0,78.0,65.38461538461539,53.758824129486015,75.80328498583125,,,,,,,,,,,,,
+ts_failure,"correct Unix batch, header inverted",54.0,80.0,67.5,56.10629543955517,77.55404148225468,,,,,,,,,,,,,
+ts_failure_test,"correct Windows batch, header inverted vs correct Unix batch, header inverted",,,,,,0.9094650205761317,0.8664837621973835,,,,,,,,,,,
+ts_failure_test,"inverted, as stored vs correct Windows batch, header inverted",,,,,,1.2352941176470589,0.5523332174989268,,,,,,,,,,,
+ts_failure_test,"inverted, as stored vs correct Unix batch, header inverted",,,,,,1.123456790123457,0.7670829436326669,,,,,,,,,,,
+ts_recovered,,112.0,112.0,,,,,,0.8322499999999999,0.4365,,,,,,,,,
+ts_fixed_dice,,,157.0,,0.7768,0.8829,,,0.8366,,,,,,,,,,
+ts_nonfailures_paired,,,9.0,,,,,0.00390625,0.8184,,0.1547,,,,,,,,
+ts_broken_nonempty_dice,break_win,,27.0,,,,,,0.3897,,,,,,,,,,
+ts_broken_nonempty_dice,break_unix,,26.0,,,,,,0.3879,,,,,,,,,,
+flip_paired,"correct, y=0",,1303.0,,,,,1.0953903460103122e-212,,,,0.023089091,0.2320963566666666,0.1563313799999999,98.7720644666155,,,,
+flip_paired,"correct, y=1",,474.0,,,,,1.6581900209511023e-51,,,,0.8957519616666667,0.9581705733333332,0.035563138333333355,80.80168776371308,,,,
+flip_paired,"inverted, y=0",,62.0,,,,,7.577765262336002e-12,,,,0.6196492450000001,0.17285664916666665,-0.26782862170000005,0.0,,,,
+flip_paired,"inverted, y=1",,98.0,,,,,1.0498469262656566e-15,,,,0.89607747,0.65360514,-0.10709635666666673,12.244897959183673,,,,
+flip_score_vs_inverted,as stored,,,,0.6132011347107938,0.8780297929433447,,,,,,,,,,0.7252426966795955,,,
+flip_score_vs_inverted,inverted upright,,,,0.3514830050291052,0.6535567470034207,,,,,,,,,,0.48362217788041156,,,
+flip_auroc_tax,as stored,,,,0.034829191338101105,0.07044391512794532,,,,,,,,,,0.9283306437152592,0.0,0.0,0.05143196506391856
+flip_auroc_tax,inverted upright,,,,0.03304922881334048,0.06956241847511063,,,,,,,,,,0.9225351571505417,-0.010837912438081753,-0.0012819077027596618,0.04955965711323129
+flip_auroc_tax,all upside down,,,,0.041797858627180585,0.07894870997904001,,,,,,,,,,0.9082942698327314,-0.027108818303805196,-0.013787759600878092,0.059022690280530865
